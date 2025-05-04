@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.13.35825.156 d17.13
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ADGroupCW", "ADGroupCW.csproj", "{3CD003DD-47BC-44B4-9E42-7BC73A71BD66}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{3CD003DD-47BC-44B4-9E42-7BC73A71BD66}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3CD003DD-47BC-44B4-9E42-7BC73A71BD66}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3CD003DD-47BC-44B4-9E42-7BC73A71BD66}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3CD003DD-47BC-44B4-9E42-7BC73A71BD66}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {69B8DE86-A2D5-4438-9E58-6BF9BBC93F1A}
+	EndGlobalSection
+EndGlobal

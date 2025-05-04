@@ -1,0 +1,3 @@
+# Pushtak-Bhandar
+Pushtak-Bhandar is an online book retail system designed to expand a private library store's reach. It offers a comprehensive catalog where users can browse, filter, and purchase books based on various criteria, including author, genre, format, availability, and price. The platform features specialized sections like Bestsellers, Award Winners, New Releases, and Deals. Members can bookmark books, place orders with in-store pickup, and benefit from a tiered discount system. Administrators manage inventory, pricing, and promotions, ensuring a dynamic and user-friendly experience.
+Let me know if you’d like adjustments!
