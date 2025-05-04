@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ADGroupCW")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+1bc048c94ba30fcd0d9f01c1f6c28bdf0c67403c")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+0d5efa2536e0cd6cf27634a9c2e19cb70b2f0bf4")]
 [assembly: System.Reflection.AssemblyProductAttribute("ADGroupCW")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ADGroupCW")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
