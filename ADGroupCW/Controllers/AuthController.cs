@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace ADGroupCW.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/auth")]
     public class AuthController : ControllerBase
     {
         private readonly IAuthService _authService;
@@ -18,29 +18,29 @@ namespace ADGroupCW.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterDto dto)
         {
-            try
-            {
-                var response = await _authService.RegisterAsync(dto);
-                return Ok(response);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
+            var message = await _authService.RegisterAsync(dto);
+            return Ok(new { message });
+        }
+
+        [HttpPost("resend-otp")]
+        public async Task<IActionResult> ResendOtp([FromBody] OtpDto dto)
+        {
+            var result = await _authService.ResendOtpAsync(dto.Email);
+            return Ok(new { message = result });
+        }
+
+        [HttpPost("verify-otp")]
+        public async Task<IActionResult> VerifyOtp([FromBody] OtpDto dto)
+        {
+            var result = await _authService.VerifyOtpAsync(dto);
+            return Ok(new { message = result });
         }
 
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginDto dto)
         {
-            try
-            {
-                var response = await _authService.LoginAsync(dto);
-                return Ok(response);
-            }
-            catch (Exception ex)
-            {
-                return Unauthorized(new { message = ex.Message });
-            }
+            var token = await _authService.LoginAsync(dto);
+            return Ok(token);
         }
     }
 }

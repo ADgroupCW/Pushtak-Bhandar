@@ -51,9 +51,12 @@ builder.Services.AddAuthentication(options =>
 
 // 🧠 Service Registrations
 builder.Services.AddScoped<IBookService, BookService>();
-builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<TokenService>();
+builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddMemoryCache();
+
+
 
 // 🔧 MVC + Swagger
 builder.Services.AddControllers();

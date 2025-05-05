@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ADGroupCW.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250504171116_IdentityTables")]
-    partial class IdentityTables
+    [Migration("20250505085930_InitBookLibrary")]
+    partial class InitBookLibrary
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -25,35 +25,122 @@ namespace ADGroupCW.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("ADGroupCW.Models.Book", b =>
+            modelBuilder.Entity("ADGroupCW.Models.Award", b =>
                 {
-                    b.Property<int>("BookID")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("BookID"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Awards");
+                });
+
+            modelBuilder.Entity("ADGroupCW.Models.Book", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Author")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("Genre")
+                    b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<int>("GenreId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("ISBN")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("ImageUrl")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsAvailableInStore")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsOnSale")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Language")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<decimal?>("OriginalPrice")
+                        .HasColumnType("numeric");
 
                     b.Property<decimal>("Price")
                         .HasColumnType("numeric");
 
-                    b.Property<int>("Stock")
+                    b.Property<DateTime>("PublicationDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("PublisherId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("SaleEndDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("SaleStartDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("StockCount")
                         .HasColumnType("integer");
 
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.HasKey("BookID");
+                    b.HasKey("Id");
+
+                    b.HasIndex("GenreId");
+
+                    b.HasIndex("PublisherId");
 
                     b.ToTable("Books");
+                });
+
+            modelBuilder.Entity("ADGroupCW.Models.BookAward", b =>
+                {
+                    b.Property<int>("BookId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("AwardId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("BookId", "AwardId");
+
+                    b.HasIndex("AwardId");
+
+                    b.ToTable("BookAwards");
+                });
+
+            modelBuilder.Entity("ADGroupCW.Models.BookFormat", b =>
+                {
+                    b.Property<int>("BookId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("FormatId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("BookId", "FormatId");
+
+                    b.HasIndex("FormatId");
+
+                    b.ToTable("BookFormats");
                 });
 
             modelBuilder.Entity("ADGroupCW.Models.Bookmark", b =>
@@ -77,6 +164,40 @@ namespace ADGroupCW.Migrations
                     b.HasIndex("UserID");
 
                     b.ToTable("Bookmarks");
+                });
+
+            modelBuilder.Entity("ADGroupCW.Models.Format", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Formats");
+                });
+
+            modelBuilder.Entity("ADGroupCW.Models.Genre", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Genres");
                 });
 
             modelBuilder.Entity("ADGroupCW.Models.Order", b =>
@@ -130,6 +251,56 @@ namespace ADGroupCW.Migrations
                     b.ToTable("OrderItems");
                 });
 
+            modelBuilder.Entity("ADGroupCW.Models.Publisher", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Publishers");
+                });
+
+            modelBuilder.Entity("ADGroupCW.Models.Review", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("BookId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Comment")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Rating")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BookId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Reviews");
+                });
+
             modelBuilder.Entity("ADGroupCW.Models.User", b =>
                 {
                     b.Property<int>("UserID")
@@ -156,7 +327,7 @@ namespace ADGroupCW.Migrations
 
                     b.HasKey("UserID");
 
-                    b.ToTable("Users");
+                    b.ToTable("User");
                 });
 
             modelBuilder.Entity("ApplicationUser", b =>
@@ -359,10 +530,67 @@ namespace ADGroupCW.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("ADGroupCW.Models.Book", b =>
+                {
+                    b.HasOne("ADGroupCW.Models.Genre", "Genre")
+                        .WithMany("Books")
+                        .HasForeignKey("GenreId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ADGroupCW.Models.Publisher", "Publisher")
+                        .WithMany("Books")
+                        .HasForeignKey("PublisherId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Genre");
+
+                    b.Navigation("Publisher");
+                });
+
+            modelBuilder.Entity("ADGroupCW.Models.BookAward", b =>
+                {
+                    b.HasOne("ADGroupCW.Models.Award", "Award")
+                        .WithMany("BookAwards")
+                        .HasForeignKey("AwardId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ADGroupCW.Models.Book", "Book")
+                        .WithMany("BookAwards")
+                        .HasForeignKey("BookId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Award");
+
+                    b.Navigation("Book");
+                });
+
+            modelBuilder.Entity("ADGroupCW.Models.BookFormat", b =>
+                {
+                    b.HasOne("ADGroupCW.Models.Book", "Book")
+                        .WithMany("BookFormats")
+                        .HasForeignKey("BookId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ADGroupCW.Models.Format", "Format")
+                        .WithMany("BookFormats")
+                        .HasForeignKey("FormatId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Book");
+
+                    b.Navigation("Format");
+                });
+
             modelBuilder.Entity("ADGroupCW.Models.Bookmark", b =>
                 {
                     b.HasOne("ADGroupCW.Models.Book", "Book")
-                        .WithMany("Bookmarks")
+                        .WithMany()
                         .HasForeignKey("BookID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -392,7 +620,7 @@ namespace ADGroupCW.Migrations
             modelBuilder.Entity("ADGroupCW.Models.OrderItem", b =>
                 {
                     b.HasOne("ADGroupCW.Models.Book", "Book")
-                        .WithMany("OrderItems")
+                        .WithMany()
                         .HasForeignKey("BookID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -406,6 +634,25 @@ namespace ADGroupCW.Migrations
                     b.Navigation("Book");
 
                     b.Navigation("Order");
+                });
+
+            modelBuilder.Entity("ADGroupCW.Models.Review", b =>
+                {
+                    b.HasOne("ADGroupCW.Models.Book", "Book")
+                        .WithMany("Reviews")
+                        .HasForeignKey("BookId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Book");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -459,16 +706,38 @@ namespace ADGroupCW.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("ADGroupCW.Models.Award", b =>
+                {
+                    b.Navigation("BookAwards");
+                });
+
             modelBuilder.Entity("ADGroupCW.Models.Book", b =>
                 {
-                    b.Navigation("Bookmarks");
+                    b.Navigation("BookAwards");
 
-                    b.Navigation("OrderItems");
+                    b.Navigation("BookFormats");
+
+                    b.Navigation("Reviews");
+                });
+
+            modelBuilder.Entity("ADGroupCW.Models.Format", b =>
+                {
+                    b.Navigation("BookFormats");
+                });
+
+            modelBuilder.Entity("ADGroupCW.Models.Genre", b =>
+                {
+                    b.Navigation("Books");
                 });
 
             modelBuilder.Entity("ADGroupCW.Models.Order", b =>
                 {
                     b.Navigation("OrderItems");
+                });
+
+            modelBuilder.Entity("ADGroupCW.Models.Publisher", b =>
+                {
+                    b.Navigation("Books");
                 });
 
             modelBuilder.Entity("ADGroupCW.Models.User", b =>
