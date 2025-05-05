@@ -1,0 +1,194 @@
+/* Base styles */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+  
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    line-height: 1.5;
+  }
+  
+  /* Container styles */
+  .staff-portal-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    background-color: #f3f4f6; /* bg-gray-100 */
+  }
+  
+  .staff-login-card {
+    width: 100%;
+    max-width: 28rem; /* max-w-md */
+    padding: 2rem; /* p-8 */
+    margin-bottom: 2rem;
+    background-color: white;
+    border-radius: 0.5rem; /* rounded-lg */
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); /* shadow-md */
+  }
+  
+  /* Header styles */
+  .staff-login-header {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+  
+  .staff-portal-title {
+    font-size: 1.875rem; /* text-3xl */
+    font-weight: 700; /* font-bold */
+    color: #1f2937; /* text-gray-800 */
+  }
+  
+  .staff-portal-subtitle {
+    margin-top: 0.5rem; /* mt-2 */
+    color: #4b5563; /* text-gray-600 */
+  }
+  
+  /* Error message */
+  .staff-login-error {
+    padding: 1rem; /* p-4 */
+    margin-bottom: 1rem; /* mb-4 */
+    font-size: 0.875rem; /* text-sm */
+    color: #b91c1c; /* text-red-700 */
+    background-color: #fee2e2; /* bg-red-100 */
+    border-radius: 0.5rem; /* rounded-lg */
+  }
+  
+  /* Form container */
+  .staff-login-form {
+    margin-top: 2rem; /* mt-8 */
+  }
+  
+  .staff-login-form > * + * {
+    margin-top: 1.5rem; /* space-y-6 */
+  }
+  
+  /* Input fields section */
+  .staff-login-fields {
+    border-radius: 0.375rem; /* rounded-md */
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); /* shadow-sm */
+  }
+  
+  .staff-login-fields > * + * {
+    margin-top: 1rem; /* space-y-4 */
+  }
+  
+  /* Input field containers */
+  .staff-username-field,
+  .staff-password-field {
+    position: relative;
+  }
+  
+  /* Icon containers */
+  .staff-username-icon,
+  .staff-password-icon {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    display: flex;
+    align-items: center;
+    padding-left: 0.75rem; /* pl-3 */
+    pointer-events: none;
+  }
+  
+  /* Icons */
+  .staff-icon {
+    width: 1.25rem; /* w-5 */
+    height: 1.25rem; /* h-5 */
+    color: #9ca3af; /* text-gray-400 */
+  }
+  
+  /* Input fields */
+  .staff-input {
+    width: 100%;
+    padding: 0.5rem 0.75rem 0.5rem 2.5rem; /* py-2 pr-3 pl-10 */
+    border: 1px solid #d1d5db; /* border border-gray-300 */
+    border-radius: 0.375rem; /* rounded-md */
+    outline: none;
+    transition: all 0.2s;
+  }
+  
+  .staff-input:focus {
+    border-color: #3b82f6; /* focus:ring-blue-500 */
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3); /* focus:ring-2 */
+  }
+  
+  /* Login options section */
+  .staff-login-options {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  
+  /* Remember me checkbox area */
+  .staff-remember-me {
+    display: flex;
+    align-items: center;
+  }
+  
+  .staff-checkbox {
+    width: 1rem; /* w-4 */
+    height: 1rem; /* h-4 */
+    color: #2563eb; /* text-blue-600 */
+    border: 1px solid #d1d5db; /* border-gray-300 */
+    border-radius: 0.25rem; /* rounded */
+  }
+  
+  .staff-checkbox:focus {
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3); /* focus:ring-blue-500 */
+  }
+  
+  .staff-remember-label {
+    margin-left: 0.5rem; /* ml-2 */
+    font-size: 0.875rem; /* text-sm */
+    color: #111827; /* text-gray-900 */
+  }
+  
+  /* Forgot password link */
+  .staff-forgot-password {
+    font-size: 0.875rem; /* text-sm */
+  }
+  
+  .staff-forgot-link {
+    font-weight: 500; /* font-medium */
+    color: #2563eb; /* text-blue-600 */
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  
+  .staff-forgot-link:hover {
+    color: #3b82f6; /* hover:text-blue-500 */
+  }
+  
+  /* Submit button section */
+  .staff-submit-container {
+    margin-top: 1.5rem;
+  }
+  
+  .staff-submit-button {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    padding: 0.5rem 1rem; /* py-2 px-4 */
+    font-size: 0.875rem; /* text-sm */
+    font-weight: 500; /* font-medium */
+    color: white;
+    background-color: #2563eb; /* bg-blue-600 */
+    border: 1px solid transparent; /* border border-transparent */
+    border-radius: 0.375rem; /* rounded-md */
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); /* shadow-sm */
+    transition: background-color 0.2s;
+    cursor: pointer;
+  }
+  
+  .staff-submit-button:hover {
+    background-color: #1d4ed8; /* hover:bg-blue-700 */
+  }
+  
+  .staff-submit-button:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.5), 0 0 0 4px rgba(59, 130, 246, 0.5); /* focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 */
+  }
