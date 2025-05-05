@@ -12,6 +12,7 @@ public class BookController : ControllerBase
     public BookController(IBookService bookService)
     {
         _bookService = bookService;
+
     }
 
     [HttpPost]
@@ -138,4 +139,5 @@ public class BookController : ControllerBase
         var books = await _bookService.GetDealsAsync();
         return Ok(books);
     }
+
 }

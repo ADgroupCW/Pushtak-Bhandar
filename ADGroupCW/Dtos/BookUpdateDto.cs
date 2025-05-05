@@ -1,4 +1,6 @@
+
 ﻿namespace ADGroupCW.Dtos
+
 {
     public class BookUpdateDto : BookCreateDto
     {
@@ -6,3 +8,4 @@
     }
 
 }
+

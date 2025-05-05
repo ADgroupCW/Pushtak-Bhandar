@@ -26,5 +26,5 @@
         public List<int>? AwardIds { get; set; }
         public List<int>? FormatIds { get; set; }
     }
-
 }
+

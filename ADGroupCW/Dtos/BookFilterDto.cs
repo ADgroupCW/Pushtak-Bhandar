@@ -1,4 +1,6 @@
+
 ﻿namespace ADGroupCW.Dtos
+
 {
     public class BookFilterDto
     {
@@ -10,4 +12,6 @@
         public decimal? MinPrice { get; set; }
         public decimal? MaxPrice { get; set; }
     }
+
 }
+
