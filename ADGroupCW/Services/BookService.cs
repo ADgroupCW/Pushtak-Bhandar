@@ -15,136 +15,100 @@ namespace ADGroupCW.Services
             _context = context;
         }
 
-        public async Task<Book> CreateBookAsync(Book book)
+        public async Task<Book> CreateBookAsync(BookCreateDto dto, IFormFile? imageFile)
         {
+            var book = new Book
+            {
+                Title = dto.Title,
+                Author = dto.Author,
+                ISBN = dto.ISBN,
+                Description = dto.Description,
+                Language = dto.Language,
+                PublicationDate = dto.PublicationDate,
+                Price = dto.Price,
+                OriginalPrice = dto.OriginalPrice,
+                IsAvailableInStore = dto.IsAvailableInStore,
+                IsOnSale = dto.IsOnSale,
+                SaleStartDate = dto.SaleStartDate,
+                SaleEndDate = dto.SaleEndDate,
+                StockCount = dto.StockCount,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            // ✅ Save image and generate URL
+            if (imageFile != null && imageFile.Length > 0)
+            {
+                var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "books");
+                if (!Directory.Exists(uploadsFolder))
+                    Directory.CreateDirectory(uploadsFolder);
+
+                var uniqueFileName = $"{Guid.NewGuid()}{Path.GetExtension(imageFile.FileName)}";
+                var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await imageFile.CopyToAsync(stream);
+                }
+
+                book.ImageUrl = $"/uploads/books/{uniqueFileName}";
+            }
+
+            // ✅ Validate and set Genre
+            var genre = await _context.Genres.FindAsync(dto.GenreId)
+                        ?? throw new Exception("Genre not found.");
+            book.Genre = genre;
+
+            // ✅ Validate and set Publisher
+            var publisher = await _context.Publishers.FindAsync(dto.PublisherId)
+                           ?? throw new Exception("Publisher not found.");
+            book.Publisher = publisher;
+
+            // ✅ Handle Many-to-Many: Awards
+            if (dto.BookAwardIds != null && dto.BookAwardIds.Any())
+            {
+                book.BookAwards = new List<BookAward>();
+                foreach (var awardId in dto.BookAwardIds)
+                {
+                    var award = await _context.Awards.FindAsync(awardId);
+                    if (award == null) continue;
+
+                    book.BookAwards.Add(new BookAward
+                    {
+                        AwardId = award.Id,
+                        Award = award,
+                        Book = book
+                    });
+                }
+            }
+
+            // ✅ Handle Many-to-Many: Formats
+            if (dto.BookFormatIds != null && dto.BookFormatIds.Any())
+            {
+                book.BookFormats = new List<BookFormat>();
+                foreach (var formatId in dto.BookFormatIds)
+                {
+                    var format = await _context.Formats.FindAsync(formatId);
+                    if (format == null) continue;
+
+                    book.BookFormats.Add(new BookFormat
+                    {
+                        FormatId = format.Id,
+                        Format = format,
+                        Book = book
+                    });
+                }
+            }
+
+            // ✅ Save book
             _context.Books.Add(book);
             await _context.SaveChangesAsync();
+
             return book;
         }
 
-        public async Task<List<Book>> GetAllBooksAsync()
-        {
-            return await _context.Books
-                .Include(b => b.Genre)
-                .Include(b => b.Publisher)
-                .Include(b => b.BookAwards).ThenInclude(ba => ba.Award)
-                .Include(b => b.BookFormats).ThenInclude(bf => bf.Format)
-                .ToListAsync();
-        }
 
-        public async Task<Book?> GetBookByIdAsync(int id)
-        {
-            return await _context.Books
-                .Include(b => b.Genre)
-                .Include(b => b.Publisher)
-                .Include(b => b.BookAwards).ThenInclude(ba => ba.Award)
-                .Include(b => b.BookFormats).ThenInclude(bf => bf.Format)
-                .FirstOrDefaultAsync(b => b.Id == id);
-        }
 
-        public async Task<bool> UpdateBookAsync(Book updatedBook)
-        {
-            var existing = await _context.Books.FindAsync(updatedBook.Id);
-            if (existing == null) return false;
 
-            _context.Entry(existing).CurrentValues.SetValues(updatedBook);
-            await _context.SaveChangesAsync();
-            return true;
-        }
 
-        public async Task<bool> DeleteBookAsync(int id)
-        {
-            var book = await _context.Books.FindAsync(id);
-            if (book == null) return false;
-
-            _context.Books.Remove(book);
-            await _context.SaveChangesAsync();
-            return true;
-        }
-
-        public async Task<List<Book>> FilterByGenreAsync(int genreId)
-        {
-            return await _context.Books
-                .Include(b => b.Genre)
-                .Where(b => b.GenreId == genreId)
-                .ToListAsync();
-        }
-
-        public async Task<List<Book>> GetBestSellersAsync()
-        {
-            return await _context.Books
-                .Include(b => b.Reviews)
-                .OrderByDescending(b => b.Reviews.Count)
-                .Take(10)
-                .ToListAsync();
-        }
-
-        public async Task<List<Book>> GetAwardWinnersAsync()
-        {
-            return await _context.Books
-                .Include(b => b.BookAwards)
-                .Where(b => b.BookAwards.Any())
-                .ToListAsync();
-        }
-
-        public async Task<List<Book>> GetNewReleasesAsync()
-        {
-            var threeMonthsAgo = DateTime.UtcNow.AddMonths(-3);
-            return await _context.Books
-                .Where(b => b.PublicationDate >= threeMonthsAgo)
-                .ToListAsync();
-        }
-
-        public async Task<List<Book>> GetNewArrivalsAsync()
-        {
-            var oneMonthAgo = DateTime.UtcNow.AddMonths(-1);
-            return await _context.Books
-                .Where(b => b.CreatedAt >= oneMonthAgo)
-                .ToListAsync();
-        }
-
-        public async Task<List<Book>> GetComingSoonAsync()
-        {
-            return await _context.Books
-                .Where(b => b.PublicationDate > DateTime.UtcNow)
-                .ToListAsync();
-        }
-
-        public async Task<List<Book>> GetDealsAsync()
-        {
-            var now = DateTime.UtcNow;
-            return await _context.Books
-                .Where(b => b.IsOnSale && b.SaleStartDate <= now && b.SaleEndDate >= now)
-                .ToListAsync();
-        }
-
-        public async Task<List<Book>> FilterBooksAsync(BookFilterDto filter)
-        {
-            var query = _context.Books.AsQueryable();
-
-            if (filter.GenreId.HasValue)
-            {
-                query = query.Where(b => b.GenreId == filter.GenreId.Value);
-            }
-
-            if (!string.IsNullOrEmpty(filter.Language))
-            {
-                query = query.Where(b => b.Language == filter.Language);
-            }
-
-            if (filter.IsOnSale.HasValue)
-            {
-                query = query.Where(b => b.IsOnSale == filter.IsOnSale.Value);
-            }
-
-            // You can add more filter conditions here as needed
-
-            return await query
-                .Include(b => b.Genre)
-                .Include(b => b.Publisher)
-                .Include(b => b.BookAwards).ThenInclude(ba => ba.Award)
-                .Include(b => b.BookFormats).ThenInclude(bf => bf.Format)
-                .ToListAsync();
-        }
     }
 }

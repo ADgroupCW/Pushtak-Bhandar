@@ -5,23 +5,11 @@ namespace ADGroupCW.Services.Interface
 {
     public interface IBookService
     {
-        // ✅ Core CRUD
-        Task<Book> CreateBookAsync(Book book);
-        Task<List<Book>> GetAllBooksAsync();
-        Task<Book?> GetBookByIdAsync(int id);
-        Task<bool> UpdateBookAsync(Book updatedBook);
-        Task<bool> DeleteBookAsync(int id);
-
-        // ✅ Filter
-        Task<List<Book>> FilterBooksAsync(BookFilterDto filter);
-
-        // ✅ Specials
-        Task<List<Book>> FilterByGenreAsync(int genreId);
-        Task<List<Book>> GetBestSellersAsync();
-        Task<List<Book>> GetAwardWinnersAsync();
-        Task<List<Book>> GetNewReleasesAsync();
-        Task<List<Book>> GetNewArrivalsAsync();
-        Task<List<Book>> GetComingSoonAsync();
-        Task<List<Book>> GetDealsAsync();
+        Task<Book> CreateBookAsync(BookCreateDto dto, IFormFile? imageFile);
+        //Task<List<BookResponseDto>> GetAllBooksAsync();
+        //Task<BookResponseDto?> GetBookByIdAsync(int id);
+        //Task<BookResponseDto> UpdateBookAsync(int id, BookUpdateDto dto);
+        //Task<bool> DeleteBookAsync(int id);
+        //Task<List<BookResponseDto>> SearchBooksAsync(BookSearchDto filters);
     }
 }
