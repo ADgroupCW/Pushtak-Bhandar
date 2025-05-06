@@ -13,11 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ADGroupCW")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-<<<<<<< HEAD
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+55d1b7547e5485af2c20a6c927a0363c294d21db")]
-=======
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+92000878d25adc98a3d2789c8430a654bc120409")]
->>>>>>> 727048cd3819b4d163bf6661b045cc125a40e772
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+13fc753e6f0a7d7005c6decfe7ecde27287ca656")]
 [assembly: System.Reflection.AssemblyProductAttribute("ADGroupCW")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ADGroupCW")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
