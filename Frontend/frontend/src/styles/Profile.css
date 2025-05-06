@@ -1,0 +1,209 @@
+/* Profile.css */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Segoe UI', 'Roboto', sans-serif;
+  background-color: #fff8dc; /* cream */
+  min-height: 100vh;
+}
+
+.header {
+  background-color: #ffffff; /* white header */
+  color: black;
+  padding: 1rem 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.header-icon {
+  margin-right: 0.5rem;
+  font-size: 1.5rem;
+  color: black;
+}
+
+.header-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.profile-banner {
+  background-color: #807b6b; /* match home hero banner */
+  color: white;
+  padding: 2rem 0;
+}
+
+.profile-banner-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.profile-avatar {
+  width: 6rem;
+  height: 6rem;
+  background-color: #000000; /* black circle */
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.profile-avatar-icon {
+  font-size: 2.5rem;
+  color: white;
+}
+
+.profile-username {
+  font-size: 1.875rem;
+  font-weight: bold;
+}
+
+.profile-tagline {
+  font-size: 1.125rem;
+}
+
+.main-content {
+  padding: 2rem 1rem;
+}
+
+.card {
+  max-width: 42rem;
+  margin: 0 auto;
+  background-color: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.card-section {
+  padding: 1.5rem;
+}
+
+.card-section:not(:last-child) {
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.section-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #000000; /* black */
+  margin-bottom: 1rem;
+}
+
+.profile-info-item {
+  display: flex;
+  margin-bottom: 1rem;
+}
+
+.profile-info-label {
+  font-weight: 600;
+  color: #000000; /* black */
+  width: 8rem;
+}
+
+.profile-info-value {
+  color: #4b5563; /* gray-700 */
+}
+
+.password-form {
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  background-color: #fffaf0; /* off-white */
+}
+
+.form-title {
+  font-size: 1.125rem;
+  font-weight: bold;
+  color: #000000; /* black */
+  margin-bottom: 1rem;
+}
+
+.message {
+  margin-bottom: 1rem;
+  padding: 0.75rem;
+  border-radius: 0.375rem;
+}
+
+.message-success {
+  background-color: #d1fae5; /* green-100 */
+  color: #065f46; /* green-800 */
+}
+
+.message-error {
+  background-color: #fee2e2; /* red-100 */
+  color: #991b1b; /* red-800 */
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #000000; /* black */
+  margin-bottom: 0.5rem;
+}
+
+.form-input {
+  width: 100%;
+  padding: 0.5rem 1rem;
+  border: 1px solid #000000; /* black */
+  border-radius: 0.375rem;
+  font-size: 1rem;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1rem;
+}
+
+.btn-cancel {
+  background: none;
+  border: none;
+  color: #000000; /* black */
+  cursor: pointer;
+}
+
+.btn-cancel:hover {
+  text-decoration: underline;
+}
+
+.btn-primary {
+  background-color: #000000; /* black */
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  cursor: pointer;
+}
+
+.btn-primary:hover {
+  background-color: #333333; /* dark gray */
+}

@@ -20,7 +20,7 @@ const Navbar = () => {
 
       <div className="nav-icons">
         <Link to="/profile"><FaUser /></Link>
-        <Link to="/login"><FaLock /></Link>
+        <Link to="/cart"><FaLock /></Link>
       </div>
     </nav>
   );
