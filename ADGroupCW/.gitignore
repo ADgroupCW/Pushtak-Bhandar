@@ -1,1 +1,88 @@
-.vs/ 
+## Ignore Visual Studio temporary files, build results, and user-specific files
+
+# Build results
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+
+# User-specific files
+*.user
+*.userosscache
+*.suo
+*.sln.docstates
+*.VC.db
+*.VC.opendb
+
+# Auto-generated files
+Generated\ Files/
+
+# Visual Studio Code
+.vs/
+
+# Rider IDE
+.idea/
+
+# VS for Mac
+.vscode/
+*.pidb
+*.userprefs
+*.sln.ide
+.idea/
+
+# ASP.NET
+*.dbmdl
+*.bak
+*.sql
+
+# Publish and deployment
+.publish/
+*.Publish.xml
+*.pubxml
+*.publishproj
+
+# NuGet
+*.nupkg
+*.snupkg
+packages/
+project.lock.json
+project.fragment.lock.json
+*.nuget.props
+*.nuget.targets
+
+# Microsoft Azure Web App publish settings
+*.azurePubxml
+*.PublishSettings
+
+# Entity Framework
+*.edmx.diagram
+*.edmx.sql
+
+# Others
+TestResults/
+*.cache
+*.tmp
+*.log
+*.vspscc
+*.vssscc
+*.orig
+
+# Windows image file caches
+Thumbs.db
+ehthumbs.db
+
+# macOS
+.DS_Store
+
+# Windows Installer files
+*.msi
+*.cab
+*.msm
+*.msp
+
+# Web files
+wwwroot/
+
+# .NET Core
+project.lock.json
+project.fragment.lock.json
+artifacts/
