@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+
 import AdminSidebar from '../../components/AdminSidebar';
 import AdminNavbar from '../../components/AdminNavbar';
 import '../../styles/BookManagement.css';
+import { Navigate } from 'react-router-dom';
 
 const BookManagement = () => {
   const [books, setBooks] = useState([]);
@@ -10,6 +13,7 @@ const BookManagement = () => {
   const [showForm, setShowForm] = useState(false);
   const [formMode, setFormMode] = useState('add');
   const [selectedBook, setSelectedBook] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchBooks();
@@ -94,7 +98,7 @@ const BookManagement = () => {
               onChange={(e) => setSearchQuery(e.target.value)}
               aria-label="Search books"
             />
-            <button className="btn primary" onClick={() => openForm('add')}>
+            <button className="btn primary" onClick={() => navigate('/admin/addbook')}>
               ➕ Add Book
             </button>
           </div>
