@@ -102,3 +102,4 @@ D:\Islington\Third Year\.Net\Group CW\Code\ADGroupCW\obj\Debug\net8.0\staticweba
 D:\Islington\Third Year\.Net\Group CW\Code\ADGroupCW\obj\Debug\net8.0\ADGroupCW.csproj.Up2Date
 D:\Islington\Third Year\.Net\Group CW\Code\ADGroupCW\obj\Debug\net8.0\ADGroupCW.genruntimeconfig.cache
 D:\Islington\Third Year\.Net\Group CW\Code\ADGroupCW\obj\Debug\net8.0\ref\ADGroupCW.dll
+D:\Islington\Third Year\.Net\Group CW\Code\ADGroupCW\bin\Debug\net8.0\ADGroupCW.staticwebassets.runtime.json

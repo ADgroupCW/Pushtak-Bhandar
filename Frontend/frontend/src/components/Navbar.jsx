@@ -1,9 +1,20 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { FaUser, FaLock } from 'react-icons/fa';
+import { Link, useNavigate } from 'react-router-dom';
+import { FaUser, FaShoppingCart, FaBookmark, FaSignOutAlt } from 'react-icons/fa';
 import '../styles/Navbar.css';
 
 const Navbar = () => {
+  const navigate = useNavigate();
+  const isLoggedIn = !!localStorage.getItem('token');
+  const role = localStorage.getItem('role');
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('role');
+    localStorage.removeItem('isAuthenticated');
+    navigate('/login');
+  };
+
   return (
     <nav className="navbar">
       <div className="nav-logo">
@@ -19,8 +30,19 @@ const Navbar = () => {
       </ul>
 
       <div className="nav-icons">
-        <Link to="/profile"><FaUser /></Link>
-        <Link to="/cart"><FaLock /></Link>
+        {isLoggedIn ? (
+          <>
+            <Link to="/profile" title="Profile"><FaUser /></Link>
+            <Link to="/cart" title="Cart"><FaShoppingCart /></Link>
+            <Link to="/bookmarks" title="Bookmarks"><FaBookmark /></Link>
+            <Link to="/orders" title="Orders">Orders</Link>
+            <button className="logout-btn" title="Logout" onClick={handleLogout}>
+              <FaSignOutAlt />
+            </button>
+          </>
+        ) : (
+          <Link to="/login">Login</Link>
+        )}
       </div>
     </nav>
   );

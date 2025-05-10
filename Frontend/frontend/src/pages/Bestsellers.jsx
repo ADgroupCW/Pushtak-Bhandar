@@ -1,92 +1,89 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/footer';
+import api from '../api/api';
 import '../styles/Bestseller.css';
 
 const BestOfTheBest = () => {
-  // Featured books data with expanded information
-  const featuredBooks = [
-    {
-      id: 1,
-      title: "The Silent Patient",
-      author: "Alex Michaelides",
-      price: 24.99,
-      rating: 4.8,
-      reviews: 12453,
-      image: require('../assets/book1.jpg'),
-      description: "A psychological thriller that delivers a shocking ending. This #1 New York Times bestseller follows a woman's act of violence against her husband and her subsequent silence.",
-      category: "Thriller",
-      awards: ["Goodreads Choice Award for Mystery & Thriller", "Barnes & Noble's Thriller of the Year"]
-    },
-    {
-      id: 2,
-      title: "The Vanishing Half",
-      author: "Brit Bennett",
-      price: 25.99,
-      rating: 4.7,
-      reviews: 9872,
-      image: require('../assets/book2.jpg'),
-      description: "A stunning novel about twin sisters, inseparable as children, who ultimately choose to live in two very different worlds, one black and one white.",
-      category: "Literary Fiction",
-      awards: ["National Book Critics Circle Award Finalist", "New York Times 10 Best Books of 2020"]
-    },
-    {
-      id: 3,
-      title: "Where the Crawdads Sing",
-      author: "Delia Owens",
-      price: 22.99,
-      rating: 4.9,
-      reviews: 18542,
-      image: require('../assets/book3.jpg'),
-      description: "A heartbreaking coming-of-age story and a surprising murder investigation. This #1 New York Times bestseller is at once an exquisite ode to the natural world and a profound coming-of-age story.",
-      category: "Fiction",
-      awards: ["Goodreads Choice Award for Best Historical Fiction", "Edgar Award Nominee"]
-    },
-    {
-      id: 4,
-      title: "The Midnight Library",
-      author: "Matt Haig",
-      price: 19.99,
-      rating: 4.6,
-      reviews: 8743,
-      image: require('../assets/book1.jpg'),
-      description: "Between life and death there is a library with infinite books, each containing a different version of your life. A novel about regret, hope, and second chances.",
-      category: "Fantasy",
-      awards: ["Goodreads Choice Award for Fiction", "Waterstones Book of the Year Nominee"]
-    },
-    {
-      id: 5,
-      title: "The Great Gatsby",
-      author: "F. Scott Fitzgerald",
-      price: 17.99,
-      rating: 4.5,
-      reviews: 24813,
-      image: require('../assets/book2.jpg'),
-      description: "The Great American Novel that captures the essence of the Jazz Age. A tragic love story that has become a literary classic throughout generations.",
-      category: "Classic",
-      awards: ["Modern Library's 100 Best Novels", "TIME Magazine's All-Time 100 Novels"]
-    },
-    {
-      id: 6,
-      title: "To Kill a Mockingbird",
-      author: "Harper Lee",
-      price: 18.50,
-      rating: 4.9,
-      reviews: 32541,
-      image: require('../assets/book3.jpg'),
-      description: "A gripping, heart-wrenching, and uplifting tale of coming-of-age in a South poisoned by virulent prejudice. A timeless classic that has never been out of print.",
-      category: "Classic",
-      awards: ["Pulitzer Prize for Fiction", "Presidential Medal of Freedom"]
-    }
-  ];
-
-  // State for active filter
+  const [books, setBooks] = useState([]);
   const [activeFilter, setActiveFilter] = useState('all');
-  
-  // Filter books based on selected category
-  const filteredBooks = activeFilter === 'all' 
-    ? featuredBooks 
-    : featuredBooks.filter(book => book.category.toLowerCase() === activeFilter);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [sortOption, setSortOption] = useState('');
+  const [userId, setUserId] = useState(null);
+
+  useEffect(() => {
+    fetchBooks();
+    decodeToken();
+  }, []);
+
+  const fetchBooks = async () => {
+    try {
+      const res = await api.get('/book');
+      setBooks(res.data);
+    } catch (err) {
+      console.error('Failed to fetch books:', err);
+    }
+  };
+
+  const decodeToken = () => {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      const id = payload['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'];
+      setUserId(id);
+    } catch (err) {
+      console.error('Invalid token', err);
+    }
+  };
+
+  const handleAddToCart = async (bookId) => {
+    if (!userId) {
+      alert('❌ Please login to add to cart.');
+      return;
+    }
+
+    try {
+      await api.post('/cart', { bookId, quantity: 1 });
+      alert('✅ Added to cart!');
+    } catch (err) {
+      alert('❌ Failed to add to cart.');
+      console.error(err);
+    }
+  };
+
+  const handleBookmark = async (bookId) => {
+    try {
+      await api.post('/bookmark', { bookId });
+      alert('📌 Bookmarked!');
+    } catch (err) {
+      if (err.response?.status === 400) {
+        alert('⚠️ Book is already bookmarked.');
+      } else {
+        alert('❌ Failed to bookmark.');
+      }
+      console.error(err);
+    }
+  };
+
+
+
+  const filteredBooks = books
+    .filter(book =>
+      activeFilter === 'all' || book.category?.toLowerCase() === activeFilter
+    )
+    .filter(book =>
+      book.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      book.author.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+    .sort((a, b) => {
+      if (sortOption === 'title') return a.title.localeCompare(b.title);
+      if (sortOption === 'price-asc') return a.price - b.price;
+      if (sortOption === 'price-desc') return b.price - a.price;
+      if (sortOption === 'rating') return b.rating - a.rating;
+      return 0;
+    });
 
   return (
     <>
@@ -100,46 +97,40 @@ const BestOfTheBest = () => {
         </div>
 
         <div className="filters-section">
-          <button 
-            className={activeFilter === 'all' ? 'active' : ''} 
-            onClick={() => setActiveFilter('all')}
-          >
-            All
-          </button>
-          <button 
-            className={activeFilter === 'fiction' ? 'active' : ''} 
-            onClick={() => setActiveFilter('fiction')}
-          >
-            Fiction
-          </button>
-          <button 
-            className={activeFilter === 'thriller' ? 'active' : ''} 
-            onClick={() => setActiveFilter('thriller')}
-          >
-            Thriller
-          </button>
-          <button 
-            className={activeFilter === 'classic' ? 'active' : ''} 
-            onClick={() => setActiveFilter('classic')}
-          >
-            Classic
-          </button>
-          <button 
-            className={activeFilter === 'fantasy' ? 'active' : ''} 
-            onClick={() => setActiveFilter('fantasy')}
-          >
-            Fantasy
-          </button>
+          <input
+            type="text"
+            placeholder="Search by title or author"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+
+          <select onChange={(e) => setSortOption(e.target.value)} value={sortOption}>
+            <option value="">Sort By</option>
+            <option value="title">Title</option>
+            <option value="price-asc">Price: Low to High</option>
+            <option value="price-desc">Price: High to Low</option>
+            <option value="rating">Rating</option>
+          </select>
+
+          {['all', 'fiction', 'thriller', 'classic', 'fantasy'].map(cat => (
+            <button
+              key={cat}
+              className={activeFilter === cat ? 'active' : ''}
+              onClick={() => setActiveFilter(cat)}
+            >
+              {cat.charAt(0).toUpperCase() + cat.slice(1)}
+            </button>
+          ))}
         </div>
 
         <div className="books-showcase">
           {filteredBooks.map(book => (
             <div className="premium-book-card" key={book.id}>
               <div className="book-image-container">
-                <img src={book.image} alt={book.title} />
-                <div className="book-overlay">
-                  <button className="quick-view-btn">Quick View</button>
-                </div>
+                <img
+                  src={book.imageUrl?.startsWith('http') ? book.imageUrl : `http://localhost:5046${book.imageUrl}`}
+                  alt={book.title}
+                />
               </div>
               <div className="book-details">
                 <h3>{book.title}</h3>
@@ -147,23 +138,30 @@ const BestOfTheBest = () => {
                 <div className="rating">
                   <div className="stars">
                     {[...Array(5)].map((_, i) => (
-                      <span key={i} className={i < Math.floor(book.rating) ? "star filled" : "star"}>★</span>
+                      <span key={i} className={i < Math.round(book.rating || 0) ? "star filled" : "star"}>★</span>
                     ))}
                   </div>
-                  <span className="review-count">({book.reviews.toLocaleString()} reviews)</span>
+                  {book.reviews && (
+                    <span className="review-count">({book.reviews.toLocaleString()} reviews)</span>
+                  )}
                 </div>
                 <p className="description">{book.description}</p>
-                <div className="awards">
-                  <h4>Awards:</h4>
-                  <ul>
-                    {book.awards.map((award, index) => (
-                      <li key={index}>{award}</li>
-                    ))}
-                  </ul>
-                </div>
+
+                {book.awards && book.awards.length > 0 && (
+                  <div className="awards">
+                    <h4>Awards:</h4>
+                    <ul>
+                      {book.awards.map((award, index) => (
+                        <li key={index}>{award}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
                 <div className="book-actions">
                   <span className="price">${book.price.toFixed(2)}</span>
-                  <button className="add-to-cart-btn">Add to Cart</button>
+                  <button onClick={() => handleAddToCart(book.id)} className="add-to-cart-btn">🛒 Add to Cart</button>
+                  <button onClick={() => handleBookmark(book.id)} className="bookmark-btn">📌 Bookmark</button>
                 </div>
               </div>
             </div>

@@ -2,13 +2,13 @@
 {
     public class Order
     {
-        public int OrderID { get; set; }
-        public int UserID { get; set; }
+        public int Id { get; set; }
+        public string UserId { get; set; }
+        public string ClaimCode { get; set; }
+        public DateTime OrderedAt { get; set; } = DateTime.UtcNow;
         public decimal TotalAmount { get; set; }
-        public string Status { get; set; } 
+        public string Status { get; set; } = "Pending"; // or "Cancelled", "Completed"
 
-        // Navigation
-        public User User { get; set; }
-        public ICollection<OrderItem> OrderItems { get; set; }
+        public ICollection<OrderItem> Items { get; set; }
     }
 }

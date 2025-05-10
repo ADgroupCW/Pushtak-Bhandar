@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import '../styles/Profile.css';
 import Navbar from '../components/Navbar';
+import api from '../api/api';
 
 const Profile = () => {
+  const [userData, setUserData] = useState(null);
   const [oldPasswordVerified, setOldPasswordVerified] = useState(false);
   const [passwordForm, setPasswordForm] = useState({
     oldPassword: '',
@@ -25,6 +27,18 @@ const Profile = () => {
     hasSpecialChar: /[@$!%*?&]/,
     minLength: /.{8,}/
   };
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const res = await api.get('/user/profile');
+        setUserData(res.data);
+      } catch (err) {
+        console.error('Failed to load profile:', err);
+      }
+    };
+    fetchProfile();
+  }, []);
 
   const getPasswordValidationStatus = (password) => {
     return {
@@ -55,25 +69,34 @@ const Profile = () => {
     }
   };
 
-  const handlePasswordChange = () => {
+  const handlePasswordChange = async () => {
     const isValid = Object.values(passwordValidation).every(Boolean);
-
     if (!isValid) {
       setMessage('Password does not meet all the criteria.');
       setMessageType('error');
       return;
     }
-
     if (passwordForm.newPassword !== passwordForm.confirmPassword) {
       setMessage('New passwords do not match.');
       setMessageType('error');
       return;
     }
 
-    setMessage('Password changed successfully.');
-    setMessageType('success');
-    setPasswordForm({ oldPassword: '', newPassword: '', confirmPassword: '' });
-    setOldPasswordVerified(false);
+    try {
+      await api.post('/auth/change-password', {
+        currentPassword: passwordForm.oldPassword,
+        newPassword: passwordForm.newPassword,
+      });
+
+      setMessage('✅ Password changed successfully.');
+      setMessageType('success');
+      setPasswordForm({ oldPassword: '', newPassword: '', confirmPassword: '' });
+      setOldPasswordVerified(false);
+    } catch (err) {
+      setMessage('❌ Failed to change password.');
+      setMessageType('error');
+      console.error(err);
+    }
   };
 
   const handleCancel = () => {
@@ -107,7 +130,7 @@ const Profile = () => {
               <div className="profile-avatar">
                 <span className="profile-avatar-icon">👤</span>
               </div>
-              <h2 className="profile-username">bookworm123</h2>
+              <h2 className="profile-username">{userData?.userName || 'Loading...'}</h2>
               <p className="profile-tagline">Book Enthusiast</p>
             </div>
           </div>
@@ -121,11 +144,11 @@ const Profile = () => {
                 <div className="profile-info">
                   <div className="profile-info-item">
                     <span className="profile-info-label">Username:</span>
-                    <span className="profile-info-value">bookworm123</span>
+                    <span className="profile-info-value">{userData?.userName}</span>
                   </div>
                   <div className="profile-info-item">
                     <span className="profile-info-label">Email:</span>
-                    <span className="profile-info-value">reader@bookhaven.com</span>
+                    <span className="profile-info-value">{userData?.email}</span>
                   </div>
                 </div>
               </section>
@@ -176,7 +199,6 @@ const Profile = () => {
                           onChange={handleChange}
                           className="form-input"
                         />
-                        {/* Password criteria feedback */}
                         <ul style={{ marginTop: '0.5rem', marginBottom: '1rem', fontSize: '0.875rem', lineHeight: '1.5' }}>
                           <li style={{ color: passwordValidation.minLength ? 'green' : 'red' }}>
                             • At least 8 characters

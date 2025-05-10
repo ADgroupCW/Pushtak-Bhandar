@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ADGroupCW.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250505085930_InitBookLibrary")]
-    partial class InitBookLibrary
+    [Migration("20250509134024_AddCartItemTable")]
+    partial class AddCartItemTable
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -145,25 +145,55 @@ namespace ADGroupCW.Migrations
 
             modelBuilder.Entity("ADGroupCW.Models.Bookmark", b =>
                 {
-                    b.Property<int>("BookmarkID")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("BookmarkID"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("BookID")
+                    b.Property<int>("BookId")
                         .HasColumnType("integer");
 
-                    b.Property<int>("UserID")
-                        .HasColumnType("integer");
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
 
-                    b.HasKey("BookmarkID");
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("text");
 
-                    b.HasIndex("BookID");
+                    b.HasKey("Id");
 
-                    b.HasIndex("UserID");
+                    b.HasIndex("BookId");
 
                     b.ToTable("Bookmarks");
+                });
+
+            modelBuilder.Entity("ADGroupCW.Models.CartItem", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("AddedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("BookId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BookId");
+
+                    b.ToTable("CartItems");
                 });
 
             modelBuilder.Entity("ADGroupCW.Models.Format", b =>
@@ -202,11 +232,18 @@ namespace ADGroupCW.Migrations
 
             modelBuilder.Entity("ADGroupCW.Models.Order", b =>
                 {
-                    b.Property<int>("OrderID")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("OrderID"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ClaimCode")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("OrderedAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Status")
                         .IsRequired()
@@ -215,40 +252,13 @@ namespace ADGroupCW.Migrations
                     b.Property<decimal>("TotalAmount")
                         .HasColumnType("numeric");
 
-                    b.Property<int>("UserID")
-                        .HasColumnType("integer");
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("text");
 
-                    b.HasKey("OrderID");
-
-                    b.HasIndex("UserID");
+                    b.HasKey("Id");
 
                     b.ToTable("Orders");
-                });
-
-            modelBuilder.Entity("ADGroupCW.Models.OrderItem", b =>
-                {
-                    b.Property<int>("OrderItemID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("OrderItemID"));
-
-                    b.Property<int>("BookID")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("OrderID")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("Quantity")
-                        .HasColumnType("integer");
-
-                    b.HasKey("OrderItemID");
-
-                    b.HasIndex("BookID");
-
-                    b.HasIndex("OrderID");
-
-                    b.ToTable("OrderItems");
                 });
 
             modelBuilder.Entity("ADGroupCW.Models.Publisher", b =>
@@ -299,35 +309,6 @@ namespace ADGroupCW.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Reviews");
-                });
-
-            modelBuilder.Entity("ADGroupCW.Models.User", b =>
-                {
-                    b.Property<int>("UserID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("UserID"));
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("FullName")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Password")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Role")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("UserID");
-
-                    b.ToTable("User");
                 });
 
             modelBuilder.Entity("ApplicationUser", b =>
@@ -530,6 +511,35 @@ namespace ADGroupCW.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("OrderItem", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("BookId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("OrderId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("integer");
+
+                    b.Property<decimal>("UnitPrice")
+                        .HasColumnType("numeric");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BookId");
+
+                    b.HasIndex("OrderId");
+
+                    b.ToTable("OrderItems");
+                });
+
             modelBuilder.Entity("ADGroupCW.Models.Book", b =>
                 {
                     b.HasOne("ADGroupCW.Models.Genre", "Genre")
@@ -591,49 +601,22 @@ namespace ADGroupCW.Migrations
                 {
                     b.HasOne("ADGroupCW.Models.Book", "Book")
                         .WithMany()
-                        .HasForeignKey("BookID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("ADGroupCW.Models.User", "User")
-                        .WithMany("Bookmarks")
-                        .HasForeignKey("UserID")
+                        .HasForeignKey("BookId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Book");
-
-                    b.Navigation("User");
                 });
 
-            modelBuilder.Entity("ADGroupCW.Models.Order", b =>
-                {
-                    b.HasOne("ADGroupCW.Models.User", "User")
-                        .WithMany("Orders")
-                        .HasForeignKey("UserID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("ADGroupCW.Models.OrderItem", b =>
+            modelBuilder.Entity("ADGroupCW.Models.CartItem", b =>
                 {
                     b.HasOne("ADGroupCW.Models.Book", "Book")
                         .WithMany()
-                        .HasForeignKey("BookID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("ADGroupCW.Models.Order", "Order")
-                        .WithMany("OrderItems")
-                        .HasForeignKey("OrderID")
+                        .HasForeignKey("BookId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Book");
-
-                    b.Navigation("Order");
                 });
 
             modelBuilder.Entity("ADGroupCW.Models.Review", b =>
@@ -706,6 +689,25 @@ namespace ADGroupCW.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("OrderItem", b =>
+                {
+                    b.HasOne("ADGroupCW.Models.Book", "Book")
+                        .WithMany()
+                        .HasForeignKey("BookId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ADGroupCW.Models.Order", "Order")
+                        .WithMany("Items")
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Book");
+
+                    b.Navigation("Order");
+                });
+
             modelBuilder.Entity("ADGroupCW.Models.Award", b =>
                 {
                     b.Navigation("BookAwards");
@@ -732,19 +734,12 @@ namespace ADGroupCW.Migrations
 
             modelBuilder.Entity("ADGroupCW.Models.Order", b =>
                 {
-                    b.Navigation("OrderItems");
+                    b.Navigation("Items");
                 });
 
             modelBuilder.Entity("ADGroupCW.Models.Publisher", b =>
                 {
                     b.Navigation("Books");
-                });
-
-            modelBuilder.Entity("ADGroupCW.Models.User", b =>
-                {
-                    b.Navigation("Bookmarks");
-
-                    b.Navigation("Orders");
                 });
 #pragma warning restore 612, 618
         }

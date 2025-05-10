@@ -1,13 +1,12 @@
 ﻿using ADGroupCW.Dtos;
-using ADGroupCW.Services.Interface;
-using Microsoft.AspNetCore.Authorization;
+using ADGroupCW.Services;
+using ADGroupCW.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ADGroupCW.Controllers
 {
-    [Route("api/books")] // 👈 Changed from "api/admin/books" to "api/books"
     [ApiController]
-    [Authorize(Roles = "Admin")] // ✅ Only Admins can add books
+    [Route("api/[controller]")]
     public class BookController : ControllerBase
     {
         private readonly IBookService _bookService;
@@ -17,22 +16,76 @@ namespace ADGroupCW.Controllers
             _bookService = bookService;
         }
 
-        // ✅ POST /api/books/add — Create Book with image and metadata
-        [HttpPost("add")] // 👈 Route becomes: /api/books/add
-        [Consumes("multipart/form-data")]
-        public async Task<IActionResult> CreateBook([FromForm] BookCreateDto dto, IFormFile? imageFile)
+        // ✅ CREATE
+        [HttpPost]
+        public async Task<IActionResult> CreateBook([FromForm] BookCreateDto dto)
         {
-            try
+            if (!ModelState.IsValid)
             {
-                var result = await _bookService.CreateBookAsync(dto, imageFile);
-                return Ok(result);
+                var errors = string.Join("; ", ModelState.Values
+                    .SelectMany(x => x.Errors)
+                    .Select(x => x.ErrorMessage));
+                return BadRequest($"Model binding failed: {errors}");
             }
-            catch (Exception ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
+
+            var result = await _bookService.CreateBookAsync(dto);
+            return Ok(result);
         }
 
-        // 🔜 Future: Add GET/PUT/DELETE here
+
+        // ✅ READ ALL
+        [HttpGet]
+        public async Task<IActionResult> GetAllBooks()
+        {
+            var books = await _bookService.GetAllBooksAsync();
+            return Ok(books);
+        }
+
+        // ✅ READ BY ID
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetBookById(int id)
+        {
+            var book = await _bookService.GetBookByIdAsync(id);
+            if (book == null) return NotFound();
+            return Ok(book);
+        }
+
+        // ✅ UPDATE
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateBook(int id, [FromForm] BookCreateDto dto)
+        {
+            Console.WriteLine($"📥 [Controller] PUT /api/book/{id} called");
+
+            if (!ModelState.IsValid)
+            {
+                var errors = string.Join(" | ", ModelState.Values
+                    .SelectMany(v => v.Errors)
+                    .Select(e => e.ErrorMessage));
+                Console.WriteLine($"❌ ModelState Invalid: {errors}");
+                return BadRequest("Model binding failed: " + errors);
+            }
+
+            var success = await _bookService.UpdateBookAsync(id, dto);
+            if (!success)
+            {
+                Console.WriteLine("⚠️ Book not found or update failed");
+                return NotFound();
+            }
+
+            Console.WriteLine("✅ Book update successful");
+            return Ok();
+        }
+
+
+
+
+        // ✅ DELETE
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteBook(int id)
+        {
+            var deleted = await _bookService.DeleteBookAsync(id);
+            if (!deleted) return NotFound();
+            return NoContent();
+        }
     }
 }

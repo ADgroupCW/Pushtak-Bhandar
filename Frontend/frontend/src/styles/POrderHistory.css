@@ -1,0 +1,83 @@
+.order-page {
+  padding: 2rem;
+  font-family: 'Segoe UI', sans-serif;
+  background-color: #f9f7f3;
+  min-height: 100vh;
+}
+
+.order-container {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.order-container h2 {
+  font-size: 28px;
+  color: #333;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.order-card {
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+}
+
+.order-card h4 {
+  margin-top: 0;
+  color: #222;
+}
+
+.order-card p {
+  margin: 0.3rem 0;
+  color: #444;
+}
+
+.order-items {
+  list-style: none;
+  padding-left: 0;
+  margin-top: 1rem;
+}
+
+.order-item-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid #eee;
+}
+
+.order-item-img {
+  width: 60px;
+  height: 90px;
+  object-fit: cover;
+  border-radius: 4px;
+  box-shadow: 0 0 3px rgba(0, 0, 0, 0.1);
+}
+
+.cancel-btn {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 1rem;
+}
+
+.cancel-btn:hover {
+  background-color: #c82333;
+}
+
+.success-message {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+  padding: 0.75rem 1.25rem;
+  border-radius: 5px;
+  margin-bottom: 1rem;
+}

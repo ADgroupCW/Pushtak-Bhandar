@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import api from '../../api/api';
 import AdminSidebar from '../../components/AdminSidebar';
 import AdminNavbar from '../../components/AdminNavbar';
 import '../../styles/UserManagement.css';
@@ -7,6 +7,7 @@ import '../../styles/UserManagement.css';
 const UserManagement = () => {
   const [users, setUsers] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
+  const roles = ['admin', 'staff', 'member'];
 
   useEffect(() => {
     fetchUsers();
@@ -14,26 +15,37 @@ const UserManagement = () => {
 
   const fetchUsers = async () => {
     try {
-      const res = await axios.get('/api/user');
+      const res = await api.get('/admin/users');
       setUsers(res.data);
     } catch (err) {
-      console.error('Error fetching users:', err);
+      console.error('Failed to load users', err);
     }
   };
 
-  const handleDeactivate = async (userId) => {
-    if (!window.confirm('Are you sure you want to deactivate this user?')) return;
+  const handleRoleChange = async (userId, newRole) => {
     try {
-      await axios.delete(`/api/user/${userId}`);
+      await api.put(`/admin/users/${userId}/change-role`, { newRole });
       fetchUsers();
     } catch (err) {
-      alert('Error deactivating user.');
+      alert('Failed to change role.');
     }
   };
 
-  const filteredUsers = users.filter((u) =>
-    u.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    u.username?.toLowerCase().includes(searchTerm.toLowerCase())
+  const handleEmailToggle = async (userId, currentStatus) => {
+    try {
+      await api.put(`/admin/users/${userId}/confirm-email`, {
+        emailConfirmed: !currentStatus,
+      });
+      fetchUsers();
+    } catch (err) {
+      alert('Failed to update email status.');
+    }
+  };
+
+  const filtered = users.filter(
+    (u) =>
+      u.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      u.userName.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -42,43 +54,52 @@ const UserManagement = () => {
       <div className="admin-main">
         <AdminNavbar />
         <div className="user-management">
-          <h2>👥 Manage Users</h2>
+          <h2>👥 User Management</h2>
 
-          <div className="user-search-bar">
-            <input
-              type="text"
-              placeholder="Search by email or name..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
+          <input
+            type="text"
+            className="user-search"
+            placeholder="Search by email or username"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
 
           <table className="user-table">
             <thead>
               <tr>
-                <th>Member ID</th>
-                <th>Name</th>
+                <th>Membership ID</th>
+                <th>Username</th>
                 <th>Email</th>
-                <th>Active</th>
-                <th>Actions</th>
+                <th>Email Status</th>
+                <th>Role</th>
               </tr>
             </thead>
             <tbody>
-              {filteredUsers.map((user) => (
+              {filtered.map((user) => (
                 <tr key={user.id}>
-                  <td>{user.memberId || `MEM-${user.id}`}</td>
-                  <td>{user.firstName || user.username}</td>
+                  <td>{user.membershipId || `MEM-${user.id}`}</td>
+                  <td>{user.userName}</td>
                   <td>{user.email}</td>
-                  <td>{user.isActive ? '✅' : '❌'}</td>
                   <td>
-                    {user.isActive && (
-                      <button
-                        className="btn danger"
-                        onClick={() => handleDeactivate(user.id)}
-                      >
-                        Deactivate
-                      </button>
-                    )}
+                    <span
+                      className={`status-toggle ${user.emailConfirmed ? 'active' : 'inactive'}`}
+                      onClick={() => handleEmailToggle(user.id, user.emailConfirmed)}
+                    >
+                      {user.emailConfirmed ? 'Verified' : 'Unverified'}
+                    </span>
+                  </td>
+                  <td>
+                    <select
+                      className="role-dropdown"
+                      value={user.role}
+                      onChange={(e) => handleRoleChange(user.id, e.target.value)}
+                    >
+                      {roles.map((role) => (
+                        <option key={role} value={role}>
+                          {role.charAt(0).toUpperCase() + role.slice(1)}
+                        </option>
+                      ))}
+                    </select>
                   </td>
                 </tr>
               ))}

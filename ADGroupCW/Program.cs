@@ -1,8 +1,9 @@
 ﻿using ADGroupCW.Data;
 using ADGroupCW.Models;
 using ADGroupCW.Services;
+using ADGroupCW.Services.Implementations;
 using ADGroupCW.Services.Interface;
-
+using ADGroupCW.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -54,6 +55,14 @@ builder.Services.AddScoped<IBookService, BookService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<TokenService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddScoped<IBookMetaService, BookMetaService>();
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IBookmarkService, BookmarkService>();
+builder.Services.AddScoped<ICartService, CartService>();
+builder.Services.AddScoped<IOrderService, OrderService>();
+builder.Services.AddScoped<IBookService, BookService>();
+
+
 builder.Services.AddMemoryCache();
 
 // 🌐 CORS Setup
@@ -89,6 +98,7 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseCors("AllowFrontend");
+app.UseStaticFiles();
 
 app.MapControllers();
 

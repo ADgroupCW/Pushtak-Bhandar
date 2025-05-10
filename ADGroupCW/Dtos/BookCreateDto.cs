@@ -1,4 +1,7 @@
-﻿public class BookCreateDto
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+
+public class BookCreateDto
 {
     public string Title { get; set; } = string.Empty;
     public string Author { get; set; } = string.Empty;
@@ -13,22 +16,26 @@
     public DateTime? SaleStartDate { get; set; }
     public DateTime? SaleEndDate { get; set; }
     public int StockCount { get; set; }
+
     public IFormFile? ImageFile { get; set; }
 
-
-    // Either GenreId or GenreName
+    // Genre / Publisher
     public int? GenreId { get; set; }
     public string? GenreName { get; set; }
 
-    // Either PublisherId or PublisherName
     public int? PublisherId { get; set; }
     public string? PublisherName { get; set; }
 
-    // Either BookAwardIds or BookAwardNames
+    // ✅ Correctly annotated array fields
+    [FromForm(Name = "bookAwardIds[]")]
     public List<int>? BookAwardIds { get; set; }
+
+    [FromForm]
     public List<string>? BookAwardNames { get; set; }
 
-    // Either BookFormatIds or BookFormatNames
+    [FromForm(Name = "bookFormatIds[]")]
     public List<int>? BookFormatIds { get; set; }
+
+    [FromForm]
     public List<string>? BookFormatNames { get; set; }
 }

@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ADGroupCW.Migrations
 {
     /// <inheritdoc />
-    public partial class InitBookLibrary : Migration
+    public partial class InitBook : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -92,6 +92,23 @@ namespace ADGroupCW.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Orders",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    UserId = table.Column<string>(type: "text", nullable: false),
+                    ClaimCode = table.Column<string>(type: "text", nullable: false),
+                    OrderedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    TotalAmount = table.Column<decimal>(type: "numeric", nullable: false),
+                    Status = table.Column<string>(type: "text", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Orders", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Publishers",
                 columns: table => new
                 {
@@ -102,22 +119,6 @@ namespace ADGroupCW.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Publishers", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "User",
-                columns: table => new
-                {
-                    UserID = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    FullName = table.Column<string>(type: "text", nullable: false),
-                    Email = table.Column<string>(type: "text", nullable: false),
-                    Password = table.Column<string>(type: "text", nullable: false),
-                    Role = table.Column<string>(type: "text", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_User", x => x.UserID);
                 });
 
             migrationBuilder.CreateTable(
@@ -267,27 +268,6 @@ namespace ADGroupCW.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Orders",
-                columns: table => new
-                {
-                    OrderID = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    UserID = table.Column<int>(type: "integer", nullable: false),
-                    TotalAmount = table.Column<decimal>(type: "numeric", nullable: false),
-                    Status = table.Column<string>(type: "text", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Orders", x => x.OrderID);
-                    table.ForeignKey(
-                        name: "FK_Orders_User_UserID",
-                        column: x => x.UserID,
-                        principalTable: "User",
-                        principalColumn: "UserID",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "BookAwards",
                 columns: table => new
                 {
@@ -339,25 +319,48 @@ namespace ADGroupCW.Migrations
                 name: "Bookmarks",
                 columns: table => new
                 {
-                    BookmarkID = table.Column<int>(type: "integer", nullable: false)
+                    Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    UserID = table.Column<int>(type: "integer", nullable: false),
-                    BookID = table.Column<int>(type: "integer", nullable: false)
+                    UserId = table.Column<string>(type: "text", nullable: false),
+                    BookId = table.Column<int>(type: "integer", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Bookmarks", x => x.BookmarkID);
+                    table.PrimaryKey("PK_Bookmarks", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Bookmarks_Books_BookID",
-                        column: x => x.BookID,
+                        name: "FK_Bookmarks_Books_BookId",
+                        column: x => x.BookId,
+                        principalTable: "Books",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "OrderItems",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    OrderId = table.Column<int>(type: "integer", nullable: false),
+                    BookId = table.Column<int>(type: "integer", nullable: false),
+                    Quantity = table.Column<int>(type: "integer", nullable: false),
+                    UnitPrice = table.Column<decimal>(type: "numeric", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_OrderItems", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_OrderItems_Books_BookId",
+                        column: x => x.BookId,
                         principalTable: "Books",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Bookmarks_User_UserID",
-                        column: x => x.UserID,
-                        principalTable: "User",
-                        principalColumn: "UserID",
+                        name: "FK_OrderItems_Orders_OrderId",
+                        column: x => x.OrderId,
+                        principalTable: "Orders",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -387,33 +390,6 @@ namespace ADGroupCW.Migrations
                         column: x => x.BookId,
                         principalTable: "Books",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "OrderItems",
-                columns: table => new
-                {
-                    OrderItemID = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    OrderID = table.Column<int>(type: "integer", nullable: false),
-                    BookID = table.Column<int>(type: "integer", nullable: false),
-                    Quantity = table.Column<int>(type: "integer", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_OrderItems", x => x.OrderItemID);
-                    table.ForeignKey(
-                        name: "FK_OrderItems_Books_BookID",
-                        column: x => x.BookID,
-                        principalTable: "Books",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_OrderItems_Orders_OrderID",
-                        column: x => x.OrderID,
-                        principalTable: "Orders",
-                        principalColumn: "OrderID",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -465,14 +441,9 @@ namespace ADGroupCW.Migrations
                 column: "FormatId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Bookmarks_BookID",
+                name: "IX_Bookmarks_BookId",
                 table: "Bookmarks",
-                column: "BookID");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Bookmarks_UserID",
-                table: "Bookmarks",
-                column: "UserID");
+                column: "BookId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Books_GenreId",
@@ -485,19 +456,14 @@ namespace ADGroupCW.Migrations
                 column: "PublisherId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_OrderItems_BookID",
+                name: "IX_OrderItems_BookId",
                 table: "OrderItems",
-                column: "BookID");
+                column: "BookId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_OrderItems_OrderID",
+                name: "IX_OrderItems_OrderId",
                 table: "OrderItems",
-                column: "OrderID");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Orders_UserID",
-                table: "Orders",
-                column: "UserID");
+                column: "OrderId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Reviews_BookId",
@@ -560,9 +526,6 @@ namespace ADGroupCW.Migrations
 
             migrationBuilder.DropTable(
                 name: "Books");
-
-            migrationBuilder.DropTable(
-                name: "User");
 
             migrationBuilder.DropTable(
                 name: "Genres");

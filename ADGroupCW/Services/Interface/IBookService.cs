@@ -1,15 +1,22 @@
 ﻿using ADGroupCW.Dtos;
-using ADGroupCW.Models;
 
-namespace ADGroupCW.Services.Interface
+namespace ADGroupCW.Services
 {
     public interface IBookService
     {
-        Task<Book> CreateBookAsync(BookCreateDto dto, IFormFile? imageFile);
-        //Task<List<BookResponseDto>> GetAllBooksAsync();
-        //Task<BookResponseDto?> GetBookByIdAsync(int id);
-        //Task<BookResponseDto> UpdateBookAsync(int id, BookUpdateDto dto);
-        //Task<bool> DeleteBookAsync(int id);
-        //Task<List<BookResponseDto>> SearchBooksAsync(BookSearchDto filters);
+        // Create a new book with full metadata support (IDs or Names)
+        Task<BookResponseDto> CreateBookAsync(BookCreateDto dto);
+
+        // Get all books in the system
+        Task<List<BookResponseDto>> GetAllBooksAsync();
+
+        // Get a single book by ID
+        Task<BookResponseDto?> GetBookByIdAsync(int id);
+
+        // Update an existing book (reuse BookCreateDto for simplicity)
+        Task<bool> UpdateBookAsync(int id, BookCreateDto dto);
+
+        // Delete a book by ID
+        Task<bool> DeleteBookAsync(int id);
     }
 }

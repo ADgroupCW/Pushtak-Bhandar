@@ -6,7 +6,7 @@ import Bestsellers from './pages/Bestsellers';
 import Home from './pages/Home';
 import Profile from './pages/Profile';
 import Cart from './pages/Cart'; 
-
+import BookDetails from './pages/BookDetails';
  
 import StaffOrderPortal from './pages/Staff/Orders';
 import StaffDashboard from './pages/Staff/StaffDashboard';
@@ -23,7 +23,9 @@ import ForgotPassword from './pages/ForgotPassword';
 import VerifyResetOtp from './pages/VerifyResetOtp';
 import ResetPassword from './pages/ResetPassword';
 import AddBook from './pages/Admin/AddBook';
-
+import EditBook from './pages/Admin/EditBook';
+import POrderHistory from './pages/OrderHistory';
+import Bookmark from './pages/Bookmark';
 
 function App() {
   return (
@@ -38,10 +40,10 @@ function App() {
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/verify-reset-otp" element={<VerifyResetOtp />} />
         <Route path="/reset-password" element={<ResetPassword />} />
-
+        <Route path="/bookmarks" element={<Bookmark />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/cart" element={<Cart />} /> 
-
+        <Route path="/book/:id" element={<BookDetails />} />
         <Route path="/stafforder" element={<StaffOrderPortal />} />
         <Route path="/staffdashboard" element={<StaffDashboard />} />
         <Route path="/stafflogin" element={<StaffLoginPage />} />
@@ -52,6 +54,10 @@ function App() {
         <Route path="/admin/announcements" element={<AnnouncementManager />} />
         <Route path="/admin/reviews" element={<ReviewModeration />} />
         <Route path="/admin/addbook" element={<AddBook />} />
+        <Route path="/admin/editbook/:id" element={<EditBook />} />
+        <Route path="/orders" element={<POrderHistory />} />
+
+
 
       </Routes>
     </BrowserRouter>

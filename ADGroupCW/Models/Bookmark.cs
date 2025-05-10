@@ -2,13 +2,13 @@
 {
     public class Bookmark
     {
-        public int BookmarkID { get; set; }
+        public int Id { get; set; }
+        public string UserId { get; set; }
+        public int BookId { get; set; }
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-        public int UserID { get; set; }
-        public int BookID { get; set; }
-
-        // Navigation
-        public User User { get; set; }
+        // Navigation (optional)
         public Book Book { get; set; }
     }
+
 }

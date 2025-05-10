@@ -1,0 +1,99 @@
+.book-page {
+  background-color: #fdfdfc;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.book-details-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+  padding: 2rem 5%;
+  background-color: #fffaf0;
+}
+
+.book-image {
+  flex: 1;
+  min-width: 280px;
+  text-align: center;
+}
+
+.book-image img {
+  width: 100%;
+  max-width: 320px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.book-info {
+  flex: 2;
+  min-width: 300px;
+  color: #333;
+}
+
+.book-info h1 {
+  font-size: 2rem;
+  color: #222;
+  margin-bottom: 0.5rem;
+}
+
+.book-info .author {
+  font-size: 1.1rem;
+  color: #555;
+  margin-bottom: 1rem;
+}
+
+.book-info .description {
+  font-size: 1rem;
+  line-height: 1.6;
+  margin-bottom: 1rem;
+  color: #444;
+}
+
+.book-info p {
+  margin: 0.3rem 0;
+}
+
+.book-rating {
+  margin: 1rem 0;
+  font-weight: bold;
+  color: #e67e22;
+}
+
+.awards {
+  margin-top: 1rem;
+}
+
+.awards h4 {
+  margin-bottom: 0.5rem;
+  color: #444;
+}
+
+.awards ul {
+  list-style-type: disc;
+  padding-left: 1.5rem;
+  margin: 0;
+  color: #666;
+}
+
+.book-actions {
+  margin-top: 2rem;
+  display: flex;
+  gap: 1rem;
+}
+
+.book-actions button {
+  background-color: #f4a261;
+  color: white;
+  border: none;
+  padding: 0.6rem 1.4rem;
+  font-size: 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.book-actions button:hover {
+  background-color: #e76f51;
+}
