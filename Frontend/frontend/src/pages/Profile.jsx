@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import '../styles/Profile.css';
 import Navbar from '../components/Navbar';
 import api from '../api/api';
+import Footer from '../components/footer';
 
 const Profile = () => {
   const [userData, setUserData] = useState(null);
@@ -13,6 +14,7 @@ const Profile = () => {
   });
   const [message, setMessage] = useState('');
   const [messageType, setMessageType] = useState('');
+  const [isDarkMode, setIsDarkMode] = useState(false);
 
   const [passwordValidation, setPasswordValidation] = useState({
     hasUppercase: false,
@@ -38,7 +40,22 @@ const Profile = () => {
       }
     };
     fetchProfile();
+
+    // Check for saved theme preference
+    const savedTheme = localStorage.getItem('theme');
+    setIsDarkMode(savedTheme === 'dark');
   }, []);
+
+  useEffect(() => {
+    // Apply theme class to body
+    document.body.className = isDarkMode ? 'dark-theme' : 'light-theme';
+    // Save theme preference
+    localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
+  }, [isDarkMode]);
+
+  const toggleTheme = () => {
+    setIsDarkMode(!isDarkMode);
+  };
 
   const getPasswordValidationStatus = (password) => {
     return {
@@ -114,12 +131,13 @@ const Profile = () => {
   return (
     <div className="profile-page">
       <Navbar />
-      <div>
+      <div className="content-wrapper">
         <header className="header">
           <div className="container">
             <div className="header-content">
               <div className="header-icon">📚</div>
               <h1 className="header-title">Pushtak Bhandar</h1>
+              
             </div>
           </div>
         </header>
@@ -130,15 +148,17 @@ const Profile = () => {
               <div className="profile-avatar">
                 <span className="profile-avatar-icon">👤</span>
               </div>
-              <h2 className="profile-username">{userData?.userName || 'Loading...'}</h2>
-              <p className="profile-tagline">Book Enthusiast</p>
+              <div className="profile-info-header">
+                <h2 className="profile-username">{userData?.userName || 'Loading...'}</h2>
+                <span className="profile-tagline">Book Enthusiast</span>
+              </div>
             </div>
           </div>
         </div>
 
         <main className="main-content">
           <div className="container">
-            <div className="card">
+            <div className="card profile-card">
               <section className="card-section">
                 <h3 className="section-title">My Profile</h3>
                 <div className="profile-info">
@@ -166,19 +186,21 @@ const Profile = () => {
                   )}
 
                   {!oldPasswordVerified ? (
-                    <div>
+                    <div className="password-step">
                       <div className="form-group">
                         <label htmlFor="oldPassword" className="form-label">
                           Current Password
                         </label>
                         <input
-                          type="password"
-                          id="oldPassword"
-                          name="oldPassword"
-                          value={passwordForm.oldPassword}
-                          onChange={handleChange}
-                          className="form-input"
-                        />
+  type="password"
+  id="oldPassword"
+  name="oldPassword"
+  placeholder="Enter current password"
+  value={passwordForm.oldPassword}
+  onChange={handleChange}
+  className="form-input"
+/>
+
                       </div>
                       <div className="form-actions">
                         <button onClick={handleCancel} className="btn-cancel">Cancel</button>
@@ -186,7 +208,7 @@ const Profile = () => {
                       </div>
                     </div>
                   ) : (
-                    <div>
+                    <div className="password-step">
                       <div className="form-group">
                         <label htmlFor="newPassword" className="form-label">
                           New Password
@@ -199,18 +221,18 @@ const Profile = () => {
                           onChange={handleChange}
                           className="form-input"
                         />
-                        <ul style={{ marginTop: '0.5rem', marginBottom: '1rem', fontSize: '0.875rem', lineHeight: '1.5' }}>
-                          <li style={{ color: passwordValidation.minLength ? 'green' : 'red' }}>
-                            • At least 8 characters
+                        <ul className="password-criteria">
+                          <li className={passwordValidation.minLength ? 'valid' : 'invalid'}>
+                            At least 8 characters
                           </li>
-                          <li style={{ color: passwordValidation.hasUppercase ? 'green' : 'red' }}>
-                            • At least one uppercase letter (A–Z)
+                          <li className={passwordValidation.hasUppercase ? 'valid' : 'invalid'}>
+                            At least one uppercase letter (A–Z)
                           </li>
-                          <li style={{ color: passwordValidation.hasNumber ? 'green' : 'red' }}>
-                            • At least one number (0–9)
+                          <li className={passwordValidation.hasNumber ? 'valid' : 'invalid'}>
+                            At least one number (0–9)
                           </li>
-                          <li style={{ color: passwordValidation.hasSpecialChar ? 'green' : 'red' }}>
-                            • At least one special character (@ $ ! % * ? &)
+                          <li className={passwordValidation.hasSpecialChar ? 'valid' : 'invalid'}>
+                            At least one special character (@ $ ! % * ? &)
                           </li>
                         </ul>
                       </div>
@@ -239,6 +261,8 @@ const Profile = () => {
             </div>
           </div>
         </main>
+
+      <Footer />
       </div>
     </div>
   );

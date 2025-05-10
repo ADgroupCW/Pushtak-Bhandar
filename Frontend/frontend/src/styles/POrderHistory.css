@@ -1,83 +1,209 @@
+/* POrderHistory.css */
+/* Black and White Theme */
+
+/* Base styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Roboto', 'Segoe UI', Arial, sans-serif;
+}
+
+body {
+  background-color: #f5f5f5;
+  color: #333;
+}
+
+/* Order page container */
 .order-page {
-  padding: 2rem;
-  font-family: 'Segoe UI', sans-serif;
-  background-color: #f9f7f3;
   min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
 .order-container {
-  max-width: 900px;
+  flex: 1;
+  padding: 40px 20px;
+  max-width: 1000px;
   margin: 0 auto;
+  width: 100%;
 }
 
 .order-container h2 {
   font-size: 28px;
-  color: #333;
-  margin-bottom: 1.5rem;
-  text-align: center;
+  margin-bottom: 30px;
+  color: #000;
+  border-bottom: 2px solid #000;
+  padding-bottom: 10px;
 }
 
+/* Order cards */
 .order-card {
   background-color: #fff;
   border: 1px solid #ddd;
-  border-radius: 10px;
-  padding: 1.5rem;
-  margin-bottom: 2rem;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 25px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease;
+}
+
+.order-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .order-card h4 {
-  margin-top: 0;
-  color: #222;
+  font-size: 16px;
+  color: #000;
+  margin-bottom: 15px;
+  letter-spacing: 0.5px;
 }
 
 .order-card p {
-  margin: 0.3rem 0;
-  color: #444;
+  margin-bottom: 10px;
+  color: #333;
+  line-height: 1.5;
 }
 
+.order-card strong {
+  font-weight: 600;
+  color: #000;
+}
+
+/* Order items list */
 .order-items {
-  list-style: none;
-  padding-left: 0;
-  margin-top: 1rem;
+  list-style-type: none;
+  margin: 15px 0;
+  padding: 15px;
+  border-radius: 6px;
+  background-color: #f9f9f9;
 }
 
 .order-item-info {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  padding: 0.6rem 0;
+  margin-bottom: 12px;
+  padding-bottom: 12px;
   border-bottom: 1px solid #eee;
 }
 
-.order-item-img {
-  width: 60px;
-  height: 90px;
-  object-fit: cover;
-  border-radius: 4px;
-  box-shadow: 0 0 3px rgba(0, 0, 0, 0.1);
+.order-item-info:last-child {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
 }
 
+.order-item-img {
+  width: 70px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 4px;
+  margin-right: 15px;
+  border: 1px solid #ddd;
+  background-color: #fff;
+}
+
+.order-item-info div {
+  flex: 1;
+}
+
+.order-item-info p {
+  margin-bottom: 5px;
+}
+
+/* Cancel button */
 .cancel-btn {
-  background-color: #dc3545;
-  color: white;
+  background-color: #000;
+  color: #fff;
   border: none;
-  padding: 0.5rem 1rem;
-  font-size: 0.9rem;
   border-radius: 5px;
+  padding: 10px 15px;
+  font-size: 14px;
   cursor: pointer;
-  margin-top: 1rem;
+  transition: all 0.2s ease;
+  margin-top: 10px;
 }
 
 .cancel-btn:hover {
-  background-color: #c82333;
+  background-color: #333;
+  transform: scale(1.02);
 }
 
-.success-message {
-  background-color: #d4edda;
-  color: #155724;
-  border: 1px solid #c3e6cb;
-  padding: 0.75rem 1.25rem;
-  border-radius: 5px;
-  margin-bottom: 1rem;
+.cancel-btn:active {
+  transform: scale(0.98);
 }
+
+/* Loading and empty states */
+.order-container p {
+  font-size: 16px;
+  color: #555;
+  text-align: center;
+  margin: 40px 0;
+}
+
+/* Status styling */
+.order-card p strong {
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 0.9em;
+  display: inline-block;
+}
+
+.order-card p strong:contains("Pending") {
+  background-color: #f5f5f5;
+  color: #000;
+  border: 1px solid #000;
+}
+
+.order-card p strong:contains("Delivered") {
+  background-color: #000;
+  color: #fff;
+}
+
+.order-card p strong:contains("Cancelled") {
+  background-color: #444;
+  color: #fff;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .order-container {
+    padding: 20px 15px;
+  }
+  
+  .order-card {
+    padding: 15px;
+  }
+  
+  .order-item-info {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .order-item-img {
+    margin-bottom: 10px;
+    margin-right: 0;
+    width: 60px;
+    height: 90px;
+  }
+  
+  .cancel-btn {
+    width: 100%;
+  }
+}
+
+/* Additional animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.order-card {
+  animation: fadeIn 0.3s ease forwards;
+}
+
+.order-card:nth-child(2) { animation-delay: 0.1s; }
+.order-card:nth-child(3) { animation-delay: 0.2s; }
+.order-card:nth-child(4) { animation-delay: 0.3s; }
+.order-card:nth-child(5) { animation-delay: 0.4s; }

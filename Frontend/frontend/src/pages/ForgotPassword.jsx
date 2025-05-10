@@ -17,7 +17,6 @@ export default function ForgotPassword() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     if (!validateEmail(email)) {
       setError('Please enter a valid email address.');
       return;
@@ -30,7 +29,6 @@ export default function ForgotPassword() {
       const res = await api.post('/Auth/forgot-password', null, {
         params: { email },
       });
-
       setMessage(res.data.message || 'OTP sent to your email.');
       setTimeout(() => {
         navigate('/verify-reset-otp', { state: { email } });
@@ -46,51 +44,44 @@ export default function ForgotPassword() {
   };
 
   return (
-    <div className="forgot-wrapper">
-      <div className="book-decoration-top">
-        <div className="book red" />
-        <div className="book blue" />
-        <div className="book green" />
-        <div className="book yellow" />
-        <div className="book purple" />
-      </div>
-
-      <div className="forgot-container">
-        <BookOpen size={40} className="forgot-icon" />
-        <h2 className="forgot-title">Forgot Password</h2>
-        <p className="forgot-subtitle">
-          Enter your email and we’ll send you an OTP to reset your password.
+    <div className="forgot-password-container">
+      <div className="forgot-password-header">
+        <div className="logo-container">
+          <BookOpen size={32} />
+        </div>
+        <h1 className="title">Forgot Password</h1>
+        <p className="description">
+          Enter your email and we'll send you an OTP to reset your password.
         </p>
-
-        {error && <div className="forgot-error-box">{error}</div>}
-        {message && <div className="forgot-success-box">{message}</div>}
-
-        <form onSubmit={handleSubmit} className="forgot-form">
-          <div className="form-group">
-            <label htmlFor="email">Email Address</label>
-            <div className="input-wrapper">
-              <Mail className="input-icon" />
-              <input
-                type="email"
-                id="email"
-                name="email"
-                placeholder="you@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-            </div>
-          </div>
-
-          <button
-            type="submit"
-            className="forgot-button"
-            disabled={loading}
-          >
-            {loading ? 'Sending...' : 'Send OTP'}
-          </button>
-        </form>
       </div>
+
+      {error && <div className="error-message">{error}</div>}
+      {message && <div className="success-message">{message}</div>}
+
+      <form className="forgot-form" onSubmit={handleSubmit}>
+        <div className="input-group">
+          <label htmlFor="email" className="input-label">
+            Email Address
+          </label>
+          <input
+            id="email"
+            type="email"
+            className="input-field"
+            placeholder="your@email.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+        </div>
+
+        <button 
+          type="submit" 
+          className="submit-button" 
+          disabled={loading}
+        >
+          {loading ? 'Sending...' : 'Send OTP'}
+        </button>
+      </form>
     </div>
   );
 }

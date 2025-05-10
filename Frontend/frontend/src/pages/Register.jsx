@@ -1,8 +1,7 @@
-import React, { useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import { BookOpen, Mail, User, Lock, Eye, EyeOff } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import api from '../api/api'; 
-
+import api from '../api/api';
 
 import '../styles/Register.css';
 
@@ -20,7 +19,6 @@ export default function Register() {
   const [registered, setRegistered] = useState(false);
   const navigate = useNavigate();
 
-
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
@@ -30,8 +28,7 @@ export default function Register() {
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const usernameRegex = /^[a-zA-Z0-9_]{3,20}$/;
-    const passwordRegex =
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d@$!%*?&]{8,}$/;
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d@$!%*?&]{8,}$/;
 
     if (!usernameRegex.test(username)) {
       return 'Username must be 3–20 characters (letters, numbers, or underscore)';
@@ -54,56 +51,39 @@ export default function Register() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     const validationError = validateForm();
     if (validationError) {
       setError(validationError);
-      console.warn("Validation Error:", validationError);
       return;
     }
-  
+
     setError('');
-  
+
     try {
-      console.log("Sending registration data:", {
-        username: form.username,
-        email: form.email,
-        password: form.password,
-      });
-  
       const res = await api.post('/Auth/register', {
         username: form.username,
         email: form.email,
         password: form.password,
       });
-  
-      console.log('Registration successful:', res.data);
-  
+
       setRegistered(true);
-  
     } catch (err) {
-      console.error("Registration failed:", err);
-  
-      // Check if it's a server error with structured message
-      if (err.response?.data) {
-        console.error("Server Response:", err.response.data);
-      }
-  
       const msg =
         err.response?.data?.message ||
-        err.response?.data?.errors?.[0] || // for model state errors
+        err.response?.data?.errors?.[0] ||
         'Registration failed. Please try again.';
-  
+
       setError(msg);
     }
   };
-  
+
   useEffect(() => {
     if (registered) {
       const timer = setTimeout(() => {
         navigate('/verifyotp', { state: { email: form.email } });
-      }, 10000); // 10 seconds
-  
+      }, 10000);
+
       return () => clearTimeout(timer);
     }
   }, [registered, navigate, form.email]);
@@ -214,6 +194,7 @@ export default function Register() {
                   type="button"
                   className="eye-toggle"
                   onClick={() => setShowPassword(!showPassword)}
+                  aria-label={showPassword ? "Hide password" : "Show password"}
                 >
                   {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
@@ -240,15 +221,10 @@ export default function Register() {
                 <button
                   type="button"
                   className="eye-toggle"
-                  onClick={() =>
-                    setShowConfirmPassword(!showConfirmPassword)
-                  }
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  aria-label={showConfirmPassword ? "Hide confirm password" : "Show confirm password"}
                 >
-                  {showConfirmPassword ? (
-                    <EyeOff size={18} />
-                  ) : (
-                    <Eye size={18} />
-                  )}
+                  {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
               </div>
             </div>
@@ -262,9 +238,12 @@ export default function Register() {
           {/* Bottom section */}
           <div className="register-bottom">
             <p>Already have an account?</p>
-            <button className="register-signin-button"
-            onClick={() => navigate('/login')}
-            >Sign In</button>
+            <button 
+              className="register-signin-button"
+              onClick={() => navigate('/login')}
+            >
+              Sign In
+            </button>
           </div>
 
           <p className="register-policy">

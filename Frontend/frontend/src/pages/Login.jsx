@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { Mail, Lock, Eye, EyeOff, BookOpen } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, BookOpen, Loader } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import '../styles/Login.css';
 import api from '../api/api'
 
-export default function Login() {
+
+const Login = () => {
   const [form, setForm] = useState({
     emailOrUsername: '',
     password: '',
@@ -13,56 +14,57 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
+    // Clear error when user starts typing again
+    if (error) setError('');
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
-    // Basic validation
+    
+    // Validation
     if (!form.emailOrUsername.trim() || !form.password) {
       setError('All fields are required');
       return;
     }
-  
+    
     if (form.password.length < 8) {
       setError('Password must be at least 8 characters');
       return;
     }
-  
+    
     setError(''); // Clear previous errors
-  
+    setIsLoading(true);
+    
     try {
       const response = await api.post('/Auth/login', {
         EmailOrUsername: form.emailOrUsername,
         password: form.password,
       });
-    
-      // ⚠️ Case: Email not verified
+      
+      // Case: Email not verified
       if (!response.data.success && response.data.code === 'EMAIL_NOT_VERIFIED') {
-        // Resend OTP
         await api.post('/auth/resend-otp', null, {
           params: { email: response.data.email }
         });
-      
-        // Then redirect to OTP screen
+        
         navigate('/verifyotp', {
           state: { email: response.data.email }
         });
         return;
       }
-    
-      // ✅ Successful login
+      
+      // Successful login
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('role', response.data.role);
       setSuccess(true);
       
       const role = response.data.role?.toLowerCase();
-      console.log('The role is: ', role)
-
+      
       setTimeout(() => {
         if (role === 'admin') {
           navigate('/admin');
@@ -72,6 +74,7 @@ export default function Login() {
           navigate('/');
         }
       }, 1500);
+      
     } catch (err) {
       console.error('Login error:', err);
       const msg =
@@ -79,73 +82,77 @@ export default function Login() {
         err.response?.data?.error ||
         'Login failed. Please check your credentials.';
       setError(msg);
+    } finally {
+      setIsLoading(false);
     }
-    
   };
   
-  
-
   if (success) {
     return (
-      <div className="login-success-wrapper">
-        <div className="login-success-box">
+      <div className="success-container">
+        <div className="success-box">
           <BookOpen size={48} />
-          <h2 className="login-success-title">Login Successful!</h2>
-          <p className="login-success-message">
-            Redirecting you to your dashboard...
-          </p>
+          <h2>Login Successful!</h2>
+          <p>Redirecting you to your dashboard...</p>
+          <div className="progress-bar">
+            <div className="progress-fill"></div>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="login-wrapper">
-      <div className="book-decoration-top">
-        <div className="book red" />
-        <div className="book blue" />
-        <div className="book green" />
-        <div className="book yellow" />
-        <div className="book purple" />
+    <div className="login-page">
+      <div className="decorative-books">
+        <div className="book book-1"></div>
+        <div className="book book-2"></div>
+        <div className="book book-3"></div>
       </div>
-
+      
       <div className="login-container">
         <div className="login-header">
-          <div className="login-logo">
-            <BookOpen size={40} />
+          <div className="logo">
+            <BookOpen size={32} />
+            <h1>Pushtak Bhandar</h1>
           </div>
-          <h2 className="login-title">Welcome Back</h2>
-          <p className="login-subtitle">Login to your Pushtak Bhandar account</p>
+          <p className="tagline">Your digital library companion</p>
         </div>
-
-        <div className="login-body">
-          <h3 className="login-heading">Sign In</h3>
-
-          {error && <div className="login-error-box">{error}</div>}
-
-          <form onSubmit={handleSubmit} className="login-form">
-            {/* Email or Username */}
-            <div className="form-group">
-              <label htmlFor="emailOrUsername">Email or Username</label>
-              <div className="input-wrapper">
-                <Mail className="input-icon" />
-                <input
-                  type="text"
-                  id="emailOrUsername"
-                  name="emailOrUsername"
-                  placeholder="you@example.com or yourusername"
-                  value={form.emailOrUsername}
-                  onChange={handleChange}
-                  required
-                />
-              </div>
+        
+        <div className="login-form-container">
+          <h2>Welcome Back</h2>
+          
+          {error && (
+            <div className="error-message">
+              {error}
             </div>
-
-            {/* Password */}
+          )}
+          
+          <form onSubmit={handleSubmit}>
             <div className="form-group">
-              <label htmlFor="password">Password</label>
-              <div className="input-wrapper">
-                <Lock className="input-icon" />
+              <label htmlFor="emailOrUsername">
+                <Mail size={18} />
+                <span>Email or Username</span>
+              </label>
+              <input
+                type="text"
+                id="emailOrUsername"
+                name="emailOrUsername"
+                placeholder="you@example.com or username"
+                value={form.emailOrUsername}
+                onChange={handleChange}
+                required
+                autoComplete="username"
+                className={error && !form.emailOrUsername ? "error" : ""}
+              />
+            </div>
+            
+            <div className="form-group">
+              <label htmlFor="password">
+                <Lock size={18} />
+                <span>Password</span>
+              </label>
+              <div className="password-input">
                 <input
                   type={showPassword ? 'text' : 'password'}
                   id="password"
@@ -154,55 +161,77 @@ export default function Login() {
                   value={form.password}
                   onChange={handleChange}
                   required
+                  autoComplete="current-password"
+                  className={error && form.password.length < 8 ? "error" : ""}
                 />
                 <button
                   type="button"
-                  className="eye-toggle"
+                  className="toggle-password"
                   onClick={() => setShowPassword(!showPassword)}
+                  aria-label={showPassword ? "Hide password" : "Show password"}
                 >
                   {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
               </div>
-              <p className="form-note">
-                Minimum 8 characters required
-                <br />
-                <span
-                  className="login-forgot-password"
-                  onClick={() => navigate('/forgot-password')}
-                >
-                  Forgot Password?
-                </span>
-              </p>
+              <small>Minimum 8 characters required</small>
             </div>
-
-            <button type="submit" className="login-button">
-              Login
+            
+            <div className="form-actions">
+              <div className="remember-me">
+                <input type="checkbox" id="remember" />
+                <label htmlFor="remember">Remember me</label>
+              </div>
+              <button
+                type="button"
+                className="forgot-password"
+                onClick={() => navigate('/forgot-password')}
+              >
+                Forgot Password?
+              </button>
+            </div>
+            
+            <button 
+              type="submit" 
+              className="login-button"
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <>
+                  <Loader size={18} className="spinner" />
+                  Signing in...
+                </>
+              ) : (
+                "Sign In"
+              )}
             </button>
           </form>
-
-          <div className="login-bottom">
-            <p>Don't have an account?</p>
-            <button className="login-register-button"
-            onClick={() => navigate('/register')}
-            >Register</button>
+          
+          <div className="separator">
+            <span>OR</span>
           </div>
-
-          <p className="login-policy">
+          
+          <div className="register-prompt">
+            <p>Don't have an account?</p>
+            <button 
+              className="register-button"
+              onClick={() => navigate('/register')}
+            >
+              Create Account
+            </button>
+          </div>
+        </div>
+        
+        <div className="login-footer">
+          <p className="quote">"Reading is essential for those who seek to rise above the ordinary."</p>
+          <p className="terms">
             By logging in, you agree to Pushtak Bhandar's{' '}
-            <a href="#">Terms of Service</a> and{' '}
-            <a href="#">Privacy Policy</a>.
+            <a href="/terms">Terms of Service</a> and{' '}
+            <a href="/privacy">Privacy Policy</a>.
           </p>
         </div>
       </div>
-
-      <div className="login-footer-decor">
-        <div className="line" />
-        <BookOpen size={24} className="footer-icon" />
-        <div className="line" />
-      </div>
-      <p className="login-quote">
-        "Reading is essential for those who seek to rise above the ordinary."
-      </p>
     </div>
   );
-}
+};
+
+export default Login;

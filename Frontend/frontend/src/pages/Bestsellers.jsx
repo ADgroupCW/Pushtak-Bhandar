@@ -10,6 +10,7 @@ const BestOfTheBest = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [sortOption, setSortOption] = useState('');
   const [userId, setUserId] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     fetchBooks();
@@ -17,11 +18,14 @@ const BestOfTheBest = () => {
   }, []);
 
   const fetchBooks = async () => {
+    setIsLoading(true);
     try {
       const res = await api.get('/book');
       setBooks(res.data);
     } catch (err) {
       console.error('Failed to fetch books:', err);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -38,7 +42,7 @@ const BestOfTheBest = () => {
     }
   };
 
-  const handleAddToCart = async (bookId) => {
+  const handleAddToCart = async (bookId, title) => {
     if (!userId) {
       alert('❌ Please login to add to cart.');
       return;
@@ -46,17 +50,22 @@ const BestOfTheBest = () => {
 
     try {
       await api.post('/cart', { bookId, quantity: 1 });
-      alert('✅ Added to cart!');
+      alert(`✅ Added "${title}" to cart!`);
     } catch (err) {
       alert('❌ Failed to add to cart.');
       console.error(err);
     }
   };
 
-  const handleBookmark = async (bookId) => {
+  const handleBookmark = async (bookId, title) => {
+    if (!userId) {
+      alert('❌ Please login to bookmark.');
+      return;
+    }
+    
     try {
       await api.post('/bookmark', { bookId });
-      alert('📌 Bookmarked!');
+      alert(`📌 Bookmarked "${title}"!`);
     } catch (err) {
       if (err.response?.status === 400) {
         alert('⚠️ Book is already bookmarked.');
@@ -66,8 +75,6 @@ const BestOfTheBest = () => {
       console.error(err);
     }
   };
-
-
 
   const filteredBooks = books
     .filter(book =>
@@ -85,99 +92,151 @@ const BestOfTheBest = () => {
       return 0;
     });
 
+  // Reusable star rating component
+  const StarRating = ({ rating }) => {
+    return (
+      <div className="stars">
+        {[...Array(5)].map((_, i) => (
+          <span key={i} className={i < Math.round(rating || 0) ? "star filled" : "star"}>★</span>
+        ))}
+      </div>
+    );
+  };
+
+  // Book card component
+  const BookCard = ({ book }) => {
+    return (
+      <div className="premium-book-card" key={book.id}>
+        <div className="book-image-container">
+          <div className="ribbon">{book.rating >= 4.5 ? "Top Rated" : ""}</div>
+          <img
+            src={book.imageUrl?.startsWith('http') ? book.imageUrl : `http://localhost:5046${book.imageUrl}`}
+            alt={book.title}
+            loading="lazy"
+          />
+        </div>
+        <div className="book-details">
+          <h3>{book.title}</h3>
+          <p className="author">by {book.author}</p>
+          <div className="rating">
+            <StarRating rating={book.rating} />
+            {book.reviews && (
+              <span className="review-count">({book.reviews.toLocaleString()} reviews)</span>
+            )}
+          </div>
+          <p className="description">{book.description}</p>
+
+          {book.awards && book.awards.length > 0 && (
+            <div className="awards">
+              <h4>Awards:</h4>
+              <ul>
+                {book.awards.map((award, index) => (
+                  <li key={index}>{award}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          <div className="book-actions">
+            <span className="price">${book.price.toFixed(2)}</span>
+            <div className="action-buttons">
+              <button
+  onClick={() => handleAddToCart(book.id, book.title)}
+  className="add-to-cart-btn"
+  aria-label={`Add ${book.title} to cart`}
+  style={{ backgroundColor: 'black', color: 'white' }}
+>
+  <span className="icon"></span>
+  <span className="btn-text">Add to Cart</span>
+</button>
+
+<button
+  onClick={() => handleBookmark(book.id, book.title)}
+  className="bookmark-btn"
+  aria-label={`Bookmark ${book.title}`}
+  style={{ backgroundColor: 'black', color: 'white' }}
+>
+  <span className="icon"></span>
+  <span className="btn-text">Bookmark</span>
+</button>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <>
       <Navbar />
       <div className="best-of-best-container">
-        <div className="hero-section">
+        <section className="hero-section">
           <div className="hero-content">
             <h1>Best of the Best</h1>
             <p>Discover our most acclaimed and celebrated literary masterpieces</p>
           </div>
-        </div>
+        </section>
 
-        <div className="filters-section">
-          <input
-            type="text"
-            placeholder="Search by title or author"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
+        <section className="filters-section">
+          <div className="search-bar">
+            <input
+              type="text"
+              placeholder="Search by title or author"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
 
-          <select onChange={(e) => setSortOption(e.target.value)} value={sortOption}>
-            <option value="">Sort By</option>
-            <option value="title">Title</option>
-            <option value="price-asc">Price: Low to High</option>
-            <option value="price-desc">Price: High to Low</option>
-            <option value="rating">Rating</option>
-          </select>
+          <div className="sort-options">
+            <select onChange={(e) => setSortOption(e.target.value)} value={sortOption}>
+              <option value="">Sort By</option>
+              <option value="title">Title</option>
+              <option value="price-asc">Price: Low to High</option>
+              <option value="price-desc">Price: High to Low</option>
+              <option value="rating">Rating</option>
+            </select>
+          </div>
 
-          {['all', 'fiction', 'thriller', 'classic', 'fantasy'].map(cat => (
-            <button
-              key={cat}
-              className={activeFilter === cat ? 'active' : ''}
-              onClick={() => setActiveFilter(cat)}
-            >
-              {cat.charAt(0).toUpperCase() + cat.slice(1)}
-            </button>
-          ))}
-        </div>
+          <div className="category-filters">
+            {['all', 'fiction', 'thriller', 'classic', 'fantasy'].map(cat => (
+              <button
+                key={cat}
+                className={activeFilter === cat ? 'active' : ''}
+                onClick={() => setActiveFilter(cat)}
+              >
+                {cat.charAt(0).toUpperCase() + cat.slice(1)}
+              </button>
+            ))}
+          </div>
+        </section>
 
-        <div className="books-showcase">
-          {filteredBooks.map(book => (
-            <div className="premium-book-card" key={book.id}>
-              <div className="book-image-container">
-                <img
-                  src={book.imageUrl?.startsWith('http') ? book.imageUrl : `http://localhost:5046${book.imageUrl}`}
-                  alt={book.title}
-                />
-              </div>
-              <div className="book-details">
-                <h3>{book.title}</h3>
-                <p className="author">by {book.author}</p>
-                <div className="rating">
-                  <div className="stars">
-                    {[...Array(5)].map((_, i) => (
-                      <span key={i} className={i < Math.round(book.rating || 0) ? "star filled" : "star"}>★</span>
-                    ))}
-                  </div>
-                  {book.reviews && (
-                    <span className="review-count">({book.reviews.toLocaleString()} reviews)</span>
-                  )}
-                </div>
-                <p className="description">{book.description}</p>
-
-                {book.awards && book.awards.length > 0 && (
-                  <div className="awards">
-                    <h4>Awards:</h4>
-                    <ul>
-                      {book.awards.map((award, index) => (
-                        <li key={index}>{award}</li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-
-                <div className="book-actions">
-                  <span className="price">${book.price.toFixed(2)}</span>
-                  <button onClick={() => handleAddToCart(book.id)} className="add-to-cart-btn">🛒 Add to Cart</button>
-                  <button onClick={() => handleBookmark(book.id)} className="bookmark-btn">📌 Bookmark</button>
-                </div>
-              </div>
+        <section className="books-showcase">
+          {isLoading ? (
+            <div className="loading-container">
+              <div className="loader"></div>
+              <p>Loading amazing books for you...</p>
             </div>
-          ))}
-        </div>
+          ) : filteredBooks.length > 0 ? (
+            filteredBooks.map(book => <BookCard key={book.id} book={book} />)
+          ) : (
+            <div className="no-results">
+              <h3>No books found</h3>
+              <p>Try adjusting your search or filters</p>
+            </div>
+          )}
+        </section>
 
-        <div className="subscription-banner">
+        <section className="subscription-banner">
           <div className="banner-content">
             <h2>Join Our Premium Readers Club</h2>
             <p>Get early access to our most celebrated titles and exclusive author interviews.</p>
             <form className="subscribe-form">
-              <input type="email" placeholder="Your email address" />
+              <input type="email" placeholder="Your email address" required />
               <button type="submit">Subscribe</button>
             </form>
           </div>
-        </div>
+        </section>
       </div>
       <Footer />
     </>

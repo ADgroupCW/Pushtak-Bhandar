@@ -85,76 +85,136 @@ const Cart = () => {
     return sum + (item.unitPrice * item.quantity);
   }, 0);
 
-  if (loading) return <div className="cart-page"><Navbar /><p>Loading cart...</p></div>;
+  if (loading) return (
+    <div className="cart-page">
+      <Navbar />
+      <div className="loader-container">
+        <div className="loader"></div>
+        <p>Loading your cart...</p>
+      </div>
+    </div>
+  );
 
   return (
     <div className="cart-page">
       <Navbar />
-      <div className="cart-wrapper">
-        <h2 className="cart-title">🛒 My Cart</h2>
+      <div className="cart-container">
+        <header className="cart-header">
+          <h1>Shopping Cart</h1>
+          <span className="cart-count">{cartItems.length} {cartItems.length === 1 ? 'item' : 'items'}</span>
+        </header>
 
         {orderSuccess && (
           <div className="success-message">
-            ✅ Order placed! Please check your email for your claim code.
+            <span className="success-icon">✓</span>
+            <p>Order successfully placed! Please check your email for your claim code.</p>
           </div>
         )}
 
         <div className="cart-content">
-          {/* Item List */}
-          <div className="cart-items">
+          {/* Cart Items */}
+          <section className="cart-items-section">
             {cartItems.length === 0 ? (
-              <p>Your cart is empty.</p>
+              <div className="empty-cart">
+                <span className="empty-cart-icon">🛒</span>
+                <h3>Your cart is empty</h3>
+                <p>Looks like you haven't added any books to your cart yet.</p>
+              </div>
             ) : (
-              cartItems.map(item => (
-                <div className="cart-item-card" key={item.id}>
-                  {item.book ? (
-                    <img
-                      src={item.book.imageUrl?.startsWith('http')
-                        ? item.book.imageUrl
-                        : `http://localhost:5046${item.book.imageUrl}`}
-                      alt={item.book.title}
-                      className="item-image"
-                    />
-                  ) : (
-                    <div className="item-placeholder">No Image</div>
-                  )}
-
-                  <div className="item-details">
-                    <h4>{item.book?.title || 'Unknown Book'}</h4>
-                    <p>Author: {item.book?.author || 'N/A'}</p>
-                    <p>Price: ${item.unitPrice?.toFixed(2) || '0.00'}</p>
-                    <div className="item-actions">
-                      <label>Qty:</label>
+              <>
+                <div className="cart-header-row">
+                  <span className="header-product">Product</span>
+                  <span className="header-price">Price</span>
+                  <span className="header-quantity">Quantity</span>
+                  <span className="header-total">Total</span>
+                  <span className="header-actions"></span>
+                </div>
+                
+                {cartItems.map(item => (
+                  <div className="cart-item" key={item.id}>
+                    <div className="item-product">
+                      {item.book ? (
+                        <img
+                          src={item.book.imageUrl?.startsWith('http')
+                            ? item.book.imageUrl
+                            : `http://localhost:5046${item.book.imageUrl}`}
+                          alt={item.book.title}
+                          className="item-image"
+                        />
+                      ) : (
+                        <div className="item-image-placeholder">No Image</div>
+                      )}
+                      <div className="item-info">
+                        <h3>{item.book?.title || 'Unknown Book'}</h3>
+                        <p className="item-author">By {item.book?.author || 'Unknown Author'}</p>
+                      </div>
+                    </div>
+                    
+                    <div className="item-price">${item.unitPrice?.toFixed(2) || '0.00'}</div>
+                    
+                    <div className="item-quantity">
                       <select
                         value={item.quantity}
                         onChange={(e) => updateQuantity(item.id, parseInt(e.target.value))}
+                        aria-label="Quantity"
                       >
                         {[1, 2, 3, 4, 5].map(q => (
                           <option key={q} value={q}>{q}</option>
                         ))}
                       </select>
-                      <button className="item-remove" onClick={() => removeItem(item.id)}>❌</button>
+                    </div>
+                    
+                    <div className="item-total">
+                      ${(item.unitPrice * item.quantity).toFixed(2)}
+                    </div>
+                    
+                    <div className="item-actions">
+                      <button 
+                        className="remove-button" 
+                        onClick={() => removeItem(item.id)}
+                        aria-label="Remove item"
+                      >
+                        ✕
+                      </button>
                     </div>
                   </div>
-                </div>
-              ))
+                ))}
+              </>
             )}
-          </div>
+          </section>
 
-          {/* Summary */}
-          <div className="cart-summary">
-            <div className="summary-box">
-              <p>Total Items: <span>{cartItems.length}</span></p>
-              <p>Estimated Total: <span>${total.toFixed(2)}</span></p>
-              <hr />
-              <button className="checkout-btn" onClick={handleCheckout} disabled={cartItems.length === 0}>
-                ✅ Checkout
+          {/* Cart Summary */}
+          <section className="cart-summary">
+            <h2>Order Summary</h2>
+            <div className="summary-row">
+              <span>Subtotal</span>
+              <span>${total.toFixed(2)}</span>
+            </div>
+            <div className="summary-row">
+              <span>Shipping</span>
+              <span>Free</span>
+            </div>
+            <div className="summary-row total">
+              <span>Total</span>
+              <span>${total.toFixed(2)}</span>
+            </div>
+            <div className="summary-actions">
+              <button 
+                className="checkout-button" 
+                onClick={handleCheckout} 
+                disabled={cartItems.length === 0}
+              >
+                Proceed to Checkout
               </button>
-              <button className="clear-btn" onClick={clearCart} disabled={cartItems.length === 0}>
-                🧹 Clear Cart
+              <button 
+                className="clear-button" 
+                onClick={clearCart} 
+                disabled={cartItems.length === 0}
+              >
+                Clear Cart
               </button>
             </div>
-          </div>
+          </section>
         </div>
       </div>
       <Footer />

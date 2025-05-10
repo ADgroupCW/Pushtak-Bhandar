@@ -93,7 +93,7 @@ const AnnouncementManager = () => {
                   <td>{a.message}</td>
                   <td>{a.startDate?.split('T')[0]}</td>
                   <td>{a.endDate?.split('T')[0]}</td>
-                  <td>{a.isActive ? '✅' : '❌'}</td>
+                  <td>{a.isActive ? '' : ''}</td>
                   <td>
                     <button onClick={() => openForm('edit', a)}>✏️</button>
                     <button className="btn danger" onClick={() => handleDelete(a.id)}>🗑️</button>
@@ -118,8 +118,8 @@ const AnnouncementManager = () => {
                   Show Publicly
                 </label>
                 <div className="form-buttons">
-                  <button type="submit" className="btn primary">✅ Save</button>
-                  <button type="button" onClick={() => setShowForm(false)}>❌ Cancel</button>
+                  <button type="submit" className="btn primary"> Save</button>
+                  <button type="button" onClick={() => setShowForm(false)}> Cancel</button>
                 </div>
               </form>
             </div>

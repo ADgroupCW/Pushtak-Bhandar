@@ -1,10 +1,10 @@
 .navbar {
-  background-color: #fff8f0;
+  background-color: #e9e8e8;
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 1rem 2rem;
-  border-bottom: 1px solid #ddd;
+  border-bottom: 1px solid #ffffff;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
   position: sticky;
   top: 0;
@@ -13,7 +13,7 @@
 
 .nav-logo h2 {
   font-family: 'Georgia', serif;
-  color: #b85c38;
+  color: #000000;
   font-size: 24px;
   margin: 0;
 }
@@ -28,13 +28,13 @@
 
 .nav-links li a {
   text-decoration: none;
-  color: #444;
+  color: #000000;
   font-weight: 500;
   transition: color 0.3s ease;
 }
 
 .nav-links li a:hover {
-  color: #b85c38;
+  color: #af9999;
 }
 
 .nav-icons {
@@ -45,7 +45,7 @@
 
 .nav-icons a {
   text-decoration: none;
-  color: #444;
+  color: #060606;
   font-size: 1.1rem;
   display: flex;
   align-items: center;
@@ -68,6 +68,13 @@
 
 .logout-btn:hover {
   color: #a71d2a;
+}
+.home-link {
+  text-decoration: none;
+  color: black;
+}
+.home-link:hover {
+  opacity: 0.8;
 }
 
 /* Responsive */

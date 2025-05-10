@@ -207,7 +207,7 @@ const BookManagement = () => {
                   </td>
                   <td>{book.language}</td>
                   <td>{book.stockCount}</td>
-                  <td>{book.isOnSale ? '🔥' : '-'}</td>
+                  <td>{book.isOnSale ? 'Sale' : '-'}</td>
                   <td>
                     <button className="btn" onClick={() => navigate(`/admin/editbook/${book.id}`)}>✏️</button>
                     <button className="btn danger" onClick={() => handleDelete(book.id)}>🗑️</button>
