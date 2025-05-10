@@ -28,6 +28,8 @@ Generated\ Files/
 *.userprefs
 *.sln.ide
 .idea/
+/bin/
+/obj/
 
 # ASP.NET
 *.dbmdl
