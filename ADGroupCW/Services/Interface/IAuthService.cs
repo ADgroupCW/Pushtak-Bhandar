@@ -23,5 +23,8 @@ namespace ADGroupCW.Services.Interface
 
         // Logout
         Task<string> LogoutAsync();
+
+
+        Task<bool> VerifyCurrentPasswordAsync(ApplicationUser user, string password);
     }
 }

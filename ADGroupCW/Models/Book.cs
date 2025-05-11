@@ -6,7 +6,8 @@ namespace ADGroupCW.Models
 {
     public class Book
     {
-        internal DateTime CreatedAt;
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
 
         public int Id { get; set; }
 
@@ -40,6 +41,11 @@ namespace ADGroupCW.Models
         public int StockCount { get; set; }
 
         public string ImageUrl { get; set; } = string.Empty;
+
+        public int SoldCount { get; set; } = 0;
+
+
+
 
         // Relationships
         public int GenreId { get; set; }

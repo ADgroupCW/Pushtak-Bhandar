@@ -7,6 +7,8 @@ using ADGroupCW.Dtos;
 using ADGroupCW.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Hosting;
+using ADGroupCW.Services.Interface;
+using System.Net;
 
 namespace ADGroupCW.Services
 {
@@ -14,11 +16,13 @@ namespace ADGroupCW.Services
     {
         private readonly AppDbContext _context;
         private readonly IWebHostEnvironment _env;
+        private readonly IEmailService _emailService;
 
-        public OrderService(AppDbContext context, IWebHostEnvironment env)
+        public OrderService(AppDbContext context, IWebHostEnvironment env, IEmailService emailService)
         {
             _context = context;
             _env = env;
+            _emailService = emailService;
         }
 
         public async Task<OrderViewDto> PlaceOrderAsync(string userId, List<int> cartItemIds)
@@ -30,13 +34,15 @@ namespace ADGroupCW.Services
 
             if (!cartItems.Any()) return null;
 
-            // Calculate total
+            int pastOrdersCount = await _context.Orders
+                .CountAsync(o => o.UserId == userId && o.Status == "Completed");
+
             decimal subtotal = cartItems.Sum(ci => ci.Book.Price * ci.Quantity);
             int bookCount = cartItems.Sum(ci => ci.Quantity);
-            decimal discount = 0;
 
-            if (bookCount >= 5)
-                discount = subtotal * 0.05m;
+            decimal discount = 0;
+            if (bookCount >= 5) discount += subtotal * 0.05m;
+            if (pastOrdersCount >= 10) discount += subtotal * 0.10m;
 
             decimal total = subtotal - discount;
 
@@ -55,12 +61,31 @@ namespace ADGroupCW.Services
                 }).ToList()
             };
 
+            // 🔻 Decrease book stock
+            foreach (var ci in cartItems)
+            {
+                var book = await _context.Books.FirstOrDefaultAsync(b => b.Id == ci.BookId);
+                if (book != null)
+                {
+                    if (book.StockCount < ci.Quantity)
+                        throw new InvalidOperationException($"Not enough stock for '{book.Title}'");
+
+                    book.StockCount -= ci.Quantity;
+                }
+            }
+
             await _context.Orders.AddAsync(order);
-
-            // Remove purchased items from cart
             _context.CartItems.RemoveRange(cartItems);
-
             await _context.SaveChangesAsync();
+
+            // ✅ Send Order Placed Email
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
+            if (user != null && !string.IsNullOrEmpty(user.Email))
+            {
+                var subject = "Your Order Has Been Placed!";
+                var body = BuildEmailBody(order, cartItems, subtotal, discount, total);
+                await _emailService.SendEmailAsync(user.Email, subject, body);
+            }
 
             return new OrderViewDto
             {
@@ -107,18 +132,68 @@ namespace ADGroupCW.Services
         public async Task<bool> CancelOrderAsync(string userId, int orderId)
         {
             var order = await _context.Orders
+                .Include(o => o.Items)
                 .FirstOrDefaultAsync(o => o.Id == orderId && o.UserId == userId && o.Status == "Pending");
 
             if (order == null) return false;
 
+            // 🔼 Restore stock
+            foreach (var item in order.Items)
+            {
+                var book = await _context.Books.FirstOrDefaultAsync(b => b.Id == item.BookId);
+                if (book != null)
+                {
+                    book.StockCount += item.Quantity;
+                }
+            }
+
             order.Status = "Cancelled";
             _context.Orders.Update(order);
-            return await _context.SaveChangesAsync() > 0;
+
+            var result = await _context.SaveChangesAsync() > 0;
+
+            // 📧 Send Order Cancelled Email
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
+            if (result && user != null && !string.IsNullOrEmpty(user.Email))
+            {
+                var subject = "Your Order Has Been Cancelled";
+                var body = $@"
+                <div style='font-family:Segoe UI, sans-serif; color:#333; font-size:14px; line-height:1.6;'>
+                    <h2 style='color:#c0392b;'>Order Cancelled</h2>
+                    <p>Your order with claim code <strong>{order.ClaimCode}</strong> has been successfully cancelled.</p>
+                    <p>Any reserved stock has been released back into inventory.</p>
+                    <p>If this was a mistake, you can place a new order anytime.</p>
+                    <p>Thank you for using <strong>Pushtak Vandar</strong>.</p>
+                </div>";
+                await _emailService.SendEmailAsync(user.Email, subject, body);
+            }
+
+            return result;
         }
 
         private string GenerateClaimCode()
         {
             return $"CLAIM-{Guid.NewGuid().ToString().Substring(0, 8).ToUpper()}";
+        }
+
+        private string BuildEmailBody(Order order, List<CartItem> items, decimal subtotal, decimal discount, decimal total)
+        {
+            var itemList = string.Join("", items.Select(i =>
+                $"<li>{WebUtility.HtmlEncode(i.Book.Title)} × {i.Quantity} — {i.Book.Price:C} each</li>"
+            ));
+
+            return $@"
+            <div style='font-family:Segoe UI, sans-serif; color:#333; font-size:14px; line-height:1.6;'>
+              <h2 style='color:#444;'>Order Confirmation</h2>
+              <p><strong>Claim Code:</strong> {order.ClaimCode}</p>
+              <p><strong>Order Date:</strong> {order.OrderedAt:MMMM dd, yyyy HH:mm}</p>
+              <p><strong>Subtotal:</strong> {subtotal:C}</p>
+              <p><strong>Discount Applied:</strong> {discount:C}</p>
+              <p><strong>Total Amount:</strong> <span style='color:#007BFF; font-weight:bold'>{total:C}</span></p>
+              <h3 style='margin-top:20px;'>Items:</h3>
+              <ul style='padding-left:20px;'>{itemList}</ul>
+              <p style='margin-top:30px;'>Please present this claim code during pickup.<br/>Thank you for shopping with <strong>Pushtak Vandar</strong>!</p>
+            </div>";
         }
     }
 }

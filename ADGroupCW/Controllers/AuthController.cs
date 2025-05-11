@@ -98,5 +98,16 @@ namespace ADGroupCW.Controllers
             var result = await _authService.LogoutAsync();
             return Ok(new { message = result });
         }
+
+        [HttpPost("verify-password")]
+        public async Task<IActionResult> VerifyPassword([FromBody] VerifyPasswordDto dto)
+        {
+            var user = await _userManager.FindByIdAsync(dto.UserId);
+            if (user == null) return NotFound("User not found.");
+
+            var isValid = await _authService.VerifyCurrentPasswordAsync(user, dto.Password);
+            return Ok(new { isValid });
+        }
+
     }
 }

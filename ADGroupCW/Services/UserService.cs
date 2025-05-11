@@ -34,15 +34,26 @@ public class UserService : IUserService
         return userList;
     }
 
-    public async Task<bool> ConfirmEmailAsync(string userId)
+    public async Task<object> ConfirmEmailAsync(string userId)
     {
         var user = await _userManager.FindByIdAsync(userId);
-        if (user == null) return false;
+        if (user == null)
+            return new { success = false, message = "User not found." };
 
-        user.EmailConfirmed = true;
+        user.EmailConfirmed = !user.EmailConfirmed;
         var result = await _userManager.UpdateAsync(user);
-        return result.Succeeded;
+
+        if (!result.Succeeded)
+            return new { success = false, message = "Failed to update email status." };
+
+        return new
+        {
+            success = true,
+            message = user.EmailConfirmed ? "Email verified." : "Email unverified.",
+            status = user.EmailConfirmed
+        };
     }
+
 
     public async Task<bool> ChangeUserRoleAsync(string userId, string newRole)
     {

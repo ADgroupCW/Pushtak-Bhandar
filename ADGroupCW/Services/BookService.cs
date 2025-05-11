@@ -21,6 +21,11 @@ namespace ADGroupCW.Services.Implementations
 
         public async Task<BookResponseDto> CreateBookAsync(BookCreateDto dto)
         {
+            var existingBook = await _context.Books.FirstOrDefaultAsync(b => b.ISBN == dto.ISBN);
+            if (existingBook != null)
+                throw new Exception("A book with this ISBN already exists.");
+
+
             // 1. Handle Genre
             var genre = dto.GenreId.HasValue
                 ? await _context.Genres.FindAsync(dto.GenreId.Value)
@@ -85,7 +90,8 @@ namespace ADGroupCW.Services.Implementations
                 Genre = genre,
                 Publisher = publisher,
                 BookAwards = new List<BookAward>(),
-                BookFormats = new List<BookFormat>()
+                BookFormats = new List<BookFormat>(),
+                CreatedAt = DateTime.UtcNow,
             };
 
             // 6. Handle Awards
@@ -396,8 +402,136 @@ namespace ADGroupCW.Services.Implementations
                 GenreName = book.Genre?.Name ?? "",
                 PublisherName = book.Publisher?.Name ?? "",
                 BookAwardNames = book.BookAwards?.Select(ba => ba.Award.Name).ToList(),
-                BookFormatNames = book.BookFormats?.Select(bf => bf.Format.Name).ToList()
+                BookFormatNames = book.BookFormats?.Select(bf => bf.Format.Name).ToList(),
+                CreatedAt = book.CreatedAt,
+                SoldCount = book.SoldCount,
+
+
+
             };
         }
+
+
+        public async Task<List<BookResponseDto>> GetNewReleasesAsync()
+        {
+            var books = await _context.Books
+                .OrderByDescending(b => b.PublicationDate)
+                .Take(20)
+                .Include(b => b.Genre)
+                .Include(b => b.Publisher)
+                .Include(b => b.BookAwards).ThenInclude(ba => ba.Award)
+                .Include(b => b.BookFormats).ThenInclude(bf => bf.Format)
+                .ToListAsync();
+
+            return books.Select(MapToResponseDtoSync).ToList();
+        }
+
+        public async Task<List<BookResponseDto>> GetAwardWinnersAsync()
+        {
+            var books = await _context.Books
+                .Where(b => b.BookAwards.Any())
+                .OrderByDescending(b => b.PublicationDate)
+                .Include(b => b.Genre)
+                .Include(b => b.Publisher)
+                .Include(b => b.BookAwards).ThenInclude(ba => ba.Award)
+                .Include(b => b.BookFormats).ThenInclude(bf => bf.Format)
+                .ToListAsync();
+
+            return books.Select(MapToResponseDtoSync).ToList();
+        }
+
+        public async Task<List<BookResponseDto>> GetDealsAsync()
+        {
+            var now = DateTime.UtcNow;
+
+            var books = await _context.Books
+                .Where(b => b.IsOnSale && b.SaleStartDate <= now &&
+                           (b.SaleEndDate == null || b.SaleEndDate >= now))
+                .OrderBy(b => b.Price)
+                .Include(b => b.Genre)
+                .Include(b => b.Publisher)
+                .Include(b => b.BookAwards).ThenInclude(ba => ba.Award)
+                .Include(b => b.BookFormats).ThenInclude(bf => bf.Format)
+                .ToListAsync();
+
+            return books.Select(MapToResponseDtoSync).ToList();
+        }
+
+        public async Task<List<BookResponseDto>> GetBestSellersAsync()
+        {
+            var books = await _context.Books
+                .OrderByDescending(b => b.SoldCount)
+                .Take(20)
+                .Include(b => b.Genre)
+                .Include(b => b.Publisher)
+                .Include(b => b.BookAwards).ThenInclude(ba => ba.Award)
+                .Include(b => b.BookFormats).ThenInclude(bf => bf.Format)
+                .ToListAsync();
+
+            return books.Select(MapToResponseDtoSync).ToList();
+        }
+
+        public async Task<List<BookResponseDto>> GetNewArrivalsAsync()
+        {
+            var books = await _context.Books
+                .OrderByDescending(b => b.CreatedAt)
+                .Take(20)
+                .Include(b => b.Genre)
+                .Include(b => b.Publisher)
+                .Include(b => b.BookAwards).ThenInclude(ba => ba.Award)
+                .Include(b => b.BookFormats).ThenInclude(bf => bf.Format)
+                .ToListAsync();
+
+            return books.Select(MapToResponseDtoSync).ToList();
+        }
+
+
+        public async Task<object> GetHomepageBooksAsync()
+        {
+            var books = await _context.Books
+                .Include(b => b.Reviews)
+                .ToListAsync();
+
+            // ✅ Random featured books (limit 5)
+            var randomBooks = books
+                .OrderBy(b => Guid.NewGuid())
+                .Take(5)
+                .Select(b => new
+                {
+                    b.Id,
+                    b.Title,
+                    Author = b.Author,
+                    ImageUrl = b.ImageUrl,
+                    Price = b.Price,
+                    AverageRating = b.Reviews.Any() ? b.Reviews.Average(r => r.Rating) : 0
+                })
+                .ToList();
+
+            // ✅ Book of the Month (highest average rating)
+            var bookOfTheMonth = books
+                .Where(b => b.Reviews.Any())
+                .OrderByDescending(b => b.Reviews.Average(r => r.Rating))
+                .Select(b => new
+                {
+                    b.Id,
+                    b.Title,
+                    Author = b.Author,
+                    ImageUrl = b.ImageUrl,
+                    Price = b.Price,
+                    AverageRating = b.Reviews.Average(r => r.Rating)
+                })
+                .FirstOrDefault();
+
+            // ✅ Final combined result
+            return new
+            {
+                RandomBooks = randomBooks,
+                BookOfTheMonth = bookOfTheMonth
+            };
+        }
+
+
+
+
     }
 }

@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ADGroupCW.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250509123211_InitBook")]
-    partial class InitBook
+    [Migration("20250510144405_Added")]
+    partial class Added
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -53,6 +53,9 @@ namespace ADGroupCW.Migrations
                     b.Property<string>("Author")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Description")
                         .IsRequired()
@@ -96,6 +99,9 @@ namespace ADGroupCW.Migrations
 
                     b.Property<DateTime?>("SaleStartDate")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("SoldCount")
+                        .HasColumnType("integer");
 
                     b.Property<int>("StockCount")
                         .HasColumnType("integer");
@@ -166,6 +172,34 @@ namespace ADGroupCW.Migrations
                     b.HasIndex("BookId");
 
                     b.ToTable("Bookmarks");
+                });
+
+            modelBuilder.Entity("ADGroupCW.Models.CartItem", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("AddedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("BookId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BookId");
+
+                    b.ToTable("CartItems");
                 });
 
             modelBuilder.Entity("ADGroupCW.Models.Format", b =>
@@ -570,6 +604,17 @@ namespace ADGroupCW.Migrations
                 });
 
             modelBuilder.Entity("ADGroupCW.Models.Bookmark", b =>
+                {
+                    b.HasOne("ADGroupCW.Models.Book", "Book")
+                        .WithMany()
+                        .HasForeignKey("BookId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Book");
+                });
+
+            modelBuilder.Entity("ADGroupCW.Models.CartItem", b =>
                 {
                     b.HasOne("ADGroupCW.Models.Book", "Book")
                         .WithMany()

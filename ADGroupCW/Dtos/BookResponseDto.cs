@@ -23,5 +23,11 @@
 
         public List<string>? BookAwardNames { get; set; }
         public List<string>? BookFormatNames { get; set; }
+
+
+        public DateTime CreatedAt { get; set; }
+
+        public int SoldCount { get; set; }
+
     }
 }

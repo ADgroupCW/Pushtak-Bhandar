@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ADGroupCW.Migrations
 {
     /// <inheritdoc />
-    public partial class InitBook : Migration
+    public partial class Added : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -233,6 +233,7 @@ namespace ADGroupCW.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     Title = table.Column<string>(type: "text", nullable: false),
                     Author = table.Column<string>(type: "text", nullable: false),
                     ISBN = table.Column<string>(type: "text", nullable: false),
@@ -247,6 +248,7 @@ namespace ADGroupCW.Migrations
                     SaleEndDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     StockCount = table.Column<int>(type: "integer", nullable: false),
                     ImageUrl = table.Column<string>(type: "text", nullable: false),
+                    SoldCount = table.Column<int>(type: "integer", nullable: false),
                     GenreId = table.Column<int>(type: "integer", nullable: false),
                     PublisherId = table.Column<int>(type: "integer", nullable: false)
                 },
@@ -330,6 +332,28 @@ namespace ADGroupCW.Migrations
                     table.PrimaryKey("PK_Bookmarks", x => x.Id);
                     table.ForeignKey(
                         name: "FK_Bookmarks_Books_BookId",
+                        column: x => x.BookId,
+                        principalTable: "Books",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "CartItems",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    UserId = table.Column<string>(type: "text", nullable: false),
+                    BookId = table.Column<int>(type: "integer", nullable: false),
+                    Quantity = table.Column<int>(type: "integer", nullable: false),
+                    AddedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CartItems", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_CartItems_Books_BookId",
                         column: x => x.BookId,
                         principalTable: "Books",
                         principalColumn: "Id",
@@ -456,6 +480,11 @@ namespace ADGroupCW.Migrations
                 column: "PublisherId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_CartItems_BookId",
+                table: "CartItems",
+                column: "BookId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_OrderItems_BookId",
                 table: "OrderItems",
                 column: "BookId");
@@ -502,6 +531,9 @@ namespace ADGroupCW.Migrations
 
             migrationBuilder.DropTable(
                 name: "Bookmarks");
+
+            migrationBuilder.DropTable(
+                name: "CartItems");
 
             migrationBuilder.DropTable(
                 name: "OrderItems");

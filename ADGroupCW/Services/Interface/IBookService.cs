@@ -18,5 +18,14 @@ namespace ADGroupCW.Services
 
         // Delete a book by ID
         Task<bool> DeleteBookAsync(int id);
+
+
+        Task<List<BookResponseDto>> GetNewReleasesAsync();      // Sort by PublicationDate DESC
+        Task<List<BookResponseDto>> GetAwardWinnersAsync();     // Where Awards.Count > 0
+        Task<List<BookResponseDto>> GetDealsAsync();            // Where IsOnSale == true
+        Task<List<BookResponseDto>> GetBestSellersAsync();      // Sort by SoldCount DESC
+        Task<List<BookResponseDto>> GetNewArrivalsAsync();      // Sort by CreatedAt DESC
+
+        Task<object> GetHomepageBooksAsync();
     }
 }

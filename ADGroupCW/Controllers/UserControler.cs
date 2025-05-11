@@ -1,10 +1,12 @@
 ﻿using ADGroupCW.Dtos;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
 [ApiController]
 [Route("api/admin/users")]
+[Authorize(Roles = "Admin")] // ✅ Restrict all endpoints to Admins only
 public class AdminUserController : ControllerBase
 {
     private readonly IUserService _userService;
@@ -26,9 +28,12 @@ public class AdminUserController : ControllerBase
     [HttpPut("{id}/confirm-email")]
     public async Task<IActionResult> ConfirmEmail(string id)
     {
-        var result = await _userService.ConfirmEmailAsync(id);
-        if (!result) return NotFound();
-        return Ok(new { message = "Email confirmed" });
+        dynamic result = await _userService.ConfirmEmailAsync(id);
+
+        if (result.success == false)
+            return NotFound(result);
+
+        return Ok(result);
     }
 
     // ✅ Change user role
@@ -47,5 +52,4 @@ public class AdminUserController : ControllerBase
         if (user == null) return NotFound("User not found.");
         return Ok(user);
     }
-
 }

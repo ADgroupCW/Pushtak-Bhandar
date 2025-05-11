@@ -246,6 +246,10 @@ namespace ADGroupCW.Services
             return Task.FromResult("Logged out successfully.");
         }
 
+        public async Task<bool> VerifyCurrentPasswordAsync(ApplicationUser user, string password)
+        {
+            return await _userManager.CheckPasswordAsync(user, password);
+        }
 
 
 

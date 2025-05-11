@@ -32,7 +32,6 @@ namespace ADGroupCW.Controllers
             return Ok(result);
         }
 
-
         // ✅ READ ALL
         [HttpGet]
         public async Task<IActionResult> GetAllBooks()
@@ -76,9 +75,6 @@ namespace ADGroupCW.Controllers
             return Ok();
         }
 
-
-
-
         // ✅ DELETE
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteBook(int id)
@@ -86,6 +82,54 @@ namespace ADGroupCW.Controllers
             var deleted = await _bookService.DeleteBookAsync(id);
             if (!deleted) return NotFound();
             return NoContent();
+        }
+
+        // ✅ New Releases
+        [HttpGet("new-releases")]
+        public async Task<IActionResult> GetNewReleases()
+        {
+            var books = await _bookService.GetNewReleasesAsync();
+            return Ok(books);
+        }
+
+        // ✅ Award Winners
+        [HttpGet("award-winners")]
+        public async Task<IActionResult> GetAwardWinners()
+        {
+            var books = await _bookService.GetAwardWinnersAsync();
+            return Ok(books);
+        }
+
+        // ✅ Deals
+        [HttpGet("deals")]
+        public async Task<IActionResult> GetDeals()
+        {
+            var books = await _bookService.GetDealsAsync();
+            return Ok(books);
+        }
+
+        // ✅ Best Sellers
+        [HttpGet("best-sellers")]
+        public async Task<IActionResult> GetBestSellers()
+        {
+            var books = await _bookService.GetBestSellersAsync();
+            return Ok(books);
+        }
+
+        // ✅ New Arrivals
+        [HttpGet("new-arrivals")]
+        public async Task<IActionResult> GetNewArrivals()
+        {
+            var books = await _bookService.GetNewArrivalsAsync();
+            return Ok(books);
+        }
+
+
+        [HttpGet("homepage")]
+        public async Task<IActionResult> GetHomepageBooks()
+        {
+            var result = await _bookService.GetHomepageBooksAsync();
+            return Ok(result);
         }
     }
 }
