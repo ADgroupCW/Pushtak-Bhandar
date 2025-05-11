@@ -1,0 +1,222 @@
+.new-release-page {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: auto;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.new-release-page h1 {
+  font-size: 2rem;
+  color: #0a58ca;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+/* Filters */
+.filters-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  justify-content: center;
+}
+
+.filters-bar input,
+.filters-bar select {
+  padding: 0.5rem;
+  font-size: 0.95rem;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  min-width: 160px;
+}
+
+.filters-bar button {
+  background-color: #0a58ca;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 0.5rem 1rem;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+
+.filters-bar button:hover {
+  background-color: #004ea8;
+}
+
+/* Book Row */
+.release-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.release-row {
+  display: flex;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  text-decoration: none;
+  color: inherit;
+  overflow: hidden;
+  transition: box-shadow 0.2s ease;
+}
+
+.release-row:hover {
+  box-shadow: 0 4px 14px rgba(0,0,0,0.1);
+}
+
+.release-row img {
+  width: 180px;
+  height: auto;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+/* Info Section */
+.release-info {
+  flex: 1;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.release-info h3 {
+  font-size: 1.2rem;
+  margin-bottom: 0.3rem;
+  color: #222;
+}
+
+.release-info .author {
+  font-size: 0.95rem;
+  color: #666;
+  margin-bottom: 0.5rem;
+}
+
+.release-info .desc {
+  font-size: 0.95rem;
+  color: #444;
+  margin-bottom: 0.75rem;
+  line-height: 1.4;
+}
+
+/* Metadata */
+.release-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  font-size: 0.95rem;
+  margin-bottom: 1rem;
+}
+
+.price {
+  color: #198754;
+  font-weight: bold;
+}
+
+.original-price {
+  text-decoration: line-through;
+  color: #888;
+}
+
+.award-badge {
+  background: gold;
+  color: black;
+  padding: 0.2rem 0.6rem;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+/* Badges */
+.badge-box {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.badge {
+  font-size: 0.75rem;
+  font-weight: bold;
+  padding: 0.25rem 0.6rem;
+  border-radius: 12px;
+  color: white;
+}
+
+.sale-badge {
+  background-color: crimson;
+}
+
+.new-badge {
+  background-color: green;
+}
+
+.countdown {
+  font-size: 0.85rem;
+  color: #444;
+  margin-top: 0.3rem;
+}
+
+/* Buttons */
+.action-buttons {
+  display: flex;
+  gap: 1rem;
+  margin-top: auto;
+}
+
+.action-buttons button {
+  padding: 0.4rem 0.8rem;
+  font-size: 0.9rem;
+  background-color: #0d6efd;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.release-rating {
+  margin: 6px 0;
+  font-size: 18px;
+  color: #f4c150;
+}
+
+.filled-star {
+  color: #f4c150;
+}
+
+.empty-star {
+  color: #ccc;
+}
+
+.rating-count {
+  font-size: 14px;
+  margin-left: 6px;
+  color: #555;
+}
+
+
+.action-buttons button:hover {
+  background-color: #0b5ed7;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .release-row {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .release-row img {
+    width: 100%;
+    max-height: 240px;
+  }
+
+  .release-info {
+    padding: 1rem 1.5rem;
+  }
+
+  .filters-bar {
+    flex-direction: column;
+    align-items: center;
+  }
+}

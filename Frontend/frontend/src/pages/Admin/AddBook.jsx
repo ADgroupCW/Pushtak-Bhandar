@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 
 export default function AddBook() {
   const [form, setForm] = useState({
-    title: '', author: '', isbn: '', language: 'English', publicationDate: '',
+    title: '', author: '', isbn: '', description: '', language: 'English', publicationDate: '',
     price: '', originalPrice: '', stockCount: '', isAvailableInStore: true, isOnSale: false,
     saleStartDate: '', saleEndDate: '', genreId: '', publisherId: '',
     bookAwardIds: [], bookFormatIds: []
@@ -181,7 +181,17 @@ export default function AddBook() {
                 className="form-control"
               />
             </div>
-
+            <div className="form-group">
+              <label>Description</label>
+              <textarea
+                name="description"
+                value={form.description || ''}
+                onChange={handleChange}
+                rows={4}
+                className="form-control"
+                placeholder="Write a brief description of the book"
+              />
+            </div>
             <div className="form-group">
               <label>ISBN</label>
               <input 

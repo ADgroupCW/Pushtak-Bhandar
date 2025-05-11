@@ -75,16 +75,34 @@ const Profile = () => {
     }
   };
 
-  const verifyOldPassword = () => {
-    if (passwordForm.oldPassword) {
-      setOldPasswordVerified(true);
-      setMessage('Password verified. You can now set a new password.');
-      setMessageType('success');
-    } else {
+
+
+
+
+  const verifyOldPassword = async () => {
+    if (!passwordForm.oldPassword) {
       setMessage('Please enter your current password');
+      setMessageType('error');
+      return;
+    }
+
+    try {
+      const res = await api.post('/auth/verify-password', {
+        userId: userData?.id,
+        password: passwordForm.oldPassword
+      });
+
+      console.log('[DEBUG] Password verified:', res.data);
+      setOldPasswordVerified(true);
+      setMessage('✅ Password verified. You can now set a new password.');
+      setMessageType('success');
+    } catch (err) {
+      console.error('[DEBUG] Password verification failed:', err.response?.data || err.message);
+      setMessage('❌ Incorrect current password.');
       setMessageType('error');
     }
   };
+
 
   const handlePasswordChange = async () => {
     const isValid = Object.values(passwordValidation).every(Boolean);
@@ -99,10 +117,13 @@ const Profile = () => {
       return;
     }
 
+
+
     try {
       await api.post('/auth/change-password', {
         currentPassword: passwordForm.oldPassword,
         newPassword: passwordForm.newPassword,
+        confirmPassword: passwordForm.confirmPassword
       });
 
       setMessage('✅ Password changed successfully.');
@@ -192,14 +213,14 @@ const Profile = () => {
                           Current Password
                         </label>
                         <input
-  type="password"
-  id="oldPassword"
-  name="oldPassword"
-  placeholder="Enter current password"
-  value={passwordForm.oldPassword}
-  onChange={handleChange}
-  className="form-input"
-/>
+                          type="password"
+                          id="oldPassword"
+                          name="oldPassword"
+                          placeholder="Enter current password"
+                          value={passwordForm.oldPassword}
+                          onChange={handleChange}
+                          className="form-input"
+                        />
 
                       </div>
                       <div className="form-actions">

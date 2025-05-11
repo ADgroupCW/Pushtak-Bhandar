@@ -1,18 +1,56 @@
-import { useState } from 'react';
-import { Book, ShoppingCart, Clock, User, LogOut, Home } from 'lucide-react';
-import '../../styles/StaffDashboard.css'; // Import the CSS file
+import { useState, useEffect } from 'react';
+import { Book, ShoppingCart, Clock, User, LogOut } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import ClaimCodeVerify from './ClaimCodeVerify';
+import api from '../../api/api';
+import '../../styles/StaffDashboard.css';
 
 export default function StaffDashboard() {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('process');
-  
-  // Mock data for today's statistics
-  const stats = {
-    pendingOrders: 12,
-    processedToday: 28,
-    booksHandled: 156,
-    activeCustomers: 17
+
+  const [stats, setStats] = useState({
+    pendingOrdersCount: 0,
+    completedOrdersCount: 0,
+    totalBooksHandled: 0,
+    totalRevenue: 0
+  });
+
+  const [completedOrders, setCompletedOrders] = useState([]);
+
+  const handleLogout = () => {
+    localStorage.clear();
+    navigate('/login');
   };
-  
+
+  useEffect(() => {
+    fetchStats();
+    if (activeTab === 'history') {
+      fetchCompletedOrders();
+    }
+  }, [activeTab]);
+
+  const fetchStats = async () => {
+  try {
+    const res = await api.get('/staff/orders/stats');
+    setStats(res.data);
+    console.log('📊 Stats loaded:', res.data);
+  } catch (err) {
+    console.error('❌ Failed to fetch stats:', err);
+  }
+};
+
+const fetchCompletedOrders = async () => {
+  try {
+    const res = await api.get('/staff/orders/completed');
+    setCompletedOrders(res.data);
+    console.log('📦 Completed orders:', res.data);
+  } catch (err) {
+    console.error('❌ Failed to fetch completed orders:', err);
+  }
+};
+
+
   return (
     <div className="sd-container">
       {/* Header */}
@@ -22,143 +60,124 @@ export default function StaffDashboard() {
             <h1 className="sd-page-title">Staff Dashboard</h1>
           </div>
           <div className="sd-user-section">
-            <div className="sd-user-info">
-              <p className="sd-user-name">Sarah Johnson</p>
-              <p className="sd-user-id">Staff ID: S1234</p>
-            </div>
-            <button className="sd-logout-button">
+            
+            <button className="sd-logout-button" onClick={handleLogout}>
               <LogOut className="sd-icon" />
             </button>
           </div>
         </div>
       </header>
-      
-      {/* Main content */}
+
+      {/* Main */}
       <main className="sd-main">
-        {/* Stats Overview */}
+        {/* Stats */}
         <div className="sd-stats-grid">
-          <div className="sd-stat-card">
-            <div className="sd-stat-card-inner">
-              <div className="sd-stat-content">
-                <div className="sd-stat-icon-container sd-stat-icon-orders">
-                  <ShoppingCart className="sd-stat-icon" />
-                </div>
-                <div className="sd-stat-text">
-                  <dl>
-                    <dt className="sd-stat-label">Pending Orders</dt>
-                    <dd className="sd-stat-value">{stats.pendingOrders}</dd>
-                  </dl>
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          <div className="sd-stat-card">
-            <div className="sd-stat-card-inner">
-              <div className="sd-stat-content">
-                <div className="sd-stat-icon-container sd-stat-icon-processed">
-                  <Clock className="sd-stat-icon" />
-                </div>
-                <div className="sd-stat-text">
-                  <dl>
-                    <dt className="sd-stat-label">Processed Today</dt>
-                    <dd className="sd-stat-value">{stats.processedToday}</dd>
-                  </dl>
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          <div className="sd-stat-card">
-            <div className="sd-stat-card-inner">
-              <div className="sd-stat-content">
-                <div className="sd-stat-icon-container sd-stat-icon-books">
-                  <Book className="sd-stat-icon" />
-                </div>
-                <div className="sd-stat-text">
-                  <dl>
-                    <dt className="sd-stat-label">Books Handled</dt>
-                    <dd className="sd-stat-value">{stats.booksHandled}</dd>
-                  </dl>
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          <div className="sd-stat-card">
-            <div className="sd-stat-card-inner">
-              <div className="sd-stat-content">
-                <div className="sd-stat-icon-container sd-stat-icon-customers">
-                  <User className="sd-stat-icon" />
-                </div>
-                <div className="sd-stat-text">
-                  <dl>
-                    <dt className="sd-stat-label">Active Customers</dt>
-                    <dd className="sd-stat-value">{stats.activeCustomers}</dd>
-                  </dl>
-                </div>
-              </div>
-            </div>
-          </div>
+          <StatCard icon={<ShoppingCart />} label="Pending Orders" value={stats.pendingOrdersCount} color="orders" />
+          <StatCard icon={<Clock />} label="Completed Orders" value={stats.completedOrdersCount} color="processed" />
+          <StatCard icon={<Book />} label="Books Handled" value={stats.totalBooksHandled} color="books" />
+          <StatCard icon={<User />} label="Revenue ($)" value={stats.totalRevenue.toFixed(2)} color="customers" />
         </div>
-        
-        {/* Navigation Tabs */}
+
+        {/* Tabs */}
         <div className="sd-tabs-container">
           <nav className="sd-tabs-nav">
-            <button
-              onClick={() => setActiveTab('process')}
-              className={`sd-tab-button ${
-                activeTab === 'process' ? 'sd-tab-active' : 'sd-tab-inactive'
-              }`}
-            >
-              Process Orders
-            </button>
+            
             <button
               onClick={() => setActiveTab('history')}
-              className={`sd-tab-button ${
-                activeTab === 'history' ? 'sd-tab-active' : 'sd-tab-inactive'
-              }`}
+              className={`sd-tab-button ${activeTab === 'history' ? 'sd-tab-active' : 'sd-tab-inactive'}`}
             >
               Order History
             </button>
           </nav>
         </div>
-        
-        {/* Content area */}
+
+        {/* Tab Content */}
         <div className="sd-content">
           {activeTab === 'process' ? (
-            <div className="sd-empty-state">
-              <div className="sd-empty-content">
-                <ShoppingCart className="sd-empty-icon" />
-                <h3 className="sd-empty-title">Ready to process orders</h3>
-                <p className="sd-empty-description">
-                  Enter a claim code to get started or navigate to the order processing page.
-                </p>
-                <div className="sd-action-button-container">
-                  <button className="sd-action-button">
-                    Go to Order Processing
-                  </button>
-                </div>
+            <>
+              <TabContent
+                icon={<ShoppingCart className="sd-empty-icon" />}
+                title="Ready to process orders"
+                description="Enter a claim code to verify and complete customer orders."
+                buttonText="Go to Full Order Portal"
+                onClick={() => navigate('/stafforder')}
+              />
+              <div style={{ marginTop: '2rem' }}>
+                <ClaimCodeVerify />
               </div>
-            </div>
+            </>
           ) : (
-            <div className="sd-empty-state">
+            <>
               <div className="sd-empty-content">
-                <Clock className="sd-empty-icon" />
-                <h3 className="sd-empty-title">Order History</h3>
-                <p className="sd-empty-description">
-                  View past processed orders and their details.
-                </p>
-                <div className="sd-action-button-container">
-                  <button className="sd-action-button">
-                    View Complete History
-                  </button>
-                </div>
+                <h3 className="sd-empty-title">Completed Orders</h3>
+                <p className="sd-empty-description">All fulfilled orders by the staff are listed below.</p>
               </div>
-            </div>
+              <table className="sd-history-table">
+                <thead>
+                  <tr>
+                    <th>Order ID</th>
+                    <th>User Email</th>
+                    <th>Claim Code</th>
+                    <th>Status</th>
+                    <th>Total</th>
+                    <th>Ordered At</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {completedOrders.map((order) => (
+                    <tr key={order.orderId}>
+                      <td>{order.orderId}</td>
+                      <td>{order.userEmail}</td>
+                      <td>{order.claimCode}</td>
+                      <td>{order.status}</td>
+                      <td>${order.totalAmount.toFixed(2)}</td>
+                      <td>{new Date(order.orderedAt).toLocaleString()}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </>
           )}
         </div>
       </main>
+    </div>
+  );
+}
+
+// Reusable components
+function StatCard({ icon, label, value, color }) {
+  return (
+    <div className="sd-stat-card">
+      <div className="sd-stat-card-inner">
+        <div className="sd-stat-content">
+          <div className={`sd-stat-icon-container sd-stat-icon-${color}`}>
+            {icon}
+          </div>
+          <div className="sd-stat-text">
+            <dl>
+              <dt className="sd-stat-label">{label}</dt>
+              <dd className="sd-stat-value">{value}</dd>
+            </dl>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function TabContent({ icon, title, description, buttonText, onClick }) {
+  return (
+    <div className="sd-empty-state">
+      <div className="sd-empty-content">
+        {icon}
+        <h3 className="sd-empty-title">{title}</h3>
+        <p className="sd-empty-description">{description}</p>
+        <div className="sd-action-button-container">
+          <button className="sd-action-button" onClick={onClick}>
+            {buttonText}
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

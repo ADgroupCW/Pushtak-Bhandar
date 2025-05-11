@@ -9,6 +9,8 @@ const UserManagement = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const roles = ['admin', 'staff', 'member'];
 
+  const currentUserId = localStorage.getItem('userId');
+
   useEffect(() => {
     fetchUsers();
   }, []);
@@ -23,6 +25,10 @@ const UserManagement = () => {
   };
 
   const handleRoleChange = async (userId, newRole) => {
+    if (userId === currentUserId) {
+      alert("You cannot change your own role.");
+      return;
+    }
     try {
       await api.put(`/admin/users/${userId}/change-role`, { newRole });
       fetchUsers();
@@ -31,16 +37,32 @@ const UserManagement = () => {
     }
   };
 
-  const handleEmailToggle = async (userId, currentStatus) => {
-    try {
-      await api.put(`/admin/users/${userId}/confirm-email`, {
-        emailConfirmed: !currentStatus,
-      });
-      fetchUsers();
-    } catch (err) {
-      alert('Failed to update email status.');
+  const handleEmailToggle = async (userId) => {
+  if (userId === currentUserId) {
+    alert("You cannot verify/unverify your own account.");
+    return;
+  }
+
+  console.log(`[DEBUG] Attempting toggle for userId: ${userId}`);
+
+  try {
+    const res = await api.put(`/admin/users/${userId}/confirm-email`);
+    console.log('[DEBUG] Toggle success:', res.data);
+
+    // Refresh the user list
+    await fetchUsers();
+  } catch (err) {
+    if (err.response) {
+      console.error('[ERROR] Response error:', err.response.status, err.response.data);
+    } else if (err.request) {
+      console.error('[ERROR] No response received:', err.request);
+    } else {
+      console.error('[ERROR] Config/Other error:', err.message);
     }
-  };
+    alert('❌ Failed to update email verification.');
+  }
+};
+
 
   const filtered = users.filter(
     (u) =>
@@ -82,17 +104,22 @@ const UserManagement = () => {
                   <td>{user.email}</td>
                   <td>
                     <span
-                      className={`status-toggle ${user.emailConfirmed ? 'active' : 'inactive'}`}
-                      onClick={() => handleEmailToggle(user.id, user.emailConfirmed)}
+                      className={`status-badge ${user.emailConfirmed ? 'verified' : 'unverified'}`}
+                      onClick={() => handleEmailToggle(user.id)}
+                      style={{
+                        cursor: user.id === currentUserId ? 'not-allowed' : 'pointer',
+                        pointerEvents: user.id === currentUserId ? 'none' : 'auto',
+                      }}
                     >
-                      {user.emailConfirmed ? 'Verified' : 'Unverified'}
+                      {user.emailConfirmed ? 'Verified (Click to Unverify)' : 'Unverified (Click to Verify)'}
                     </span>
                   </td>
                   <td>
                     <select
                       className="role-dropdown"
-                      value={user.role}
+                      value={user.roles[0]?.toLowerCase() || ''}
                       onChange={(e) => handleRoleChange(user.id, e.target.value)}
+                      disabled={user.id === currentUserId}
                     >
                       {roles.map((role) => (
                         <option key={role} value={role}>

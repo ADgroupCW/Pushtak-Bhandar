@@ -26,11 +26,11 @@ const Navbar = () => {
 
 
       <ul className="nav-links">
-        <li><Link to="/allbook">All Book</Link></li>
+        <li><Link to="/allbooks">All Book</Link></li>
         <li><Link to="/bestsellers">Bestsellers</Link></li>
-        <li><Link to="/new-releases">New Releases</Link></li>
-        <li><Link to="/award-winners">Award Winners</Link></li>
-        <li><Link to="/coming-soon">Coming Soon</Link></li>
+        <li><Link to="/newrelease">New Releases</Link></li>
+        <li><Link to="/awardwinners">Award Winners</Link></li>
+        <li><Link to="/newarrivals">New Arrivals</Link></li>
         <li><Link to="/deals">Deals</Link></li>
       </ul>
 

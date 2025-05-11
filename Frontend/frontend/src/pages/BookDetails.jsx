@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import api from '../api/api';
 import Navbar from '../components/Navbar';
 import Footer from '../components/footer';
@@ -7,95 +7,116 @@ import '../styles/BookDetails.css';
 
 const BookDetails = () => {
   const { id } = useParams();
-  const navigate = useNavigate();
   const [book, setBook] = useState(null);
+  const [reviews, setReviews] = useState([]);
+  const [average, setAverage] = useState(0);
+  const [reviewCount, setReviewCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
-  const [fadeIn, setFadeIn] = useState(false);
-  const [actionMessage, setActionMessage] = useState({ text: '', type: '' });
-
+  const [message, setMessage] = useState(null);
+  const [countdown, setCountdown] = useState('');
   const isLoggedIn = !!localStorage.getItem('token');
 
   useEffect(() => {
     fetchBook();
+    fetchReviewStats();
+    fetchAllReviews();
   }, [id]);
-
-  useEffect(() => {
-    // Trigger fade-in animation after component mounts and data is loaded
-    if (!loading && book) {
-      setFadeIn(true);
-    }
-  }, [loading, book]);
-
-  // Display temporary message for user actions
-  const showMessage = (text, type) => {
-    setActionMessage({ text, type });
-    setTimeout(() => setActionMessage({ text: '', type: '' }), 3000);
-  };
 
   const fetchBook = async () => {
     try {
       const res = await api.get(`/book/${id}`);
       setBook(res.data);
-      // Update page title with book name
       document.title = `${res.data.title} | Book Details`;
-    } catch (err) {
-      showMessage('Book not found.', 'error');
-      navigate('/bestsellers');
+      startCountdown(res.data);
+    } catch {
+      setMessage({ type: 'error', text: 'Failed to load book.' });
     } finally {
       setLoading(false);
     }
   };
 
-  const handleAddToCart = async () => {
-    if (!isLoggedIn) {
-      showMessage('Please log in first.', 'error');
-      return;
-    }
-    
+  const fetchReviewStats = async () => {
     try {
-      await api.post('/cart', { bookId: book.id, quantity });
-      showMessage('Added to cart successfully!', 'success');
-    } catch (err) {
-      showMessage('Failed to add to cart.', 'error');
+      const res = await api.get(`/reviews/stats/${id}/average`);
+      setAverage(res.data.averageRating);
+      setReviewCount(res.data.reviewCount);
+    } catch {
+      setAverage(0);
+      setReviewCount(0);
     }
   };
+
+  const fetchAllReviews = async () => {
+    try {
+      const res = await api.get(`/reviews/book/${id}`);
+      setReviews(res.data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)));
+    } catch {
+      setReviews([]);
+    }
+  };
+
+  const startCountdown = (book) => {
+    if (!book?.isOnSale) return;
+    const interval = setInterval(() => {
+      const now = new Date();
+      const end = new Date(book.saleEndDate);
+      const diff = end - now;
+      if (diff <= 0) {
+        setCountdown('Sale ended');
+        clearInterval(interval);
+        return;
+      }
+      const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
+      const m = Math.floor((diff / (1000 * 60)) % 60);
+      const s = Math.floor((diff / 1000) % 60);
+      setCountdown(`${d}d ${h}h ${m}m ${s}s`);
+    }, 1000);
+  };
+
+  const handleAddToCart = async () => {
+  if (!isLoggedIn) {
+    setMessage({ type: 'error', text: 'Please log in first.' });
+    return;
+  }
+
+  if (book.stockCount === 0) {
+    setMessage({ type: 'error', text: 'This book is currently out of stock.' });
+    return;
+  }
+
+  try {
+    await api.post('/cart', { bookId: book.id, quantity });
+    setMessage({ type: 'success', text: 'Added to cart!' });
+  } catch {
+    setMessage({ type: 'error', text: 'Failed to add to cart.' });
+  }
+};
+
 
   const handleBookmark = async () => {
     if (!isLoggedIn) {
-      showMessage('Please log in first.', 'error');
+      setMessage({ type: 'error', text: 'Please log in first.' });
       return;
     }
-    
     try {
       await api.post('/bookmark', { bookId: book.id });
-      showMessage('Book bookmarked successfully!', 'success');
+      setMessage({ type: 'success', text: 'Bookmarked!' });
     } catch (err) {
-      showMessage('Already bookmarked or operation failed.', 'error');
+      setMessage({ type: 'error', text: err?.response?.data || 'Bookmark failed.' });
     }
   };
 
-  const handleQuantityChange = (e) => {
-    const value = parseInt(e.target.value);
-    if (value > 0 && value <= 10) {
-      setQuantity(value);
-    }
+  const renderStars = (rating) => {
+    return [...Array(5)].map((_, i) => (
+      <span key={i} className={i < Math.round(rating) ? 'filled-star' : 'empty-star'}>★</span>
+    ));
   };
 
-  if (loading) {
-    return (
-      <div className="book-page">
-        <Navbar />
-        <div className="loading-container">
-          <div className="loading-spinner"></div>
-          <p>Loading book details...</p>
-        </div>
-        <Footer />
-      </div>
-    );
-  }
+  if (loading) return <div>Loading...</div>;
 
-  if (!book) return null;
+  if (!book) return <div>Book not found.</div>;
 
   const imageUrl = book.imageUrl?.startsWith('http')
     ? book.imageUrl
@@ -104,147 +125,78 @@ const BookDetails = () => {
   return (
     <div className="book-page">
       <Navbar />
-      
-      {actionMessage.text && (
-        <div className={`action-message ${actionMessage.type}`}>
-          {actionMessage.type === 'success' ? '✓ ' : '✕ '}
-          {actionMessage.text}
-        </div>
-      )}
-      
-      <div className={`book-details-container ${fadeIn ? 'fade-in' : ''}`}>
+      {message && <div className={`alert ${message.type}`}>{message.text}</div>}
+
+      <div className="book-details-container">
         <div className="book-image-container">
-          <img 
-            src={imageUrl} 
-            alt={book.title} 
-            onError={(e) => {
-              e.target.onerror = null;
-              e.target.src = '/images/book-placeholder.png';
-            }}
-          />
-          {book.bestSeller && <div className="bestseller-badge">Bestseller</div>}
+          <img src={imageUrl} alt={book.title} />
         </div>
-        
+
         <div className="book-info">
-          <div className="book-header">
-            <h1>{book.title}</h1>
-            <p className="author">by <span>{book.author}</span></p>
-            
-            <div className="book-rating">
-              <div className="stars">
-                {[...Array(5)].map((_, i) => (
-                  <span key={i} className={i < Math.round(book.rating || 0) ? 'star filled' : 'star'}>
-                    ★
-                  </span>
-                ))}
-              </div>
-              <span className="rating-text">
-                {book.rating?.toFixed(1) || '0.0'} ({book.reviews || 0} reviews)
-              </span>
-            </div>
+          <h1>{book.title}</h1>
+          <p className="author">by <strong>{book.author}</strong></p>
+
+          <div className="rating-row">
+            <div className="stars">{renderStars(average)}</div>
+            <span>({reviewCount} reviews)</span>
           </div>
-          
-          <div className="book-price">
-            <span className="price">${book.price?.toFixed(2)}</span>
-            {book.originalPrice && book.originalPrice > book.price && (
+
+          <div className="price-block">
+            <span className="price">${book.price.toFixed(2)}</span>
+            {book.originalPrice > book.price && (
               <span className="original-price">${book.originalPrice.toFixed(2)}</span>
             )}
+            {book.isOnSale && countdown && <div className="sale-timer">⏳ {countdown}</div>}
           </div>
-          
-          <div className="book-description">
-            <h2>Description</h2>
-            <p>{book.description}</p>
+
+          <p className="description">{book.description}</p>
+
+          <div className="details-box">
+            <p><strong>Publisher:</strong> {book.publisherName}</p>
+            <p><strong>Genre:</strong> {book.genreName}</p>
+            <p><strong>Language:</strong> {book.language}</p>
+            <p><strong>Publication Date:</strong> {new Date(book.publicationDate).toLocaleDateString()}</p>
+            <p>
+              <strong>Stock:</strong>{' '}
+              {book.stockCount > 5 ? (
+                <span style={{ color: 'green', fontWeight: 'bold' }}>In Stock</span>
+              ) : book.stockCount > 0 ? (
+                <span style={{ color: 'orange', fontWeight: 'bold' }}>
+                  Only {book.stockCount} left!
+                </span>
+              ) : (
+                <span style={{ color: 'red', fontWeight: 'bold' }}>Out of Stock</span>
+              )}
+            </p>
+
           </div>
-          
-          <div className="book-details">
-            <div className="detail-row">
-              <span>Category:</span>
-              <span>{book.category}</span>
-            </div>
-            <div className="detail-row">
-              <span>Format:</span>
-              <span>{book.format}</span>
-            </div>
-            <div className="detail-row">
-              <span>Language:</span>
-              <span>{book.language}</span>
-            </div>
-            <div className="detail-row">
-              <span>Publisher:</span>
-              <span>{book.publisher}</span>
-            </div>
-            {book.publicationDate && (
-              <div className="detail-row">
-                <span>Publication Date:</span>
-                <span>{new Date(book.publicationDate).toLocaleDateString()}</span>
-              </div>
-            )}
-            {book.isbn && (
-              <div className="detail-row">
-                <span>ISBN:</span>
-                <span>{book.isbn}</span>
-              </div>
-            )}
-          </div>
-          
-          {book.awards && book.awards.length > 0 && (
-            <div className="awards">
-              <h2>Awards</h2>
-              <ul>
-                {book.awards.map((award, i) => <li key={i}>{award}</li>)}
-              </ul>
-            </div>
-          )}
-          
-          <div className="book-actions">
-            <div className="quantity-selector">
-              <button 
-                onClick={() => quantity > 1 && setQuantity(quantity - 1)}
-                disabled={quantity <= 1}
-              >
-                −
-              </button>
-              <input 
-                type="number" 
-                min="1" 
-                max="10" 
-                value={quantity} 
-                onChange={handleQuantityChange}
-              />
-              <button 
-                onClick={() => quantity < 10 && setQuantity(quantity + 1)}
-                disabled={quantity >= 10}
-              >
-                +
-              </button>
-            </div>
-            
-            <div className="action-buttons">
-              <button 
-                className="add-to-cart" 
-                onClick={handleAddToCart}
-                disabled={!isLoggedIn}
-              >
-                Add to Cart
-              </button>
-              <button 
-                className="bookmark" 
-                onClick={handleBookmark}
-                disabled={!isLoggedIn}
-              >
-                {book.isBookmarked ? "Bookmarked" : "Bookmark"}
-              </button>
-            </div>
-            
-            {!isLoggedIn && (
-              <p className="login-prompt">
-                Please <a href="/login">log in</a> to purchase or bookmark this book.
-              </p>
-            )}
+
+          <div className="actions">
+            <button className="add" onClick={handleAddToCart}>Add to Cart</button>
+            <button className="bookmark" onClick={handleBookmark}>Bookmark</button>
           </div>
         </div>
       </div>
-      
+
+      {/* Reviews Section */}
+      <div className="reviews-container">
+        <h2>📋 Reviews</h2>
+        {reviews.length === 0 ? (
+          <p>No reviews yet.</p>
+        ) : (
+          reviews.map((r) => (
+            <div className="review-card" key={r.id}>
+              <div className="review-header">
+                <strong>{r.userEmail}</strong>
+                <div className="stars">{renderStars(r.rating)}</div>
+                <span className="date">{new Date(r.createdAt).toLocaleString()}</span>
+              </div>
+              <p className="comment">"{r.comment}"</p>
+            </div>
+          ))
+        )}
+      </div>
+
       <Footer />
     </div>
   );

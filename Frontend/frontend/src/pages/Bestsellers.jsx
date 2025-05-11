@@ -6,6 +6,7 @@ import '../styles/Bestseller.css';
 
 const BestOfTheBest = () => {
   const [books, setBooks] = useState([]);
+  const [genres, setGenres] = useState([]);
   const [activeFilter, setActiveFilter] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [sortOption, setSortOption] = useState('');
@@ -13,19 +14,44 @@ const BestOfTheBest = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    fetchGenres();
     fetchBooks();
     decodeToken();
   }, []);
 
   const fetchBooks = async () => {
-    setIsLoading(true);
+  setIsLoading(true);
+  try {
+    const res = await api.get('/book/best-sellers');
+    const enriched = await Promise.all(
+      (res.data || []).map(async (book) => {
+        try {
+          const reviewRes = await api.get(`/reviews/stats/${book.id}/average`);
+          return {
+            ...book,
+            rating: reviewRes.data.averageRating || 0,
+            reviews: reviewRes.data.reviewCount || 0
+          };
+        } catch {
+          return { ...book, rating: 0, reviews: 0 };
+        }
+      })
+    );
+    setBooks(enriched);
+  } catch (err) {
+    console.error('Failed to fetch bestsellers:', err);
+  } finally {
+    setIsLoading(false);
+  }
+};
+
+
+  const fetchGenres = async () => {
     try {
-      const res = await api.get('/book');
-      setBooks(res.data);
+      const res = await api.get('/meta/genres');
+      setGenres(res.data || []);
     } catch (err) {
-      console.error('Failed to fetch books:', err);
-    } finally {
-      setIsLoading(false);
+      console.error('Failed to fetch genres:', err);
     }
   };
 
@@ -62,7 +88,7 @@ const BestOfTheBest = () => {
       alert('❌ Please login to bookmark.');
       return;
     }
-    
+
     try {
       await api.post('/bookmark', { bookId });
       alert(`📌 Bookmarked "${title}"!`);
@@ -78,7 +104,7 @@ const BestOfTheBest = () => {
 
   const filteredBooks = books
     .filter(book =>
-      activeFilter === 'all' || book.category?.toLowerCase() === activeFilter
+      activeFilter === 'all' || book.genreName?.toLowerCase() === activeFilter.toLowerCase()
     )
     .filter(book =>
       book.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -88,84 +114,68 @@ const BestOfTheBest = () => {
       if (sortOption === 'title') return a.title.localeCompare(b.title);
       if (sortOption === 'price-asc') return a.price - b.price;
       if (sortOption === 'price-desc') return b.price - a.price;
-      if (sortOption === 'rating') return b.rating - a.rating;
+      if (sortOption === 'rating') return (b.rating || 0) - (a.rating || 0);
       return 0;
     });
 
-  // Reusable star rating component
-  const StarRating = ({ rating }) => {
-    return (
-      <div className="stars">
-        {[...Array(5)].map((_, i) => (
-          <span key={i} className={i < Math.round(rating || 0) ? "star filled" : "star"}>★</span>
-        ))}
+  const StarRating = ({ rating }) => (
+    <div className="stars">
+      {[...Array(5)].map((_, i) => (
+        <span key={i} className={i < Math.round(rating || 0) ? "star filled" : "star"}>★</span>
+      ))}
+    </div>
+  );
+
+  const BookCard = ({ book }) => (
+    <div className="premium-book-card" key={book.id}>
+      <div className="book-image-container">
+        <div className="ribbon">{book.rating >= 4.5 ? "Top Rated" : ""}</div>
+        <img
+          src={book.imageUrl?.startsWith('http') ? book.imageUrl : `http://localhost:5046${book.imageUrl}`}
+          alt={book.title}
+          loading="lazy"
+        />
       </div>
-    );
-  };
-
-  // Book card component
-  const BookCard = ({ book }) => {
-    return (
-      <div className="premium-book-card" key={book.id}>
-        <div className="book-image-container">
-          <div className="ribbon">{book.rating >= 4.5 ? "Top Rated" : ""}</div>
-          <img
-            src={book.imageUrl?.startsWith('http') ? book.imageUrl : `http://localhost:5046${book.imageUrl}`}
-            alt={book.title}
-            loading="lazy"
-          />
+      <div className="book-details">
+        <h3>{book.title}</h3>
+        <p className="author">by {book.author}</p>
+        <div className="book-rating">
+        <div className="stars">
+          {[1, 2, 3, 4, 5].map((star) => (
+            <span
+              key={star}
+              className={book.rating >= star ? 'filled-star' : 'empty-star'}
+            >
+              ★
+            </span>
+          ))}
         </div>
-        <div className="book-details">
-          <h3>{book.title}</h3>
-          <p className="author">by {book.author}</p>
-          <div className="rating">
-            <StarRating rating={book.rating} />
-            {book.reviews && (
-              <span className="review-count">({book.reviews.toLocaleString()} reviews)</span>
-            )}
+        <span className="rating-count">
+          {book.reviews > 0
+            ? `(${book.reviews} review${book.reviews > 1 ? 's' : ''})`
+            : `(No reviews yet)`}
+        </span>
+      </div>
+
+        <p className="description">{book.description}</p>
+        {book.bookAwardNames?.length > 0 && (
+          <div className="awards">
+            <h4>Awards:</h4>
+            <ul>
+              {book.bookAwardNames.map((award, i) => <li key={i}>{award}</li>)}
+            </ul>
           </div>
-          <p className="description">{book.description}</p>
-
-          {book.awards && book.awards.length > 0 && (
-            <div className="awards">
-              <h4>Awards:</h4>
-              <ul>
-                {book.awards.map((award, index) => (
-                  <li key={index}>{award}</li>
-                ))}
-              </ul>
-            </div>
-          )}
-
-          <div className="book-actions">
-            <span className="price">${book.price.toFixed(2)}</span>
-            <div className="action-buttons">
-              <button
-  onClick={() => handleAddToCart(book.id, book.title)}
-  className="add-to-cart-btn"
-  aria-label={`Add ${book.title} to cart`}
-  style={{ backgroundColor: 'black', color: 'white' }}
->
-  <span className="icon"></span>
-  <span className="btn-text">Add to Cart</span>
-</button>
-
-<button
-  onClick={() => handleBookmark(book.id, book.title)}
-  className="bookmark-btn"
-  aria-label={`Bookmark ${book.title}`}
-  style={{ backgroundColor: 'black', color: 'white' }}
->
-  <span className="icon"></span>
-  <span className="btn-text">Bookmark</span>
-</button>
-
-            </div>
+        )}
+        <div className="book-actions">
+          <span className="price">${book.price.toFixed(2)}</span>
+          <div className="action-buttons">
+            <button onClick={() => handleAddToCart(book.id, book.title)} className="add-to-cart-btn">Add to Cart</button>
+            <button onClick={() => handleBookmark(book.id, book.title)} className="bookmark-btn">Bookmark</button>
           </div>
         </div>
       </div>
-    );
-  };
+    </div>
+  );
 
   return (
     <>
@@ -199,13 +209,19 @@ const BestOfTheBest = () => {
           </div>
 
           <div className="category-filters">
-            {['all', 'fiction', 'thriller', 'classic', 'fantasy'].map(cat => (
+            <button
+              className={activeFilter === 'all' ? 'active' : ''}
+              onClick={() => setActiveFilter('all')}
+            >
+              All
+            </button>
+            {genres.map(genre => (
               <button
-                key={cat}
-                className={activeFilter === cat ? 'active' : ''}
-                onClick={() => setActiveFilter(cat)}
+                key={genre.id}
+                className={activeFilter === genre.name.toLowerCase() ? 'active' : ''}
+                onClick={() => setActiveFilter(genre.name.toLowerCase())}
               >
-                {cat.charAt(0).toUpperCase() + cat.slice(1)}
+                {genre.name}
               </button>
             ))}
           </div>

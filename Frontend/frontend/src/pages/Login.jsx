@@ -24,68 +24,86 @@ const Login = () => {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    
-    // Validation
-    if (!form.emailOrUsername.trim() || !form.password) {
-      setError('All fields are required');
-      return;
-    }
-    
-    if (form.password.length < 8) {
-      setError('Password must be at least 8 characters');
-      return;
-    }
-    
-    setError(''); // Clear previous errors
-    setIsLoading(true);
-    
-    try {
-      const response = await api.post('/Auth/login', {
-        EmailOrUsername: form.emailOrUsername,
-        password: form.password,
+  e.preventDefault();
+
+  if (!form.emailOrUsername.trim() || !form.password) {
+    setError('All fields are required');
+    return;
+  }
+
+  if (form.password.length < 8) {
+    setError('Password must be at least 8 characters');
+    return;
+  }
+
+  setError('');
+  setIsLoading(true);
+
+  try {
+    const res = await api.post('/Auth/login', {
+      EmailOrUsername: form.emailOrUsername,
+      password: form.password,
+    });
+
+    const data = res.data;
+
+    // Case: Email not verified
+    if (!data.success && data.code === 'EMAIL_NOT_VERIFIED') {
+      console.warn('[DEBUG] Email not verified. Redirecting to OTP.');
+      await api.post('/auth/resend-otp', null, {
+        params: { email: data.email }
       });
-      
-      // Case: Email not verified
-      if (!response.data.success && response.data.code === 'EMAIL_NOT_VERIFIED') {
-        await api.post('/auth/resend-otp', null, {
-          params: { email: response.data.email }
-        });
-        
-        navigate('/verifyotp', {
-          state: { email: response.data.email }
-        });
-        return;
-      }
-      
-      // Successful login
-      localStorage.setItem('token', response.data.token);
-      localStorage.setItem('role', response.data.role);
-      setSuccess(true);
-      
-      const role = response.data.role?.toLowerCase();
-      
-      setTimeout(() => {
-        if (role === 'admin') {
-          navigate('/admin');
-        } else if (role === 'staff') {
-          navigate('/staff/dashboard');
-        } else {
-          navigate('/');
-        }
-      }, 1500);
-      
-    } catch (err) {
-      console.error('Login error:', err);
-      const msg =
-        err.response?.data?.message ||
-        err.response?.data?.error ||
-        'Login failed. Please check your credentials.';
-      setError(msg);
-    } finally {
-      setIsLoading(false);
+
+      navigate('/verifyotp', {
+        state: { email: data.email }
+      });
+      return;
     }
-  };
+
+    // Case: Invalid login
+    if (!data.success) {
+      console.warn('[DEBUG] Login failed:', data.message);
+      setError(data.message || 'Login failed.');
+      return;
+    }
+
+    // ✅ Success: save token and role
+    if (data.token) {
+      console.log('[DEBUG] Login success. Token:', data.token);
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('role', data.role || 'customer');
+    } else {
+      console.error('[DEBUG] No token returned from backend.');
+      setError('Login failed: No token received.');
+      return;
+    }
+
+    setSuccess(true);
+
+    const role = (data.role || '').toLowerCase();
+    setTimeout(() => {
+      if (role === 'admin') {
+        navigate('/admin');
+      } else if (role === 'staff') {
+        navigate('/staffdashboard');
+      } else {
+        navigate('/');
+      }
+    }, 1500);
+
+  } catch (err) {
+    console.error('[DEBUG] Login error:', err);
+    const msg =
+      err.response?.data?.message ||
+      err.response?.data?.error ||
+      'Login failed. Please check your credentials.';
+    setError(msg);
+  } finally {
+    setIsLoading(false);
+  }
+};
+
+
   
   if (success) {
     return (

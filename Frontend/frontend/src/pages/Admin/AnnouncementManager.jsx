@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import api from '../../api/api'; // ✅ use configured instance
 import AdminSidebar from '../../components/AdminSidebar';
 import AdminNavbar from '../../components/AdminNavbar';
 import '../../styles/AnnouncementManager.css';
@@ -16,7 +16,7 @@ const AnnouncementManager = () => {
 
   const fetchAnnouncements = async () => {
     try {
-      const res = await axios.get('/api/announcement');
+      const res = await api.get('/announcement/admin'); // ✅ admin route
       setAnnouncements(res.data);
     } catch (err) {
       console.error('Error fetching announcements:', err);
@@ -32,7 +32,7 @@ const AnnouncementManager = () => {
   const handleDelete = async (id) => {
     if (!window.confirm('Delete this announcement?')) return;
     try {
-      await axios.delete(`/api/announcement/${id}`);
+      await api.delete(`/announcement/${id}`);
       fetchAnnouncements();
     } catch {
       alert('Failed to delete');
@@ -47,14 +47,14 @@ const AnnouncementManager = () => {
       message: form.message.value,
       startDate: form.startDate.value,
       endDate: form.endDate.value,
-      isActive: form.isActive.checked,
+      showPublicly: form.isActive.checked,
     };
 
     try {
       if (formMode === 'add') {
-        await axios.post('/api/announcement', data);
+        await api.post('/announcement', data);
       } else {
-        await axios.put(`/api/announcement/${selectedAnnouncement.id}`, data);
+        await api.put(`/announcement/${selectedAnnouncement.id}`, data);
       }
       fetchAnnouncements();
       setShowForm(false);
@@ -93,7 +93,7 @@ const AnnouncementManager = () => {
                   <td>{a.message}</td>
                   <td>{a.startDate?.split('T')[0]}</td>
                   <td>{a.endDate?.split('T')[0]}</td>
-                  <td>{a.isActive ? '' : ''}</td>
+                  <td>{a.showPublicly ? '✅' : '❌'}</td>
                   <td>
                     <button onClick={() => openForm('edit', a)}>✏️</button>
                     <button className="btn danger" onClick={() => handleDelete(a.id)}>🗑️</button>
@@ -114,12 +114,12 @@ const AnnouncementManager = () => {
                 <label>End Date:</label>
                 <input name="endDate" type="date" defaultValue={selectedAnnouncement?.endDate?.split('T')[0]} required />
                 <label>
-                  <input type="checkbox" name="isActive" defaultChecked={selectedAnnouncement?.isActive} />
+                  <input type="checkbox" name="isActive" defaultChecked={selectedAnnouncement?.showPublicly} />
                   Show Publicly
                 </label>
                 <div className="form-buttons">
-                  <button type="submit" className="btn primary"> Save</button>
-                  <button type="button" onClick={() => setShowForm(false)}> Cancel</button>
+                  <button type="submit" className="btn primary">Save</button>
+                  <button type="button" onClick={() => setShowForm(false)}>Cancel</button>
                 </div>
               </form>
             </div>

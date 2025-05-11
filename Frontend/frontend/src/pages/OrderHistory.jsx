@@ -25,9 +25,11 @@ const POrderHistory = () => {
                   ...item,
                   imageUrl: bookRes.data.imageUrl,
                   author: bookRes.data.author,
+                  rating: 0,
+                  comment: ''
                 };
               } catch {
-                return item; // fallback to item if book fetch fails
+                return { ...item, rating: 0, comment: '' };
               }
             })
           );
@@ -39,6 +41,45 @@ const POrderHistory = () => {
       alert('Failed to fetch orders.');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleRating = (orderId, bookId, rating) => {
+    setOrders(prev =>
+      prev.map(order =>
+        order.orderId === orderId
+          ? {
+              ...order,
+              items: order.items.map(item =>
+                item.bookId === bookId ? { ...item, rating } : item
+              )
+            }
+          : order
+      )
+    );
+  };
+
+  const handleCommentChange = (orderId, bookId, comment) => {
+    setOrders(prev =>
+      prev.map(order =>
+        order.orderId === orderId
+          ? {
+              ...order,
+              items: order.items.map(item =>
+                item.bookId === bookId ? { ...item, comment } : item
+              )
+            }
+          : order
+      )
+    );
+  };
+
+  const submitReview = async (bookId, rating, comment) => {
+    try {
+      await api.post('/reviews', { bookId, rating, comment });
+      alert('✅ Review submitted!');
+    } catch {
+      alert('❌ Failed to submit review.');
     }
   };
 
@@ -69,6 +110,7 @@ const POrderHistory = () => {
               <p>Claim Code: {order.claimCode}</p>
               <p>Placed on: {new Date(order.orderedAt).toLocaleString()}</p>
               <p>Total: ${order.totalAmount?.toFixed(2) ?? '0.00'}</p>
+
               <ul className="order-items">
                 {order.items.map(item => (
                   <li key={item.bookId}>
@@ -87,9 +129,37 @@ const POrderHistory = () => {
                         <p>Qty: {item.quantity} × ${item.unitPrice?.toFixed(2) ?? '0.00'}</p>
                       </div>
                     </div>
+
+                    {order.status === 'Completed' && (
+                      <div className="review-section">
+                        <div className="stars">
+                          {[1, 2, 3, 4, 5].map(star => (
+                            <span
+                              key={star}
+                              className={item.rating >= star ? 'filled-star' : 'empty-star'}
+                              onClick={() => handleRating(order.orderId, item.bookId, star)}
+                            >
+                              ★
+                            </span>
+                          ))}
+                        </div>
+                        <textarea
+                          placeholder="Write your review..."
+                          value={item.comment}
+                          onChange={(e) => handleCommentChange(order.orderId, item.bookId, e.target.value)}
+                        />
+                        <button
+                          className="review-submit-btn"
+                          onClick={() => submitReview(item.bookId, item.rating, item.comment)}
+                        >
+                          Submit Review
+                        </button>
+                      </div>
+                    )}
                   </li>
                 ))}
               </ul>
+
               {order.status === 'Pending' && (
                 <button onClick={() => handleCancel(order.orderId)} className="cancel-btn">
                   ❌ Cancel Order

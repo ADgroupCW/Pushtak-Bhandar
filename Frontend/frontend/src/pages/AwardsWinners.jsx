@@ -1,0 +1,229 @@
+import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+import api from '../api/api';
+import Navbar from '../components/Navbar';
+import Footer from '../components/footer';
+import '../styles/AwardWinners.css';
+
+const AwardWinners = () => {
+  const [books, setBooks] = useState([]);
+  const [filteredBooks, setFilteredBooks] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [sortOption, setSortOption] = useState('latest');
+  const [awardSort, setAwardSort] = useState('');
+  const [genres, setGenres] = useState([]);
+  const [formats, setFormats] = useState([]);
+  const [publishers, setPublishers] = useState([]);
+  const [awards, setAwards] = useState([]);
+  const [selectedGenre, setSelectedGenre] = useState('');
+  const [selectedFormat, setSelectedFormat] = useState('');
+  const [selectedPublisher, setSelectedPublisher] = useState('');
+  const [selectedAward, setSelectedAward] = useState('');
+  const [userId, setUserId] = useState(null);
+
+  useEffect(() => {
+    fetchBooks();
+    fetchFilters();
+    decodeToken();
+  }, []);
+
+  const fetchBooks = async () => {
+  try {
+    const res = await api.get('/book/award-winners');
+    const booksWithRatings = await Promise.all(
+      res.data.map(async (book) => {
+        try {
+          const ratingRes = await api.get(`/reviews/stats/${book.id}/average`);
+          return {
+            ...book,
+            averageRating: ratingRes.data.averageRating,
+            reviewCount: ratingRes.data.reviewCount
+          };
+        } catch {
+          return { ...book, averageRating: 0, reviewCount: 0 };
+        }
+      })
+    );
+    setBooks(booksWithRatings);
+    setFilteredBooks(booksWithRatings);
+  } catch (err) {
+    console.error('Failed to fetch award winners:', err);
+  }
+};
+
+
+  const fetchFilters = async () => {
+    try {
+      const [g, p, a, f] = await Promise.all([
+        api.get('/meta/genres'),
+        api.get('/meta/publishers'),
+        api.get('/meta/awards'),
+        api.get('/meta/formats'),
+      ]);
+      setGenres(g.data);
+      setPublishers(p.data);
+      setAwards(a.data);
+      setFormats(f.data);
+    } catch (err) {
+      console.error('Failed to fetch filters:', err);
+    }
+  };
+
+  const decodeToken = () => {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      const id = payload['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'];
+      setUserId(id);
+    } catch (err) {
+      console.error('Invalid token', err);
+    }
+  };
+
+  const handleSearchAndFilter = () => {
+    let filtered = [...books];
+
+    if (searchTerm) {
+      const term = searchTerm.toLowerCase();
+      filtered = filtered.filter(book =>
+        book.title.toLowerCase().includes(term) ||
+        book.author.toLowerCase().includes(term)
+      );
+    }
+
+    if (selectedGenre) filtered = filtered.filter(b => b.genreName === selectedGenre);
+    if (selectedFormat) filtered = filtered.filter(b => b.bookFormatNames.includes(selectedFormat));
+    if (selectedPublisher) filtered = filtered.filter(b => b.publisherName === selectedPublisher);
+    if (selectedAward) filtered = filtered.filter(b => b.bookAwardNames.includes(selectedAward));
+
+    if (awardSort === 'asc') {
+      filtered.sort((a, b) => (a.bookAwardNames[0] || '').localeCompare(b.bookAwardNames[0] || ''));
+    } else if (awardSort === 'desc') {
+      filtered.sort((a, b) => (b.bookAwardNames[0] || '').localeCompare(a.bookAwardNames[0] || ''));
+    } else if (sortOption === 'latest') {
+      filtered.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    } else if (sortOption === 'oldest') {
+      filtered.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+    }
+
+    setFilteredBooks(filtered);
+  };
+
+  const handleAddToCart = async (e, bookId, title) => {
+    e.preventDefault();
+    if (!userId) return alert('Please login to add to cart.');
+    try {
+      await api.post('/cart', { bookId, quantity: 1 });
+      alert(`✅ Added "${title}" to cart!`);
+    } catch {
+      alert('❌ Failed to add to cart.');
+    }
+  };
+
+  const handleBookmark = async (e, bookId, title) => {
+    e.preventDefault();
+    if (!userId) return alert('Please login to bookmark.');
+    try {
+      await api.post('/bookmark', { bookId });
+      alert(`📌 Bookmarked "${title}"!`);
+    } catch {
+      alert('⚠️ Already bookmarked.');
+    }
+  };
+
+  return (
+    <>
+      <Navbar />
+      <div className="award-page">
+        <h1>🏆 Award-Winning Books</h1>
+
+        <div className="filters-bar">
+          <input
+            type="text"
+            placeholder="Search by title or author"
+            value={searchTerm}
+            onChange={e => setSearchTerm(e.target.value)}
+          />
+
+          <select value={sortOption} onChange={e => setSortOption(e.target.value)}>
+            <option value="latest">Sort: Latest</option>
+            <option value="oldest">Sort: Oldest</option>
+          </select>
+
+          <select value={awardSort} onChange={e => setAwardSort(e.target.value)}>
+            <option value="">Sort by Award</option>
+            <option value="asc">Award A → Z</option>
+            <option value="desc">Award Z → A</option>
+          </select>
+
+          <select value={selectedGenre} onChange={e => setSelectedGenre(e.target.value)}>
+            <option value="">Genre</option>
+            {genres.map(g => <option key={g.id} value={g.name}>{g.name}</option>)}
+          </select>
+
+          <select value={selectedFormat} onChange={e => setSelectedFormat(e.target.value)}>
+            <option value="">Format</option>
+            {formats.map(f => <option key={f.id} value={f.name}>{f.name}</option>)}
+          </select>
+
+          <select value={selectedPublisher} onChange={e => setSelectedPublisher(e.target.value)}>
+            <option value="">Publisher</option>
+            {publishers.map(p => <option key={p.id} value={p.name}>{p.name}</option>)}
+          </select>
+
+          <select value={selectedAward} onChange={e => setSelectedAward(e.target.value)}>
+            <option value="">Award</option>
+            {awards.map(a => <option key={a.id} value={a.name}>{a.name}</option>)}
+          </select>
+
+          <button onClick={handleSearchAndFilter}>Search</button>
+        </div>
+
+        <div className="award-list">
+          {filteredBooks.length === 0 ? (
+            <p>No award winners found.</p>
+          ) : (
+            filteredBooks.map(book => (
+              <Link to={`/book/${book.id}`} key={book.id} className="award-row">
+                <img
+                  src={book.imageUrl?.startsWith('http') ? book.imageUrl : `http://localhost:5046${book.imageUrl}`}
+                  alt={book.title}
+                />
+                <div className="award-info">
+                  <h3>{book.title}</h3>
+                  <p className="author">by {book.author}</p>
+                  <p className="desc">{book.description}</p>
+                    <div className="award-rating">
+                        {[1, 2, 3, 4, 5].map(star => (
+                            <span key={star} className={book.averageRating >= star ? 'filled-star' : 'empty-star'}>★</span>
+                        ))}
+                        <span className="rating-count">({book.reviewCount} reviews)</span>
+                        </div>
+
+                  <div className="award-meta">
+                    <span className="price">${book.price.toFixed(2)}</span>
+                    {book.originalPrice && book.originalPrice > book.price && (
+                      <span className="original-price">${book.originalPrice.toFixed(2)}</span>
+                    )}
+                    {book.bookAwardNames?.length > 0 && (
+                      <span className="award-badge">🏅 {book.bookAwardNames.join(', ')}</span>
+                    )}
+                  </div>
+
+                  <div className="action-buttons">
+                    <button onClick={e => handleAddToCart(e, book.id, book.title)}>Add to Cart</button>
+                    <button onClick={e => handleBookmark(e, book.id, book.title)}>Bookmark</button>
+                  </div>
+                </div>
+              </Link>
+            ))
+          )}
+        </div>
+      </div>
+      <Footer />
+    </>
+  );
+};
+
+export default AwardWinners;

@@ -12,6 +12,26 @@
   flex-direction: column;
 }
 
+.status-badge {
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  display: inline-block;
+}
+
+.status-badge.verified {
+  background-color: #d1e7dd;
+  color: #0f5132;
+  border: 1px solid #0f5132;
+}
+
+.status-badge.unverified {
+  background-color: #f8d7da;
+  color: #842029;
+  border: 1px solid #842029;
+}
+
 /* User Management Container */
 .user-management {
   padding: 24px;
