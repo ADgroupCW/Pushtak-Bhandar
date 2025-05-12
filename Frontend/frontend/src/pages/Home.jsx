@@ -110,7 +110,7 @@ useEffect(() => {
     setFeaturedBooks(randomBooks);
     setBookOfMonth(bookOfMonth);
 
-    // ✅ Console log full enriched data
+    //  Console log full enriched data
     console.log("Featured Books (with rating & image):", randomBooks);
     console.log("Book of the Month (full):", bookOfMonth);
 

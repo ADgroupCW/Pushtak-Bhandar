@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import '../styles/Login.css';
 import api from '../api/api';
 
+// Login setup
 const Login = () => {
   const [form, setForm] = useState({
     emailOrUsername: '',
@@ -103,7 +104,7 @@ const Login = () => {
       </div>
     );
   }
-
+// login Form
   return (
     <div className="login-page">
       <div className="decorative-books">

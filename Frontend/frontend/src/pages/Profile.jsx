@@ -78,7 +78,7 @@ const Profile = () => {
 
 
 
-
+// verifying old password function
   const verifyOldPassword = async () => {
     if (!passwordForm.oldPassword) {
       setMessage('Please enter your current password');
@@ -148,7 +148,7 @@ const Profile = () => {
     });
     setMessage('');
   };
-
+// profile Form
   return (
     <div className="profile-page">
       <Navbar />
