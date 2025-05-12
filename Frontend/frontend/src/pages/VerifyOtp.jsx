@@ -1,3 +1,4 @@
+// Importing required modules and components
 import React, { useState, useEffect, useRef } from 'react';
 import { BookOpen } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -5,6 +6,8 @@ import api from '../api/api';
 import '../styles/VerifyOtp.css';
 
 export default function VerifyOtp() {
+
+  // OTP fields: 6 digit input, initialized as empty
   const [otp, setOtp] = useState(Array(6).fill(''));
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -15,7 +18,7 @@ export default function VerifyOtp() {
   const navigate = useNavigate();
 
   const email = location.state?.email;
-
+// If email is missing, show error
   useEffect(() => {
     if (!email) {
       setError('Email not provided. Please register again.');
@@ -31,6 +34,7 @@ export default function VerifyOtp() {
     }
   }, [timeLeft]);
 
+   // Display timer as mm:ss
   const formatTime = () => {
     const minutes = String(Math.floor(timeLeft / 60));
     const seconds = String(timeLeft % 60).padStart(2, '0');
@@ -51,6 +55,7 @@ export default function VerifyOtp() {
     }
   };
 
+// Submit OTP for verification
   const handleSubmit = async (e) => {
     e.preventDefault();
     const code = otp.join('');
@@ -72,6 +77,7 @@ export default function VerifyOtp() {
     }
   };
 
+  // Resend OTP logic
   const handleResend = async () => {
     try {
       await api.post('/Auth/resend-otp', null, { params: { email } });
@@ -86,6 +92,7 @@ export default function VerifyOtp() {
     }
   };
 
+  // Frontend 
   return (
     <div className="email-otp-container">
       <div className="email-otp-box">
