@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+// Import icons
 import { Mail, CheckCircle2 as CheckCircle, KeyRound, Timer } from 'lucide-react';
 import api from '../api/api';
 import '../styles/VerifyResetOtp.css'; // You can keep using this or make a new file: ResetOtp.css
@@ -46,6 +47,7 @@ export default function VerifyResetOtp() {
     if (value && index < 5) inputRefs[index + 1].current?.focus();
   };
 
+  // Handle key navigation and backspace
   const handleKeyDown = (index, e) => {
     if (e.key === 'Backspace' && !otp[index] && index > 0) {
       inputRefs[index - 1].current.focus();
@@ -66,6 +68,7 @@ export default function VerifyResetOtp() {
     }
   };
 
+  // Submit OTP verification
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -95,7 +98,7 @@ export default function VerifyResetOtp() {
       setIsLoading(false);
     }
   };
-
+  // Resend OTP logic
   const handleResendOtp = async () => {
     if (resendDisabled) return;
 
@@ -106,7 +109,7 @@ export default function VerifyResetOtp() {
       setMessage('New OTP sent successfully!');
       setCountdown(60);
       setResendDisabled(true);
-
+  // Start new countdown
       const timer = setInterval(() => {
         setCountdown((prev) => {
           if (prev <= 1) {

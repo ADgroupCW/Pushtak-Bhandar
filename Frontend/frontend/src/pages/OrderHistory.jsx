@@ -1,3 +1,4 @@
+// Import core modules
 import React, { useEffect, useState } from 'react';
 import api from '../api/api';
 import Navbar from '../components/Navbar';
@@ -7,7 +8,7 @@ import '../styles/POrderHistory.css';
 const POrderHistory = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
-
+  // On mount, fetch orders
   useEffect(() => {
     fetchOrders();
   }, []);
@@ -43,7 +44,7 @@ const POrderHistory = () => {
       setLoading(false);
     }
   };
-
+  // Update rating in local state
   const handleRating = (orderId, bookId, rating) => {
     setOrders(prev =>
       prev.map(order =>
@@ -58,7 +59,7 @@ const POrderHistory = () => {
       )
     );
   };
-
+  // Submit review to backend
   const handleCommentChange = (orderId, bookId, comment) => {
     setOrders(prev =>
       prev.map(order =>

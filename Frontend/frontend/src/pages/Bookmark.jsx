@@ -1,15 +1,13 @@
-<<<<<<< HEAD
-// Import required React tools and components
-=======
+
 // Import necessary modules and components
->>>>>>> 07c7d951865c2753ca5faf37fcb9c0ef66aa005a
+
 import React, { useEffect, useState } from 'react';
 import api from '../api/api';
 import Navbar from '../components/Navbar';
 import Footer from '../components/footer';
 import '../styles/Bookmark.css';
 
-// Page load huda fetch garxa
+// Fetch is used when pages load
 const Bookmark = () => {
   const [bookmarks, setBookmarks] = useState([]);
   const [loading, setLoading] = useState(true);
