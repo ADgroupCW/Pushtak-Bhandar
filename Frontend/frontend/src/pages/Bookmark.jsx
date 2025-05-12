@@ -1,9 +1,11 @@
+// Import required React tools and components
 import React, { useEffect, useState } from 'react';
 import api from '../api/api';
 import Navbar from '../components/Navbar';
 import Footer from '../components/footer';
 import '../styles/Bookmark.css';
 
+// Page load huda fetch garxa
 const Bookmark = () => {
   const [bookmarks, setBookmarks] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -19,6 +21,7 @@ const Bookmark = () => {
 
       console.log('📌 Raw bookmarks:', rawBookmarks);
 
+      // Get full book details for each bookmark
       const enriched = await Promise.all(
         rawBookmarks.map(async (bm) => {
           try {
@@ -31,6 +34,7 @@ const Bookmark = () => {
         })
       );
 
+      // Remove any null entries (book not found)
       const filtered = enriched.filter(Boolean);
       setBookmarks(filtered);
       console.log('✅ Enriched bookmarks:', filtered);
@@ -52,12 +56,14 @@ const Bookmark = () => {
     }
   };
 
+  // Frontend Starts Here
   return (
     <div className="bookmark-page">
       <Navbar />
       <div className="bookmark-container">
         <h2>📌 My Bookmarks</h2>
 
+{/* Loading state */}
         {loading ? (
           <p>Loading bookmarks...</p>
         ) : bookmarks.length === 0 ? (
@@ -68,6 +74,7 @@ const Bookmark = () => {
               const book = bm.book;
               if (!book) return null;
 
+              // Book image path handling
               const imageUrl = book.imageUrl?.startsWith('http')
                 ? book.imageUrl
                 : `http://localhost:5046${book.imageUrl}`;
