@@ -3,17 +3,17 @@ import { Link, useNavigate } from 'react-router-dom';
 import '../styles/AdminSidebar.css';
 
 const AdminSidebar = () => {
-  const navigate = useNavigate();
+  const navigate = useNavigateNavigate();
 
   const handleLogout = () => {
-    // ✅ Clear token & role
+    //  Remove auth toke and role from local storage
     localStorage.removeItem('token');
     localStorage.removeItem('role');
 
-    // ✅ Optionally: show a confirmation
+    // Notify user about  logout
     alert('You have been logged out.');
 
-    // ✅ Redirect to login
+    // Redirecting to the login page
     navigate('/login');
   };
 
