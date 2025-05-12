@@ -1,3 +1,5 @@
+
+// Importing necessary React and project components
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import api from '../api/api';
@@ -5,6 +7,7 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/footer';
 import '../styles/BookDetails.css';
 
+//Fetching all Data
 const BookDetails = () => {
   const { id } = useParams();
   const [book, setBook] = useState(null);
@@ -56,6 +59,7 @@ const BookDetails = () => {
     }
   };
 
+  // Start sale countdown if the book is on sale
   const startCountdown = (book) => {
     if (!book?.isOnSale) return;
     const interval = setInterval(() => {
@@ -118,11 +122,13 @@ const BookDetails = () => {
 
   if (!book) return <div>Book not found.</div>;
 
+  // Prepare image URL
   const imageUrl = book.imageUrl?.startsWith('http')
     ? book.imageUrl
     : `http://localhost:5046${book.imageUrl}`;
 
   return (
+    // Frontend Starts Here
     <div className="book-page">
       <Navbar />
       {message && <div className={`alert ${message.type}`}>{message.text}</div>}
@@ -150,7 +156,7 @@ const BookDetails = () => {
           </div>
 
           <p className="description">{book.description}</p>
-
+            
           <div className="details-box">
             <p><strong>Publisher:</strong> {book.publisherName}</p>
             <p><strong>Genre:</strong> {book.genreName}</p>
