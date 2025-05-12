@@ -6,7 +6,7 @@ import Footer from '../components/footer';
 import api from '../api/api';
 import '../styles/AllBooks.css';
 
-//  AllBooks component start
+//  AllBooks component 
 const AllBooks = () => {
   const [books, setBooks] = useState([]);
   const [filteredBooks, setFilteredBooks] = useState([]);
