@@ -1,3 +1,4 @@
+// Required import
 import React, { useState, useEffect } from 'react';
 import { BookOpen, Mail, User, Lock, Eye, EyeOff } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -5,6 +6,7 @@ import api from '../api/api';
 
 import '../styles/Register.css';
 
+// Form state
 export default function Register() {
   const [form, setForm] = useState({
     username: '',
@@ -23,6 +25,7 @@ export default function Register() {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
+  // Client-side validation for the form
   const validateForm = () => {
     const { username, email, password, confirmPassword } = form;
 
@@ -49,6 +52,7 @@ export default function Register() {
     return '';
   };
 
+  // Handle form submit
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -78,6 +82,7 @@ export default function Register() {
     }
   };
 
+    // After successful registration, redirect to OTP verification page after 10 seconds
   useEffect(() => {
     if (registered) {
       const timer = setTimeout(() => {
@@ -88,6 +93,7 @@ export default function Register() {
     }
   }, [registered, navigate, form.email]);
 
+  // If registered, show success message box
   if (registered) {
     return (
       <div className="register-success-wrapper">
@@ -113,6 +119,7 @@ export default function Register() {
     );
   }
 
+    // Main registration form
   return (
     <div className="register-wrapper">
       {/* Decorative books */}
