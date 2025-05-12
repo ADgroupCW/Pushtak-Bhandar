@@ -5,6 +5,7 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/footer';
 import '../styles/AwardWinners.css';
 
+// Sabai state haru declare gareko cha (books, filters, selected values, etc.)
 const AwardWinners = () => {
   const [books, setBooks] = useState([]);
   const [filteredBooks, setFilteredBooks] = useState([]);
@@ -110,6 +111,7 @@ const AwardWinners = () => {
     }
   };
 
+   //  User le search, sort, filter garda book list update garne
   const handleSearchAndFilter = () => {
     let filtered = [...books];
 
@@ -139,6 +141,7 @@ const AwardWinners = () => {
     setFilteredBooks(filtered);
   };
 
+// Book cart ma add garna
   const handleAddToCart = async (e, bookId, title) => {
     e.preventDefault();
     if (!userId) return alert('Please login to add to cart.');
@@ -161,8 +164,10 @@ const AwardWinners = () => {
     }
   };
 
+  // Frontend starts 
   return (
     <>
+    
       <Navbar />
       <div className="aw-page">
         <h1>🏆 Award-Winning Books</h1>
