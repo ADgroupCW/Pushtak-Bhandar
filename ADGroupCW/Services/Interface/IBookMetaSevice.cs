@@ -18,7 +18,7 @@ namespace ADGroupCW.Services.Interfaces
         Task<List<BookAwardReadDto>> GetAwardsAsync();
         Task<BookAwardReadDto> AddAwardAsync(NameOnlyDto dto);
 
-        // Format section Retrieves a list of all supported book formats
+        // Format section Retrieves a list of all supported book format
         Task<List<BookFormatReadDto>> GetFormatsAsync();
         Task<BookFormatReadDto> AddFormatAsync(NameOnlyDto dto);
     }

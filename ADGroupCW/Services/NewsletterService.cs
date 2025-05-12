@@ -17,10 +17,11 @@ namespace ADGroupCW.Services
 
         public async Task<bool> SubscribeAsync(string email)
         {
+            // check if the email already belongs to a registered user 
             var exists = await _context.Users.AnyAsync(u => u.Email == email);
             if (exists) return false; // Do nothing if already a user
 
-            // Send newsletter welcome email
+            // Compose and send newsletter email to the new user
             var subject = "Thanks for subscribing to Pushtak Bhandar!";
             var body = "We're glad to have you on board. Stay tuned for updates, discounts, and more!";
             await _emailService.SendEmailAsync(email, subject, body);
