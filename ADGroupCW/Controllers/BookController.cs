@@ -16,7 +16,7 @@ namespace ADGroupCW.Controllers
             _bookService = bookService;
         }
 
-        // ✅ CREATE
+        // add a new book to the system
         [HttpPost]
         public async Task<IActionResult> CreateBook([FromForm] BookCreateDto dto)
         {
@@ -32,7 +32,7 @@ namespace ADGroupCW.Controllers
             return Ok(result);
         }
 
-        // ✅ READ ALL
+        // Retrieve all books from the system
         [HttpGet]
         public async Task<IActionResult> GetAllBooks()
         {
@@ -40,7 +40,7 @@ namespace ADGroupCW.Controllers
             return Ok(books);
         }
 
-        // ✅ READ BY ID
+        // READ BY ID
         [HttpGet("{id}")]
         public async Task<IActionResult> GetBookById(int id)
         {
@@ -49,7 +49,7 @@ namespace ADGroupCW.Controllers
             return Ok(book);
         }
 
-        // ✅ UPDATE
+        // UPDATE an existing books details using id
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateBook(int id, [FromForm] BookCreateDto dto)
         {
@@ -75,7 +75,7 @@ namespace ADGroupCW.Controllers
             return Ok();
         }
 
-        // ✅ DELETE
+        // remove a book by its id
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteBook(int id)
         {
@@ -84,7 +84,7 @@ namespace ADGroupCW.Controllers
             return NoContent();
         }
 
-        // ✅ New Releases
+        // get books marked as new release
         [HttpGet("new-releases")]
         public async Task<IActionResult> GetNewReleases()
         {
@@ -92,7 +92,7 @@ namespace ADGroupCW.Controllers
             return Ok(books);
         }
 
-        // ✅ Award Winners
+        // get books that have won awards
         [HttpGet("award-winners")]
         public async Task<IActionResult> GetAwardWinners()
         {
@@ -100,7 +100,7 @@ namespace ADGroupCW.Controllers
             return Ok(books);
         }
 
-        // ✅ Deals
+        // Deals
         [HttpGet("deals")]
         public async Task<IActionResult> GetDeals()
         {
@@ -108,7 +108,7 @@ namespace ADGroupCW.Controllers
             return Ok(books);
         }
 
-        // ✅ Best Sellers
+        //Best Sellers
         [HttpGet("best-sellers")]
         public async Task<IActionResult> GetBestSellers()
         {
@@ -116,7 +116,7 @@ namespace ADGroupCW.Controllers
             return Ok(books);
         }
 
-        // ✅ New Arrivals
+        // get books which are just newly arrived
         [HttpGet("new-arrivals")]
         public async Task<IActionResult> GetNewArrivals()
         {
@@ -124,7 +124,7 @@ namespace ADGroupCW.Controllers
             return Ok(books);
         }
 
-
+        // get all categorized homepage book sections
         [HttpGet("homepage")]
         public async Task<IActionResult> GetHomepageBooks()
         {
