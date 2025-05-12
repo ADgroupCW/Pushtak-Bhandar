@@ -2,8 +2,7 @@ import React, { useState } from 'react';
 import { Mail, Lock, Eye, EyeOff, BookOpen, Loader } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import '../styles/Login.css';
-import api from '../api/api'
-
+import api from '../api/api';
 
 const Login = () => {
   const [form, setForm] = useState({
@@ -19,92 +18,77 @@ const Login = () => {
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
-    // Clear error when user starts typing again
     if (error) setError('');
   };
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  if (!form.emailOrUsername.trim() || !form.password) {
-    setError('All fields are required');
-    return;
-  }
+    if (!form.emailOrUsername.trim() || !form.password) {
+      setError('All fields are required');
+      return;
+    }
 
-  if (form.password.length < 8) {
-    setError('Password must be at least 8 characters');
-    return;
-  }
+    if (form.password.length < 8) {
+      setError('Password must be at least 8 characters');
+      return;
+    }
 
-  setError('');
-  setIsLoading(true);
+    setError('');
+    setIsLoading(true);
 
-  try {
-    const res = await api.post('/Auth/login', {
-      EmailOrUsername: form.emailOrUsername,
-      password: form.password,
-    });
-
-    const data = res.data;
-
-    // Case: Email not verified
-    if (!data.success && data.code === 'EMAIL_NOT_VERIFIED') {
-      console.warn('[DEBUG] Email not verified. Redirecting to OTP.');
-      await api.post('/auth/resend-otp', null, {
-        params: { email: data.email }
+    try {
+      const res = await api.post('/Auth/login', {
+        EmailOrUsername: form.emailOrUsername,
+        password: form.password,
       });
 
-      navigate('/verifyotp', {
-        state: { email: data.email }
-      });
-      return;
-    }
+      const data = res.data;
 
-    // Case: Invalid login
-    if (!data.success) {
-      console.warn('[DEBUG] Login failed:', data.message);
-      setError(data.message || 'Login failed.');
-      return;
-    }
-
-    // ✅ Success: save token and role
-    if (data.token) {
-      console.log('[DEBUG] Login success. Token:', data.token);
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('role', data.role || 'customer');
-    } else {
-      console.error('[DEBUG] No token returned from backend.');
-      setError('Login failed: No token received.');
-      return;
-    }
-
-    setSuccess(true);
-
-    const role = (data.role || '').toLowerCase();
-    setTimeout(() => {
-      if (role === 'admin') {
-        navigate('/admin');
-      } else if (role === 'staff') {
-        navigate('/staffdashboard');
-      } else {
-        navigate('/');
+      if (!data.success && data.code === 'EMAIL_NOT_VERIFIED') {
+        await api.post('/auth/resend-otp', null, {
+          params: { email: data.email }
+        });
+        navigate('/verifyotp', { state: { email: data.email } });
+        return;
       }
-    }, 1500);
 
-  } catch (err) {
-    console.error('[DEBUG] Login error:', err);
-    const msg =
-      err.response?.data?.message ||
-      err.response?.data?.error ||
-      'Login failed. Please check your credentials.';
-    setError(msg);
-  } finally {
-    setIsLoading(false);
-  }
-};
+      if (!data.success) {
+        setError(data.message || 'Login failed.');
+        return;
+      }
 
+      if (data.token) {
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('role', data.role || 'customer');
+      } else {
+        setError('Login failed: No token received.');
+        return;
+      }
 
-  
+      setSuccess(true);
+      const role = (data.role || '').toLowerCase();
+
+      setTimeout(() => {
+        if (role === 'admin') {
+          navigate('/admin');
+        } else if (role === 'staff') {
+          navigate('/staffdashboard');
+        } else {
+          navigate('/');
+        }
+      }, 1500);
+    } catch (err) {
+      const msg =
+        err.response?.data?.message ||
+        err.response?.data?.error ||
+        'Login failed. Please check your credentials.';
+      setError(msg);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   if (success) {
     return (
       <div className="success-container">
@@ -127,8 +111,13 @@ const Login = () => {
         <div className="book book-2"></div>
         <div className="book book-3"></div>
       </div>
-      
+
       <div className="login-container">
+        {/* ← Go Back Button */}
+        <button className="go-back-btn" onClick={() => navigate(-1)}>
+          ← Go Back
+        </button>
+
         <div className="login-header">
           <div className="logo">
             <BookOpen size={32} />
@@ -136,16 +125,12 @@ const Login = () => {
           </div>
           <p className="tagline">Your digital library companion</p>
         </div>
-        
+
         <div className="login-form-container">
           <h2>Welcome Back</h2>
-          
-          {error && (
-            <div className="error-message">
-              {error}
-            </div>
-          )}
-          
+
+          {error && <div className="error-message">{error}</div>}
+
           <form onSubmit={handleSubmit}>
             <div className="form-group">
               <label htmlFor="emailOrUsername">
@@ -164,7 +149,7 @@ const Login = () => {
                 className={error && !form.emailOrUsername ? "error" : ""}
               />
             </div>
-            
+
             <div className="form-group">
               <label htmlFor="password">
                 <Lock size={18} />
@@ -193,7 +178,7 @@ const Login = () => {
               </div>
               <small>Minimum 8 characters required</small>
             </div>
-            
+
             <div className="form-actions">
               <div className="remember-me">
                 <input type="checkbox" id="remember" />
@@ -207,9 +192,9 @@ const Login = () => {
                 Forgot Password?
               </button>
             </div>
-            
-            <button 
-              type="submit" 
+
+            <button
+              type="submit"
               className="login-button"
               disabled={isLoading}
             >
@@ -223,14 +208,14 @@ const Login = () => {
               )}
             </button>
           </form>
-          
+
           <div className="separator">
             <span>OR</span>
           </div>
-          
+
           <div className="register-prompt">
             <p>Don't have an account?</p>
-            <button 
+            <button
               className="register-button"
               onClick={() => navigate('/register')}
             >
@@ -238,9 +223,11 @@ const Login = () => {
             </button>
           </div>
         </div>
-        
+
         <div className="login-footer">
-          <p className="quote">"Reading is essential for those who seek to rise above the ordinary."</p>
+          <p className="quote">
+            "Reading is essential for those who seek to rise above the ordinary."
+          </p>
           <p className="terms">
             By logging in, you agree to Pushtak Bhandar's{' '}
             <a href="/terms">Terms of Service</a> and{' '}

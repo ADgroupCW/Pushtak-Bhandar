@@ -1,213 +1,393 @@
-/* Container */
-.new-arrivals-container {
+/* NewArrivals.css - Black & White Theme */
+
+/* Base Styles */
+.na-page {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 2rem;
+  padding: 2rem 1rem 4rem;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #1a1a1a;
+  background-color: #ffffff;
 }
 
 /* Hero Section */
-.hero-section {
+.na-hero {
   text-align: center;
-  margin-bottom: 2rem;
+  margin-bottom: 3rem;
+  padding: 3rem 1rem;
+  background-color: #f2f2f2;
+  border-radius: 8px;
 }
-.hero-section h1 {
+
+.na-hero h1 {
   font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+  color: #000;
 }
-.hero-section p {
-  color: #555;
+
+.na-hero p {
+  font-size: 1.2rem;
+  color: #333;
 }
 
 /* Filters */
-.filters-section {
+.na-filters {
   display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
+  justify-content: space-between;
   margin-bottom: 2rem;
-  justify-content: center;
-}
-.filters-section .search-bar input,
-.filters-section select {
-  padding: 0.6rem 1rem;
-  font-size: 1rem;
-  border: 1px solid #ccc;
-  border-radius: 6px;
+  gap: 1rem;
+  flex-wrap: wrap;
 }
 
-/* Book List View - 1 per row */
-.books-showcase {
+.na-filters input,
+.na-filters select {
+  flex: 1;
+  min-width: 250px;
+  padding: 0.8rem 1rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+  background-color: #fff;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.na-filters input:focus,
+.na-filters select:focus {
+  outline: none;
+  border-color: #000;
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
+}
+
+/* Books Grid */
+.na-books {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 2rem;
+  margin-bottom: 4rem;
+}
+
+.na-card-link {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  height: 100%;
+}
+
+.na-card {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
-}
-.premium-book-card {
-  display: flex;
-  background-color: #fff;
+  height: 100%;
   border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.07);
   overflow: hidden;
-  transition: 0.3s ease;
-}
-.premium-book-card:hover {
-  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s, box-shadow 0.3s;
+  background-color: #fff;
 }
 
-/* Image Section */
-.book-image-container {
-  position: relative;
-  width: 240px;
-  height: 320px;
-  flex-shrink: 0;
+.na-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
 }
-.book-image-container img {
+
+/* Image Box */
+.na-img-box {
+  position: relative;
+  height: 250px;
+  overflow: hidden;
+  background-color: #f5f5f5;
+}
+
+.na-img-box img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-}
-.on-sale-banner,
-.new-badge {
-  position: absolute;
-  top: 10px;
-  padding: 5px 10px;
-  color: white;
-  font-size: 13px;
-  border-radius: 4px;
-  font-weight: bold;
-  z-index: 5;
-}
-.on-sale-banner {
-  left: 10px;
-  background-color: crimson;
-}
-.new-badge {
-  right: 10px;
-  background-color: #28a745;
+  transition: transform 0.5s;
 }
 
-/* Book Details */
-.book-details {
-  padding: 1.5rem;
-  flex: 1;
+.na-card:hover .na-img-box img {
+  transform: scale(1.05);
+}
+
+/* Badges */
+.na-badge {
+  position: absolute;
+  top: 10px;
+  padding: 0.3rem 0.8rem;
+  border-radius: 3px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  z-index: 1;
+}
+
+.na-sale {
+  left: 10px;
+  background-color: #000;
+  color: #fff;
+}
+
+.na-new {
+  right: 10px;
+  background-color: #fff;
+  color: #000;
+  border: 1px solid #000;
+}
+
+/* Book Info */
+.na-info {
   display: flex;
   flex-direction: column;
-}
-.book-details h3 {
-  font-size: 1.4rem;
-  margin-bottom: 0.5rem;
-}
-.book-details .author {
-  font-style: italic;
-  color: #555;
-  margin-bottom: 0.5rem;
-}
-.book-details .description {
-  font-size: 0.95rem;
-  color: #666;
-  margin-bottom: 0.8rem;
   flex-grow: 1;
+  padding: 1.5rem;
 }
-.book-details .price {
+
+.na-info h3 {
+  margin: 0 0 0.5rem;
   font-size: 1.2rem;
-  font-weight: bold;
+  line-height: 1.3;
+  color: #000;
+  font-weight: 600;
 }
-.original-price {
-  text-decoration: line-through;
-  color: #999;
-  margin-left: 10px;
-  font-size: 0.95rem;
-}
-.sale-timer {
-  color: #c82333;
+
+.na-author {
+  margin: 0 0 0.7rem;
   font-size: 0.9rem;
-  margin-top: 5px;
+  color: #555;
+  font-style: italic;
+}
+
+.na-desc {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+  color: #444;
+  line-height: 1.4;
+}
+
+/* Rating */
+.na-rating {
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+}
+
+.na-filled-star, .na-empty-star {
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.na-filled-star {
+  color: #000;
+}
+
+.na-empty-star {
+  color: #ddd;
+}
+
+.na-rating-count {
+  margin-left: 0.5rem;
+  font-size: 0.8rem;
+  color: #777;
+}
+
+/* Price */
+.na-price {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: #000;
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+
+.na-original-price {
+  text-decoration: line-through;
+  font-size: 0.9rem;
+  color: #999;
+  font-weight: normal;
+}
+
+/* Sale Timer */
+.na-timer {
+  margin-bottom: 1rem;
+  font-size: 0.85rem;
+  color: #555;
+  font-weight: 500;
 }
 
 /* Action Buttons */
-.action-buttons {
+.na-actions {
   display: flex;
-  gap: 1rem;
-  margin-top: 1rem;
-}
-.action-buttons button {
-  padding: 0.6rem 1.2rem;
-  border: none;
-  border-radius: 5px;
-  font-weight: bold;
-  cursor: pointer;
-  font-size: 0.95rem;
-}
-.add-to-cart-btn {
-  background-color: #28a745;
-  color: white;
-}
-.add-to-cart-btn:hover {
-  background-color: #218838;
-}
-.bookmark-btn {
-  background-color: #ffc107;
-  color: #212529;
-}
-.bookmark-btn:hover {
-  background-color: #e0a800;
+  gap: 0.8rem;
+  margin-top: auto;
 }
 
-/* Loading and Empty State */
-.loading-container,
-.no-results {
-  text-align: center;
-  padding: 2rem 0;
-  color: #555;
+.na-actions button {
+  flex: 1;
+  padding: 0.7rem 0;
+  border: none;
+  border-radius: 4px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 0.9rem;
 }
+
+.na-actions button:first-child {
+  background-color: #000;
+  color: #fff;
+}
+
+.na-actions button:first-child:hover {
+  background-color: #333;
+}
+
+.na-actions button:last-child {
+  background-color: #fff;
+  color: #000;
+  border: 1px solid #000;
+}
+
+.na-actions button:last-child:hover {
+  background-color: #f2f2f2;
+}
+
+/* Loading State */
+.na-loading {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+}
+
 .loader {
-  border: 4px solid #eee;
-  border-top: 4px solid #666;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #000;
   border-radius: 50%;
-  width: 32px;
-  height: 32px;
-  animation: spin 0.8s linear infinite;
-  margin: 0 auto 10px;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
 }
+
 @keyframes spin {
-  to {
-    transform: rotate(360deg);
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Empty State */
+.na-empty {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 3rem;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+}
+
+.na-empty h3 {
+  margin-bottom: 0.5rem;
+  color: #333;
+}
+
+.na-empty p {
+  color: #666;
+}
+
+/* Subscribe Section */
+.na-subscribe {
+  margin-top: 3rem;
+  background-color: #000;
+  color: #fff;
+  padding: 3rem 2rem;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.na-subscribe-content {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.na-subscribe h2 {
+  margin-bottom: 1rem;
+  font-size: 1.8rem;
+}
+
+.na-subscribe p {
+  margin-bottom: 1.5rem;
+  color: #ccc;
+}
+
+.na-subscribe-form {
+  display: flex;
+  gap: 0.5rem;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.na-subscribe-form input {
+  flex: 1;
+  padding: 0.8rem 1rem;
+  border: none;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+.na-subscribe-form button {
+  padding: 0.8rem 1.5rem;
+  background-color: #fff;
+  color: #000;
+  border: none;
+  border-radius: 4px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.na-subscribe-form button:hover {
+  background-color: #f0f0f0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .na-hero {
+    padding: 2rem 1rem;
+  }
+  
+  .na-hero h1 {
+    font-size: 2rem;
+  }
+  
+  .na-filters {
+    flex-direction: column;
+  }
+  
+  .na-books {
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1.5rem;
+  }
+  
+  .na-subscribe {
+    padding: 2rem 1rem;
+  }
+  
+  .na-subscribe-form {
+    flex-direction: column;
   }
 }
 
-/* Subscription Section */
-.subscription-banner {
-  background: #f8f8f8;
-  padding: 2rem;
-  margin-top: 3rem;
-  text-align: center;
-  border-radius: 8px;
-}
-.subscription-banner h2 {
-  font-size: 1.8rem;
-}
-.subscription-banner p {
-  color: #666;
-  margin-bottom: 1rem;
-}
-.subscribe-form {
-  display: flex;
-  justify-content: center;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-}
-.subscribe-form input[type="email"] {
-  padding: 0.6rem;
-  border-radius: 4px;
-  border: 1px solid #ccc;
-  width: 250px;
-}
-.subscribe-form button {
-  background-color: #007bff;
-  color: white;
-  padding: 0.6rem 1rem;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-.subscribe-form button:hover {
-  background-color: #0056b3;
+@media (max-width: 480px) {
+  .na-actions {
+    flex-direction: column;
+  }
+  
+  .na-img-box {
+    height: 200px;
+  }
 }

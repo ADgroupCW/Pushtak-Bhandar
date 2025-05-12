@@ -20,6 +20,7 @@ const AwardWinners = () => {
   const [selectedPublisher, setSelectedPublisher] = useState('');
   const [selectedAward, setSelectedAward] = useState('');
   const [userId, setUserId] = useState(null);
+  const [countdowns, setCountdowns] = useState({});
 
   useEffect(() => {
     fetchBooks();
@@ -27,30 +28,58 @@ const AwardWinners = () => {
     decodeToken();
   }, []);
 
-  const fetchBooks = async () => {
-  try {
-    const res = await api.get('/book/award-winners');
-    const booksWithRatings = await Promise.all(
-      res.data.map(async (book) => {
-        try {
-          const ratingRes = await api.get(`/reviews/stats/${book.id}/average`);
-          return {
-            ...book,
-            averageRating: ratingRes.data.averageRating,
-            reviewCount: ratingRes.data.reviewCount
-          };
-        } catch {
-          return { ...book, averageRating: 0, reviewCount: 0 };
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const updated = {};
+      books.forEach(book => {
+        if (isOnSale(book)) {
+          const end = new Date(book.saleEndDate);
+          const now = new Date();
+          const diff = end - now;
+          if (diff > 0) {
+            const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
+            const m = Math.floor((diff / (1000 * 60)) % 60);
+            const s = Math.floor((diff / 1000) % 60);
+            updated[book.id] = `${d}d ${h}h ${m}m ${s}s`;
+          }
         }
-      })
-    );
-    setBooks(booksWithRatings);
-    setFilteredBooks(booksWithRatings);
-  } catch (err) {
-    console.error('Failed to fetch award winners:', err);
-  }
-};
+      });
+      setCountdowns(updated);
+    }, 1000);
 
+    return () => clearInterval(interval);
+  }, [books]);
+
+  const isOnSale = (book) => {
+    if (!book.isOnSale) return false;
+    const now = new Date();
+    return now >= new Date(book.saleStartDate) && now <= new Date(book.saleEndDate);
+  };
+
+  const fetchBooks = async () => {
+    try {
+      const res = await api.get('/book/award-winners');
+      const booksWithRatings = await Promise.all(
+        res.data.map(async (book) => {
+          try {
+            const ratingRes = await api.get(`/reviews/stats/${book.id}/average`);
+            return {
+              ...book,
+              averageRating: ratingRes.data.averageRating,
+              reviewCount: ratingRes.data.reviewCount
+            };
+          } catch {
+            return { ...book, averageRating: 0, reviewCount: 0 };
+          }
+        })
+      );
+      setBooks(booksWithRatings);
+      setFilteredBooks(booksWithRatings);
+    } catch (err) {
+      console.error('Failed to fetch award winners:', err);
+    }
+  };
 
   const fetchFilters = async () => {
     try {
@@ -135,10 +164,10 @@ const AwardWinners = () => {
   return (
     <>
       <Navbar />
-      <div className="award-page">
+      <div className="aw-page">
         <h1>🏆 Award-Winning Books</h1>
 
-        <div className="filters-bar">
+        <div className="aw-filters-bar">
           <input
             type="text"
             placeholder="Search by title or author"
@@ -180,38 +209,47 @@ const AwardWinners = () => {
           <button onClick={handleSearchAndFilter}>Search</button>
         </div>
 
-        <div className="award-list">
+        <div className="aw-list">
           {filteredBooks.length === 0 ? (
             <p>No award winners found.</p>
           ) : (
             filteredBooks.map(book => (
-              <Link to={`/book/${book.id}`} key={book.id} className="award-row">
+              <Link to={`/book/${book.id}`} key={book.id} className="aw-row">
                 <img
                   src={book.imageUrl?.startsWith('http') ? book.imageUrl : `http://localhost:5046${book.imageUrl}`}
                   alt={book.title}
                 />
-                <div className="award-info">
-                  <h3>{book.title}</h3>
-                  <p className="author">by {book.author}</p>
-                  <p className="desc">{book.description}</p>
-                    <div className="award-rating">
-                        {[1, 2, 3, 4, 5].map(star => (
-                            <span key={star} className={book.averageRating >= star ? 'filled-star' : 'empty-star'}>★</span>
-                        ))}
-                        <span className="rating-count">({book.reviewCount} reviews)</span>
-                        </div>
-
-                  <div className="award-meta">
-                    <span className="price">${book.price.toFixed(2)}</span>
-                    {book.originalPrice && book.originalPrice > book.price && (
-                      <span className="original-price">${book.originalPrice.toFixed(2)}</span>
-                    )}
+                <div className="aw-info">
+                  <div className="aw-badge-box">
+                    {isOnSale(book) && <span className="aw-badge aw-sale">ON SALE</span>}
                     {book.bookAwardNames?.length > 0 && (
-                      <span className="award-badge">🏅 {book.bookAwardNames.join(', ')}</span>
+                      <span className="aw-badge aw-award-badge">🏅 {book.bookAwardNames[0]}</span>
                     )}
                   </div>
-
-                  <div className="action-buttons">
+                  <h3>{book.title}</h3>
+                  <p className="aw-author">by {book.author}</p>
+                  <div className="aw-rating">
+                    {[1, 2, 3, 4, 5].map(star => (
+                      <span key={star} className={book.averageRating >= star ? 'aw-filled-star' : 'aw-empty-star'}>★</span>
+                    ))}
+                    <span className="aw-rating-count">({book.reviewCount} reviews)</span>
+                  </div>
+                  <p className="aw-desc">{book.description}</p>
+                  <div className="aw-meta">
+                    <span className="aw-price">${book.price.toFixed(2)}</span>
+                    {book.originalPrice && book.originalPrice > book.price && (
+                      <span className="aw-original-price">${book.originalPrice.toFixed(2)}</span>
+                    )}
+                    {book.bookAwardNames?.length > 1 && (
+                      <span className="aw-award-list">
+                        🏅 {book.bookAwardNames.slice(1).join(', ')}
+                      </span>
+                    )}
+                  </div>
+                  {isOnSale(book) && countdowns[book.id] && (
+                    <p className="aw-countdown">⏳ {countdowns[book.id]}</p>
+                  )}
+                  <div className="aw-actions">
                     <button onClick={e => handleAddToCart(e, book.id, book.title)}>Add to Cart</button>
                     <button onClick={e => handleBookmark(e, book.id, book.title)}>Bookmark</button>
                   </div>

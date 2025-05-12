@@ -1,143 +1,250 @@
-.deals-page {
-  padding: 2rem;
+/* Deals.css - Black and White Theme */
+
+/* Global Styles */
+.deal-page {
   max-width: 1200px;
   margin: 0 auto;
-  font-family: 'Segoe UI', sans-serif;
+  padding: 2rem 1rem;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #333;
+  background-color: #fff;
 }
 
-.deals-page h1 {
-  font-size: 2rem;
-  margin-bottom: 1rem;
-  color: #d62828;
+.deal-page h1 {
+  font-size: 2.5rem;
+  margin-bottom: 2rem;
   text-align: center;
+  font-weight: 700;
+  color: #000;
+  border-bottom: 2px solid #000;
+  padding-bottom: 1rem;
 }
 
-/* FILTERS BAR */
-.filters-bar {
+/* Filters Section */
+.deal-filters {
   display: flex;
   flex-wrap: wrap;
   gap: 1rem;
   margin-bottom: 2rem;
-  justify-content: center;
+  background-color: #f5f5f5;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-.filters-bar input,
-.filters-bar select {
-  padding: 0.5rem;
+.deal-filters input,
+.deal-filters select {
+  padding: 0.75rem;
+  border: 1px solid #ddd;
   border-radius: 4px;
-  border: 1px solid #ccc;
-  font-size: 0.95rem;
+  flex: 1;
+  min-width: 150px;
+  background-color: #fff;
+  color: #333;
+  font-size: 0.9rem;
 }
 
-.filters-bar button {
-  padding: 0.5rem 1rem;
-  background-color: #d62828;
-  color: white;
+.deal-filters button {
+  padding: 0.75rem 1.5rem;
+  background-color: #000;
+  color: #fff;
   border: none;
   border-radius: 4px;
   cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s ease;
 }
 
-.filters-bar button:hover {
-  background-color: #a61e1e;
+.deal-filters button:hover {
+  background-color: #333;
+  transform: translateY(-2px);
 }
 
-/* BOOK ROW */
+/* Deal List */
 .deal-list {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 2rem;
 }
 
 .deal-row {
   display: flex;
-  background: #fff;
+  background-color: #fff;
+  border: 1px solid #ddd;
   border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  overflow: hidden;
   text-decoration: none;
   color: inherit;
-  overflow: hidden;
-  transition: box-shadow 0.2s ease;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
 }
 
 .deal-row:hover {
-  box-shadow: 0 4px 14px rgba(0,0,0,0.1);
+  transform: translateY(-5px);
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+  border-color: #000;
 }
 
 .deal-row img {
-  width: 180px;
-  height: auto;
+  width: 150px;
+  height: 225px;
   object-fit: cover;
-  flex-shrink: 0;
+  border-right: 1px solid #eee;
 }
 
-/* BOOK INFO */
 .deal-info {
   flex: 1;
-  padding: 1rem;
+  padding: 1.5rem;
   display: flex;
   flex-direction: column;
 }
 
 .deal-info h3 {
-  font-size: 1.2rem;
-  margin: 0 0 0.3rem;
-  color: #222;
+  font-size: 1.5rem;
+  margin: 0 0 0.5rem;
+  color: #000;
 }
 
 .deal-info .author {
-  font-size: 0.95rem;
-  color: #666;
-  margin-bottom: 0.5rem;
+  font-style: italic;
+  margin-bottom: 1rem;
+  color: #555;
 }
 
 .deal-info .desc {
+  margin-bottom: 1rem;
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
   font-size: 0.95rem;
-  color: #444;
-  margin-bottom: 0.75rem;
-  line-height: 1.4;
 }
 
-/* META DATA */
+/* Book Ratings */
+.book-rating {
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+}
+
+.filled-star {
+  color: #000;
+  font-size: 1.2rem;
+}
+
+.empty-star {
+  color: #ddd;
+  font-size: 1.2rem;
+}
+
+.rating-count {
+  margin-left: 0.5rem;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+/* Deal Metadata */
 .deal-meta {
   display: flex;
-  flex-wrap: wrap;
+  align-items: center;
   gap: 1rem;
-  font-size: 0.95rem;
   margin-bottom: 1rem;
+  margin-top: auto;
 }
 
 .price {
-  color: #d62828;
-  font-weight: bold;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #000;
 }
 
 .original-price {
   text-decoration: line-through;
-  color: #888;
+  color: #999;
+  font-size: 1.1rem;
 }
 
 .countdown {
+  margin-left: auto;
+  background-color: #f0f0f0;
+  padding: 0.4rem 0.8rem;
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 0.9rem;
   color: #333;
+  border: 1px solid #ddd;
 }
 
-/* ACTION BUTTONS */
+/* Action Buttons */
 .action-buttons {
   display: flex;
   gap: 1rem;
-  margin-top: auto;
+  margin-top: 1rem;
 }
 
 .action-buttons button {
-  padding: 0.4rem 0.8rem;
-  font-size: 0.9rem;
-  background-color: #0077cc;
-  color: white;
+  flex: 1;
+  padding: 0.75rem;
   border: none;
   border-radius: 4px;
   cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  letter-spacing: 0.5px;
 }
 
-.action-buttons button:hover {
-  background-color: #005fa3;
+.action-buttons button:first-child {
+  background-color: #000;
+  color: #fff;
+}
+
+.action-buttons button:first-child:hover {
+  background-color: #333;
+}
+
+.action-buttons button:last-child {
+  background-color: #fff;
+  color: #000;
+  border: 1px solid #000;
+}
+
+.action-buttons button:last-child:hover {
+  background-color: #f5f5f5;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .deal-row {
+    flex-direction: column;
+  }
+  
+  .deal-row img {
+    width: 100%;
+    height: 250px;
+    border-right: none;
+    border-bottom: 1px solid #eee;
+  }
+  
+  .deal-filters {
+    flex-direction: column;
+  }
+  
+  .deal-filters input,
+  .deal-filters select,
+  .deal-filters button {
+    width: 100%;
+  }
+}
+
+/* No deals message */
+.deal-list p {
+  text-align: center;
+  padding: 2rem;
+  background-color: #f5f5f5;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  color: #666;
 }

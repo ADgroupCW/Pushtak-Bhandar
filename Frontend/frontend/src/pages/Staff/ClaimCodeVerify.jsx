@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
+import { X, Check, RefreshCw, Tag, User, Clock, Mail, Package, DollarSign } from 'lucide-react';
 import api from '../../api/api';
-import { X, Check, RefreshCw, Tag, User, Clock, Mail } from 'lucide-react';
+import '../../styles/Claim.css';
 
 export default function ClaimCodeVerify() {
   const [claimCode, setClaimCode] = useState('');
@@ -8,35 +9,53 @@ export default function ClaimCodeVerify() {
   const [modalOpen, setModalOpen] = useState(false);
   const [processing, setProcessing] = useState(false);
   const [message, setMessage] = useState('');
+  const [messageType, setMessageType] = useState('');
 
   const verifyClaimCode = async () => {
+    if (!claimCode.trim()) {
+      setMessage('Please enter a claim code');
+      setMessageType('error');
+      return;
+    }
+    
     try {
-      setMessage('');
+      setMessage('Verifying claim code...');
+      setMessageType('info');
+      
       const res = await api.post('/staff/orders/verify', { claimCode });
 
       // Fetch image for each book
       const itemsWithImages = await Promise.all(
         res.data.items.map(async (item) => {
-            try {
+          try {
             const bookRes = await api.get(`/Book/${item.bookId}`);
-            console.log('Book details: ',bookRes.data)
+            console.log('Book details: ', bookRes.data);
             return {
-                ...item,
-                imageUrl: `http://localhost:5046${bookRes.data.imageUrl}` // ✅ full image path
+              ...item,
+              imageUrl: `http://localhost:5046${bookRes.data.imageUrl}`
             };
-            } catch {
+          } catch (err) {
+            console.error('Failed to fetch book image:', err);
             return { ...item, imageUrl: null };
-            }
+          }
         })
-        );
-
+      );
 
       const enrichedOrder = { ...res.data, items: itemsWithImages };
       setOrder(enrichedOrder);
       setModalOpen(true);
+      setMessage('');
     } catch (err) {
+      console.error('Verification error:', err);
       setOrder(null);
-      setMessage('Invalid or not found.');
+      setMessage('Invalid claim code or order not found');
+      setMessageType('error');
+    }
+  };
+
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      verifyClaimCode();
     }
   };
 
@@ -49,114 +68,196 @@ export default function ClaimCodeVerify() {
         newStatus
       });
       setOrder({ ...order, status: newStatus });
-      setMessage(`Order updated to ${newStatus}.`);
-    } catch {
-      setMessage('Failed to update order status.');
+      setMessage(`Order successfully ${newStatus === 'Completed' ? 'processed' : 'cancelled'}`);
+      setMessageType('success');
+    } catch (err) {
+      console.error('Status update error:', err);
+      setMessage('Failed to update order status');
+      setMessageType('error');
     } finally {
       setProcessing(false);
     }
   };
 
-  const statusColor = {
-    Pending: '#ffc107',
-    Completed: '#28a745',
-    Cancelled: '#dc3545'
+  const getStatusStyle = (status) => {
+    switch (status) {
+      case 'Pending':
+        return { backgroundColor: '#666' };
+      case 'Completed':
+        return { backgroundColor: '#000' };
+      case 'Cancelled':
+        return { backgroundColor: '#333' };
+      default:
+        return { backgroundColor: '#999' };
+    }
+  };
+
+  const formatDate = (dateString) => {
+    const options = { 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    };
+    return new Date(dateString).toLocaleDateString(undefined, options);
   };
 
   return (
-    <div style={{ padding: '20px' }}>
-      <h2>🔍 Claim Code Verification</h2>
-      <div style={{ display: 'flex', gap: '12px', marginBottom: '1rem' }}>
+    <div className="claim-code-container">
+      <div className="claim-header">
+        <h2>Claim Code Verification</h2>
+        <p>Enter the order claim code to process customer orders</p>
+      </div>
+      
+      <div className="claim-input-group">
         <input
+          type="text"
           value={claimCode}
           onChange={(e) => setClaimCode(e.target.value)}
+          onKeyPress={handleKeyPress}
           placeholder="Enter claim code..."
-          style={{ flex: 1, padding: '10px', fontSize: '16px' }}
+          className="claim-input"
         />
-        <button onClick={verifyClaimCode} style={{ padding: '10px 20px', backgroundColor: '#007bff', color: '#fff', border: 'none', borderRadius: '6px' }}>
+        <button 
+          onClick={verifyClaimCode} 
+          className="verify-buttons"
+        >
           Verify
         </button>
       </div>
 
-      {message && <p style={{ backgroundColor: '#ffeeba', padding: '10px', borderRadius: '6px' }}>{message}</p>}
+      {message && (
+        <div className={`message-box ${messageType}`}>
+          {message}
+        </div>
+      )}
 
-      {/* Modal */}
+      {/* Order Modal */}
       {modalOpen && order && (
-        <div style={styles.overlay}>
-          <div style={styles.modal}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <h3>Order #{order.orderId}</h3>
-              <button onClick={() => setModalOpen(false)} style={{ background: 'transparent', border: 'none', fontSize: '18px' }}><X /></button>
+        <div className="modal-overlay">
+          <div className="modal-container">
+            <div className="modal-header">
+              <h3>Order Details</h3>
+              <button 
+                onClick={() => setModalOpen(false)} 
+                className="close-button"
+              >
+                <X size={18} />
+              </button>
             </div>
 
-            <div style={{ margin: '10px 0' }}>
-              <p><Tag size={16} /> <strong>Claim Code:</strong> {order.claimCode}</p>
-              <p><Clock size={16} /> <strong>Ordered At:</strong> {new Date(order.orderedAt).toLocaleString()}</p>
-              <p><Mail size={16} /> <strong>Email:</strong> {order.userEmail}</p>
-              <p>
-                <strong>Status:</strong>
-                <span style={{
-                  backgroundColor: statusColor[order.status] || '#ccc',
-                  color: 'white',
-                  padding: '4px 10px',
-                  borderRadius: '10px',
-                  marginLeft: '8px',
-                  fontSize: '13px'
-                }}>{order.status}</span>
-              </p>
-            </div>
+            <div className="order-details">
+              <div className="detail-row">
+                <div className="detail-item">
+                  <div className="detail-label">
+                    <Package size={16} />
+                    <span>Order ID</span>
+                  </div>
+                  <div className="detail-value">{order.orderId}</div>
+                </div>
+                <div className="detail-item">
+                  <div className="detail-label">
+                    <Tag size={16} />
+                    <span>Claim Code</span>
+                  </div>
+                  <div className="detail-value">{order.claimCode}</div>
+                </div>
+              </div>
 
-            <h4>Items:</h4>
-            <div style={styles.itemsGrid}>
-              {order.items.map((item, i) => (
-                <div key={i} style={styles.itemCard}>
-                  <img
-                    src={item.imageUrl || 'https://via.placeholder.com/80x100?text=No+Image'}
-                    alt={item.title}
-                    style={styles.bookImg}
-                    />
+              <div className="detail-row">
+                <div className="detail-item">
+                  <div className="detail-label">
+                    <Mail size={16} />
+                    <span>Customer Email</span>
+                  </div>
+                  <div className="detail-value">{order.userEmail}</div>
+                </div>
+                <div className="detail-item">
+                  <div className="detail-label">
+                    <Clock size={16} />
+                    <span>Order Date</span>
+                  </div>
+                  <div className="detail-value">{formatDate(order.orderedAt)}</div>
+                </div>
+              </div>
 
-                  <div>
-                    <p><strong>{item.title}</strong></p>
-                    <p>Qty: {item.quantity}</p>
-                    <p>Unit: ${item.unitPrice.toFixed(2)}</p>
-                    <p><strong>Total: ${(item.unitPrice * item.quantity).toFixed(2)}</strong></p>
+              <div className="detail-row">
+                <div className="detail-item">
+                  <div className="detail-label">
+                    <DollarSign size={16} />
+                    <span>Total Amount</span>
+                  </div>
+                  <div className="detail-value highlight">${order.totalAmount.toFixed(2)}</div>
+                </div>
+                <div className="detail-item">
+                  <div className="detail-label">
+                    <RefreshCw size={16} />
+                    <span>Status</span>
+                  </div>
+                  <div className="detail-value">
+                    <span 
+                      className="status-pill" 
+                      style={getStatusStyle(order.status)}
+                    >
+                      {order.status}
+                    </span>
                   </div>
                 </div>
-              ))}
+              </div>
             </div>
 
-            <div style={{ marginTop: '1rem', borderTop: '1px solid #ccc', paddingTop: '10px' }}>
-              <p><strong>Total Amount:</strong> ${order.totalAmount.toFixed(2)}</p>
+            <div className="order-items">
+              <h4>Order Items</h4>
+              <div className="items-grid">
+                {order.items.map((item, index) => (
+                  <div key={index} className="item-card">
+                    <div className="item-image">
+                      <img
+                        src={item.imageUrl || 'https://via.placeholder.com/80x100?text=No+Image'}
+                        alt={item.title}
+                      />
+                    </div>
+                    <div className="item-details">
+                      <h5>{item.title}</h5>
+                      <div className="item-meta">
+                        <span>Qty: {item.quantity}</span>
+                        <span>${item.unitPrice.toFixed(2)} each</span>
+                      </div>
+                      <div className="item-total">
+                        ${(item.quantity * item.unitPrice).toFixed(2)}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
 
-            {order.status === 'Pending' && (
-              <div style={styles.actionRow}>
+            {order.status === 'Pending' ? (
+              <div className="action-buttons">
                 <button
                   onClick={() => updateOrderStatus('Cancelled')}
                   disabled={processing}
-                  style={{ ...styles.button, backgroundColor: '#dc3545' }}
+                  className="cancel-button"
                 >
-                  {processing ? <RefreshCw className="icon-spin" /> : <X />} Cancel
+                  {processing ? <RefreshCw className="spin-icon" /> : <X size={16} />}
+                  <span>Cancel Order</span>
                 </button>
                 <button
                   onClick={() => updateOrderStatus('Completed')}
                   disabled={processing}
-                  style={{ ...styles.button, backgroundColor: '#28a745' }}
+                  className="process-button"
                 >
-                  {processing ? <RefreshCw className="icon-spin" /> : <Check />} Process
+                  {processing ? <RefreshCw className="spin-icon" /> : <Check size={16} />}
+                  <span>Process Order</span>
                 </button>
               </div>
-            )}
-
-            {order.status !== 'Pending' && (
-              <p style={{
-                color: order.status === 'Completed' ? '#28a745' : '#dc3545',
-                marginTop: '1rem',
-                fontWeight: 'bold'
-              }}>
-                {order.status === 'Completed' ? '✅ Order has been processed.' : '❌ Order has been cancelled.'}
-              </p>
+            ) : (
+              <div className={`status-message ${order.status.toLowerCase()}`}>
+                {order.status === 'Completed' 
+                  ? '✓ This order has been processed successfully' 
+                  : '× This order has been cancelled'}
+              </div>
             )}
           </div>
         </div>
@@ -164,57 +265,3 @@ export default function ClaimCodeVerify() {
     </div>
   );
 }
-
-// Inline styles
-const styles = {
-  overlay: {
-    position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-    backgroundColor: 'rgba(0,0,0,0.6)', zIndex: 999,
-    display: 'flex', justifyContent: 'center', alignItems: 'center'
-  },
-  modal: {
-    backgroundColor: '#fff',
-    padding: '20px',
-    borderRadius: '12px',
-    width: '600px',
-    maxHeight: '90vh',
-    overflowY: 'auto'
-  },
-  itemsGrid: {
-    display: 'grid',
-    gridTemplateColumns: '1fr 1fr',
-    gap: '10px',
-    marginTop: '10px'
-  },
-  itemCard: {
-    display: 'flex',
-    gap: '12px',
-    border: '1px solid #ccc',
-    padding: '10px',
-    borderRadius: '8px',
-    backgroundColor: '#f8f8f8'
-  },
-  bookImg: {
-    width: '80px',
-    height: '100px',
-    objectFit: 'cover',
-    borderRadius: '4px'
-  },
-  actionRow: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    gap: '10px',
-    marginTop: '1.5rem'
-  },
-  button: {
-    color: '#fff',
-    border: 'none',
-    padding: '10px 20px',
-    borderRadius: '6px',
-    cursor: 'pointer',
-    fontWeight: '500',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '6px'
-  }
-};

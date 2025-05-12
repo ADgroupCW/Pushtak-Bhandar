@@ -146,7 +146,7 @@ export default function Register() {
             <div className="form-group">
               <label htmlFor="username">Username</label>
               <div className="input-wrapper">
-                <User className="input-icon" />
+                
                 <input
                   type="text"
                   id="username"
@@ -163,7 +163,7 @@ export default function Register() {
             <div className="form-group">
               <label htmlFor="email">Email Address</label>
               <div className="input-wrapper">
-                <Mail className="input-icon" />
+                
                 <input
                   type="email"
                   id="email"
@@ -180,7 +180,7 @@ export default function Register() {
             <div className="form-group">
               <label htmlFor="password">Password</label>
               <div className="input-wrapper">
-                <Lock className="input-icon" />
+                
                 <input
                   type={showPassword ? 'text' : 'password'}
                   id="password"
@@ -208,7 +208,7 @@ export default function Register() {
             <div className="form-group">
               <label htmlFor="confirmPassword">Confirm Password</label>
               <div className="input-wrapper">
-                <Lock className="input-icon" />
+                
                 <input
                   type={showConfirmPassword ? 'text' : 'password'}
                   id="confirmPassword"

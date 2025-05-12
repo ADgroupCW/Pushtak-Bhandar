@@ -5,6 +5,8 @@ import ClaimCodeVerify from './ClaimCodeVerify';
 import api from '../../api/api';
 import '../../styles/StaffDashboard.css';
 
+
+
 export default function StaffDashboard() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('process');
@@ -31,152 +33,159 @@ export default function StaffDashboard() {
   }, [activeTab]);
 
   const fetchStats = async () => {
-  try {
-    const res = await api.get('/staff/orders/stats');
-    setStats(res.data);
-    console.log('📊 Stats loaded:', res.data);
-  } catch (err) {
-    console.error('❌ Failed to fetch stats:', err);
-  }
-};
+    try {
+      const res = await api.get('/staff/orders/stats');
+      setStats(res.data);
+      console.log('📊 Stats loaded:', res.data);
+    } catch (err) {
+      console.error('❌ Failed to fetch stats:', err);
+    }
+  };
 
-const fetchCompletedOrders = async () => {
-  try {
-    const res = await api.get('/staff/orders/completed');
-    setCompletedOrders(res.data);
-    console.log('📦 Completed orders:', res.data);
-  } catch (err) {
-    console.error('❌ Failed to fetch completed orders:', err);
-  }
-};
-
+  const fetchCompletedOrders = async () => {
+    try {
+      const res = await api.get('/staff/orders/completed');
+      setCompletedOrders(res.data);
+      console.log('📦 Completed orders:', res.data);
+    } catch (err) {
+      console.error('❌ Failed to fetch completed orders:', err);
+    }
+  };
 
   return (
-    <div className="sd-container">
+    <div className="dashboard">
       {/* Header */}
-      <header className="sd-header">
-        <div className="sd-header-container">
-          <div className="sd-header-title">
-            <h1 className="sd-page-title">Staff Dashboard</h1>
-          </div>
-          <div className="sd-user-section">
-            
-            <button className="sd-logout-button" onClick={handleLogout}>
-              <LogOut className="sd-icon" />
-            </button>
-          </div>
+      <header className="dashboard-header">
+        <div className="header-container">
+          <h1>Staff Dashboard</h1>
+          <button className="logout-button" onClick={handleLogout}>
+            <LogOut size={20} />
+            <span>Logout</span>
+          </button>
         </div>
       </header>
 
-      {/* Main */}
-      <main className="sd-main">
-        {/* Stats */}
-        <div className="sd-stats-grid">
-          <StatCard icon={<ShoppingCart />} label="Pending Orders" value={stats.pendingOrdersCount} color="orders" />
-          <StatCard icon={<Clock />} label="Completed Orders" value={stats.completedOrdersCount} color="processed" />
-          <StatCard icon={<Book />} label="Books Handled" value={stats.totalBooksHandled} color="books" />
-          <StatCard icon={<User />} label="Revenue ($)" value={stats.totalRevenue.toFixed(2)} color="customers" />
-        </div>
+      {/* Main Content */}
+      <main className="dashboard-main">
+        {/* Stats Cards */}
+        <section className="stats-section">
+          <StatCard 
+            icon={<ShoppingCart size={24} />} 
+            label="Pending Orders" 
+            value={stats.pendingOrdersCount} 
+            variant="pending"
+          />
+          <StatCard 
+            icon={<Clock size={24} />} 
+            label="Completed Orders" 
+            value={stats.completedOrdersCount} 
+            variant="completed"
+          />
+          <StatCard 
+            icon={<Book size={24} />} 
+            label="Books Handled" 
+            value={stats.totalBooksHandled} 
+            variant="books"
+          />
+          <StatCard 
+            icon={<User size={24} />} 
+            label="Revenue" 
+            value={`$${stats.totalRevenue.toFixed(2)}`} 
+            variant="revenue"
+          />
+        </section>
 
         {/* Tabs */}
-        <div className="sd-tabs-container">
-          <nav className="sd-tabs-nav">
-            
-            <button
+        <section className="tabs-section">
+          <div className="tabs-container">
+            <button 
+              className={`tab-button ${activeTab === 'process' ? 'active' : ''}`}
+              onClick={() => setActiveTab('process')}
+            >
+              Process Orders
+            </button>
+            <button 
+              className={`tab-button ${activeTab === 'history' ? 'active' : ''}`}
               onClick={() => setActiveTab('history')}
-              className={`sd-tab-button ${activeTab === 'history' ? 'sd-tab-active' : 'sd-tab-inactive'}`}
             >
               Order History
             </button>
-          </nav>
-        </div>
+          </div>
 
-        {/* Tab Content */}
-        <div className="sd-content">
-          {activeTab === 'process' ? (
-            <>
-              <TabContent
-                icon={<ShoppingCart className="sd-empty-icon" />}
-                title="Ready to process orders"
-                description="Enter a claim code to verify and complete customer orders."
-                buttonText="Go to Full Order Portal"
-                onClick={() => navigate('/stafforder')}
-              />
-              <div style={{ marginTop: '2rem' }}>
-                <ClaimCodeVerify />
+          {/* Tab Content */}
+          <div className="tab-content">
+            {activeTab === 'process' ? (
+              <div className="process-tab">
+                <div className="tab-header">
+                  <ShoppingCart size={24} />
+                  <h2>Ready to process orders</h2>
+                  <p>Enter a claim code to verify and complete customer orders.</p>
+               
+                </div>
+                <div className="claim-code-container">
+                  <ClaimCodeVerify />
+                </div>
               </div>
-            </>
-          ) : (
-            <>
-              <div className="sd-empty-content">
-                <h3 className="sd-empty-title">Completed Orders</h3>
-                <p className="sd-empty-description">All fulfilled orders by the staff are listed below.</p>
+            ) : (
+              <div className="history-tab">
+                <div className="tab-header">
+                  <Clock size={24} />
+                  <h2>Completed Orders</h2>
+                  <p>All fulfilled orders by the staff are listed below.</p>
+                </div>
+                <div className="table-container">
+                  <table className="orders-table">
+                    <thead>
+                      <tr>
+                        <th>Order ID</th>
+                        <th>User Email</th>
+                        <th>Claim Code</th>
+                        <th>Status</th>
+                        <th>Total</th>
+                        <th>Ordered At</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {completedOrders.length > 0 ? (
+                        completedOrders.map((order) => (
+                          <tr key={order.orderId}>
+                            <td>{order.orderId}</td>
+                            <td>{order.userEmail}</td>
+                            <td>{order.claimCode}</td>
+                            <td>
+                              <span className="status-badge">{order.status}</span>
+                            </td>
+                            <td>${order.totalAmount.toFixed(2)}</td>
+                            <td>{new Date(order.orderedAt).toLocaleString()}</td>
+                          </tr>
+                        ))
+                      ) : (
+                        <tr>
+                          <td colSpan="6" className="no-data">No completed orders found.</td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
               </div>
-              <table className="sd-history-table">
-                <thead>
-                  <tr>
-                    <th>Order ID</th>
-                    <th>User Email</th>
-                    <th>Claim Code</th>
-                    <th>Status</th>
-                    <th>Total</th>
-                    <th>Ordered At</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {completedOrders.map((order) => (
-                    <tr key={order.orderId}>
-                      <td>{order.orderId}</td>
-                      <td>{order.userEmail}</td>
-                      <td>{order.claimCode}</td>
-                      <td>{order.status}</td>
-                      <td>${order.totalAmount.toFixed(2)}</td>
-                      <td>{new Date(order.orderedAt).toLocaleString()}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </>
-          )}
-        </div>
+            )}
+          </div>
+        </section>
       </main>
     </div>
   );
 }
 
-// Reusable components
-function StatCard({ icon, label, value, color }) {
+// Stat Card Component
+function StatCard({ icon, label, value, variant }) {
   return (
-    <div className="sd-stat-card">
-      <div className="sd-stat-card-inner">
-        <div className="sd-stat-content">
-          <div className={`sd-stat-icon-container sd-stat-icon-${color}`}>
-            {icon}
-          </div>
-          <div className="sd-stat-text">
-            <dl>
-              <dt className="sd-stat-label">{label}</dt>
-              <dd className="sd-stat-value">{value}</dd>
-            </dl>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function TabContent({ icon, title, description, buttonText, onClick }) {
-  return (
-    <div className="sd-empty-state">
-      <div className="sd-empty-content">
+    <div className={`stat-card ${variant}`}>
+      <div className="stat-icon">
         {icon}
-        <h3 className="sd-empty-title">{title}</h3>
-        <p className="sd-empty-description">{description}</p>
-        <div className="sd-action-button-container">
-          <button className="sd-action-button" onClick={onClick}>
-            {buttonText}
-          </button>
-        </div>
+      </div>
+      <div className="stat-details">
+        <h3 className="stat-value">{value}</h3>
+        <p className="stat-label">{label}</p>
       </div>
     </div>
   );

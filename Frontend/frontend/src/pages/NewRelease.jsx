@@ -165,95 +165,98 @@ const NewReleases = () => {
   return (
     <>
       <Navbar />
-      <div className="new-release-page">
-        <h1>📘 New Releases</h1>
+     // Change all className="..." to className="nr-..."
+<div className="nr-page">
+  <h1>📘 New Releases</h1>
 
-        <div className="filters-bar">
-          <input
-            type="text"
-            placeholder="Search by title or author"
-            value={searchTerm}
-            onChange={e => setSearchTerm(e.target.value)}
+  <div className="nr-filters-bar">
+    <input
+      type="text"
+      placeholder="Search by title or author"
+      value={searchTerm}
+      onChange={e => setSearchTerm(e.target.value)}
+    />
+
+    <select value={sortOption} onChange={e => setSortOption(e.target.value)}>
+      <option value="latest">Sort: Latest</option>
+      <option value="oldest">Sort: Oldest</option>
+    </select>
+
+    <select value={selectedGenre} onChange={e => setSelectedGenre(e.target.value)}>
+      <option value="">Genre</option>
+      {genres.map(g => <option key={g.id} value={g.name}>{g.name}</option>)}
+    </select>
+
+    <select value={selectedFormat} onChange={e => setSelectedFormat(e.target.value)}>
+      <option value="">Format</option>
+      {formats.map(f => <option key={f.id} value={f.name}>{f.name}</option>)}
+    </select>
+
+    <select value={selectedPublisher} onChange={e => setSelectedPublisher(e.target.value)}>
+      <option value="">Publisher</option>
+      {publishers.map(p => <option key={p.id} value={p.name}>{p.name}</option>)}
+    </select>
+
+    <select value={selectedAward} onChange={e => setSelectedAward(e.target.value)}>
+      <option value="">Award</option>
+      {awards.map(a => <option key={a.id} value={a.name}>{a.name}</option>)}
+    </select>
+
+    <button onClick={handleSearchAndFilter}>Search</button>
+  </div>
+
+  <div className="nr-list">
+    {filteredBooks.length === 0 ? (
+      <p>No new releases found.</p>
+    ) : (
+      filteredBooks.map(book => (
+        <Link to={`/book/${book.id}`} key={book.id} className="nr-row">
+          <img
+            src={book.imageUrl?.startsWith('http') ? book.imageUrl : `http://localhost:5046${book.imageUrl}`}
+            alt={book.title}
           />
+          <div className="nr-info">
+            <div className="nr-badge-box">
+              {isOnSale(book) && <span className="nr-badge nr-sale">ON SALE</span>}
+              {isNew(book) && <span className="nr-badge nr-new">NEW</span>}
+            </div>
+            <h3>{book.title}</h3>
+            <p className="nr-author">by {book.author}</p>
 
-          <select value={sortOption} onChange={e => setSortOption(e.target.value)}>
-            <option value="latest">Sort: Latest</option>
-            <option value="oldest">Sort: Oldest</option>
-          </select>
+            <div className="nr-rating">
+              {[1, 2, 3, 4, 5].map(star => (
+                <span key={star} className={book.averageRating >= star ? 'nr-filled' : 'nr-empty'}>★</span>
+              ))}
+              <span className="nr-count">({book.reviewCount} reviews)</span>
+            </div>
 
-          <select value={selectedGenre} onChange={e => setSelectedGenre(e.target.value)}>
-            <option value="">Genre</option>
-            {genres.map(g => <option key={g.id} value={g.name}>{g.name}</option>)}
-          </select>
+            <p className="nr-desc">{book.description}</p>
 
-          <select value={selectedFormat} onChange={e => setSelectedFormat(e.target.value)}>
-            <option value="">Format</option>
-            {formats.map(f => <option key={f.id} value={f.name}>{f.name}</option>)}
-          </select>
+            <div className="nr-meta">
+              <span className="nr-price">${book.price.toFixed(2)}</span>
+              {book.originalPrice && book.originalPrice > book.price && (
+                <span className="nr-original">${book.originalPrice.toFixed(2)}</span>
+              )}
+              {book.bookAwardNames?.length > 0 && (
+                <span className="nr-award">🏅 {book.bookAwardNames.join(', ')}</span>
+              )}
+            </div>
 
-          <select value={selectedPublisher} onChange={e => setSelectedPublisher(e.target.value)}>
-            <option value="">Publisher</option>
-            {publishers.map(p => <option key={p.id} value={p.name}>{p.name}</option>)}
-          </select>
+            {isOnSale(book) && countdowns[book.id] && (
+              <p className="nr-countdown">⏳ {countdowns[book.id]}</p>
+            )}
 
-          <select value={selectedAward} onChange={e => setSelectedAward(e.target.value)}>
-            <option value="">Award</option>
-            {awards.map(a => <option key={a.id} value={a.name}>{a.name}</option>)}
-          </select>
+            <div className="nr-actions">
+              <button onClick={e => handleAddToCart(e, book.id, book.title)}>Add to Cart</button>
+              <button onClick={e => handleBookmark(e, book.id, book.title)}>Bookmark</button>
+            </div>
+          </div>
+        </Link>
+      ))
+    )}
+  </div>
+</div>
 
-          <button onClick={handleSearchAndFilter}>Search</button>
-        </div>
-
-        <div className="release-list">
-          {filteredBooks.length === 0 ? (
-            <p>No new releases found.</p>
-          ) : (
-            filteredBooks.map(book => (
-              <Link to={`/book/${book.id}`} key={book.id} className="release-row">
-                <img
-                  src={book.imageUrl?.startsWith('http') ? book.imageUrl : `http://localhost:5046${book.imageUrl}`}
-                  alt={book.title}
-                />
-                <div className="release-info">
-                  <div className="badge-box">
-                    {isOnSale(book) && <span className="badge sale-badge">ON SALE</span>}
-                    {isNew(book) && <span className="badge new-badge">NEW</span>}
-                  </div>
-                  <h3>{book.title}</h3>
-                  <p className="author">by {book.author}</p>
-                  <div className="release-rating">
-                    {[1, 2, 3, 4, 5].map(star => (
-                        <span key={star} className={book.averageRating >= star ? 'filled-star' : 'empty-star'}>★</span>
-                    ))}
-                    <span className="rating-count">({book.reviewCount} reviews)</span>
-                    </div>
-
-                  <p className="desc">{book.description}</p>
-
-                  <div className="release-meta">
-                    <span className="price">${book.price.toFixed(2)}</span>
-                    {book.originalPrice && book.originalPrice > book.price && (
-                      <span className="original-price">${book.originalPrice.toFixed(2)}</span>
-                    )}
-                    {book.bookAwardNames?.length > 0 && (
-                      <span className="award-badge">🏅 {book.bookAwardNames.join(', ')}</span>
-                    )}
-                  </div>
-
-                  {isOnSale(book) && countdowns[book.id] && (
-                    <p className="countdown">⏳ {countdowns[book.id]}</p>
-                  )}
-
-                  <div className="action-buttons">
-                    <button onClick={e => handleAddToCart(e, book.id, book.title)}>Add to Cart</button>
-                    <button onClick={e => handleBookmark(e, book.id, book.title)}>Bookmark</button>
-                  </div>
-                </div>
-              </Link>
-            ))
-          )}
-        </div>
-      </div>
       <Footer />
     </>
   );

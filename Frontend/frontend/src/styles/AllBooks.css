@@ -1,169 +1,254 @@
-/* AllBooks.css – Clean version without theme/dark mode */
+/* AllBooks.css - Black and White Theme */
 
-.all-books-container {
-  max-width: 1400px;
+/* Base styles */
+.ab-page {
+  max-width: 1200px;
   margin: 0 auto;
   padding: 2rem 1rem;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  color: #111;
+  color: #333;
+  background-color: #fff;
 }
 
-.hero-section {
-  background-color: #111;
-  color: #fff;
+.ab-page h1 {
   text-align: center;
-  padding: 4rem 2rem;
-  border-radius: 8px;
   margin-bottom: 2rem;
+  font-size: 2.5rem;
+  color: #000;
+  letter-spacing: 0.05em;
+  border-bottom: 2px solid #000;
+  padding-bottom: 1rem;
 }
 
-.hero-section h1 {
-  font-size: 3rem;
-  margin-bottom: 1rem;
-}
-
-.hero-section p {
-  font-size: 1.2rem;
-  max-width: 600px;
-  margin: 0 auto;
-}
-
-.filters-section {
+/* Filter section */
+.ab-filters-bar {
   display: flex;
   flex-wrap: wrap;
-  gap: 1rem;
+  gap: 0.75rem;
   margin-bottom: 2rem;
-  align-items: center;
+  background-color: #f7f7f7;
+  padding: 1rem;
+  border-radius: 4px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
-.filters-section input,
-.filters-section select {
-  padding: 0.75rem 1rem;
-  font-size: 1rem;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  flex: 1 1 200px;
+.ab-filters-bar input,
+.ab-filters-bar select {
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  flex: 1;
+  min-width: 120px;
+  background-color: #fff;
+  color: #333;
 }
 
-.books-showcase {
+.ab-filters-bar input:focus,
+.ab-filters-bar select:focus {
+  border-color: #000;
+  outline: none;
+}
+
+.ab-filters-bar button {
+  padding: 0.75rem 1.5rem;
+  background-color: #000;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-weight: 600;
+}
+
+.ab-filters-bar button:hover {
+  background-color: #333;
+  transform: translateY(-2px);
+}
+
+/* Book List */
+.ab-list {
   display: flex;
   flex-direction: column;
   gap: 2rem;
 }
 
-.premium-book-card {
+.ab-row {
   display: flex;
-  background-color: white;
-  border: 1px solid #ddd;
+  gap: 1.5rem;
+  padding: 1.5rem;
   border-radius: 8px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  text-decoration: none;
+  color: inherit;
+  background-color: #fff;
+  position: relative;
   overflow: hidden;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.06);
+}
+
+.ab-row:hover {
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+  transform: translateY(-5px);
+}
+
+.ab-row::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background-color: #000;
+  transform: scaleX(0);
+  transform-origin: right;
   transition: transform 0.3s ease;
 }
 
-.premium-book-card:hover {
-  transform: scale(1.01);
+.ab-row:hover::after {
+  transform: scaleX(1);
+  transform-origin: left;
 }
 
-.book-image-container {
-  flex: 0 0 30%;
-  max-width: 30%;
-  background-color: #f5f5f5;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.book-image-container img {
-  width: 100%;
-  height: auto;
-  max-height: 250px;
+.ab-row img {
+  width: 150px;
+  height: 225px;
   object-fit: cover;
+  border-radius: 4px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
-.book-details {
+/* Book Info */
+.ab-info {
   flex: 1;
-  padding: 1.5rem;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
 }
 
-.book-details h3 {
-  font-size: 1.3rem;
+.ab-info h3 {
+  margin-top: 0;
   margin-bottom: 0.5rem;
+  font-size: 1.5rem;
+  color: #000;
 }
 
-.book-details .author {
-  font-style: italic;
+.ab-author {
+  margin-top: 0;
+  margin-bottom: 0.75rem;
   color: #555;
-  margin-bottom: 1rem;
+  font-style: italic;
 }
 
-.book-details .description {
-  font-size: 0.95rem;
-  color: #333;
-  margin-bottom: 1rem;
+/* Rating */
+.ab-rating {
+  margin-bottom: 0.75rem;
 }
 
-.book-meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  font-size: 0.85rem;
+.ab-filled-star {
+  color: #000;
+}
+
+.ab-empty-star {
+  color: #ccc;
+}
+
+.ab-rating-count {
+  margin-left: 0.5rem;
   color: #666;
+  font-size: 0.9rem;
+}
+
+/* Description */
+.ab-desc {
   margin-bottom: 1rem;
+  line-height: 1.5;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
 }
 
-.book-meta span {
-  background: #f0f0f0;
-  padding: 0.25rem 0.75rem;
-  border-radius: 20px;
+/* Price and meta */
+.ab-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
 }
 
-.book-actions {
+.ab-price {
+  font-size: 1.25rem;
+  font-weight: bold;
+  color: #000;
+}
+
+.ab-award {
+  background-color: #f5f5f5;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  border: 1px dashed #000;
+}
+
+/* Actions */
+.ab-actions {
   display: flex;
   gap: 0.75rem;
+  margin-top: auto;
 }
 
-.book-actions button {
+.ab-actions button {
   padding: 0.6rem 1rem;
-  font-weight: bold;
-  border-radius: 6px;
   border: none;
+  border-radius: 4px;
   cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s ease;
 }
 
-.book-actions .cart-btn {
+.ab-actions button:first-child {
   background-color: #000;
-  color: white;
+  color: #fff;
 }
 
-.book-actions .bookmark-btn {
-  background-color: #eee;
-  color: black;
-}
-
-.book-actions .cart-btn:hover {
+.ab-actions button:first-child:hover {
   background-color: #333;
 }
 
-.book-actions .bookmark-btn:hover {
-  background-color: #ccc;
+.ab-actions button:last-child {
+  background-color: #fff;
+  color: #000;
+  border: 1px solid #000;
 }
 
-.loading-container,
-.no-results {
+.ab-actions button:last-child:hover {
+  background-color: #f5f5f5;
+}
+
+/* Loading and No Results */
+.ab-list p {
   text-align: center;
-  padding: 3rem 0;
+  padding: 2rem;
+  background-color: #f5f5f5;
+  border-radius: 4px;
+  font-style: italic;
+  color: #666;
 }
 
+/* Responsive adjustments */
 @media (max-width: 768px) {
-  .premium-book-card {
+  .ab-row {
     flex-direction: column;
   }
-
-  .book-image-container {
-    max-width: 100%;
+  
+  .ab-row img {
+    width: 100%;
+    height: auto;
+    max-height: 300px;
+    object-fit: contain;
+  }
+  
+  .ab-filters-bar {
+    flex-direction: column;
   }
 }

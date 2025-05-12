@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import '../styles/Footer.css';
 import '../styles/Modal.css';
+import { Link, useNavigate } from 'react-router-dom';
 
 const Footer = () => {
   const [showTerms, setShowTerms] = useState(false);
@@ -14,25 +15,25 @@ const Footer = () => {
           <div>
             <h4>Explore</h4>
             <ul>
-              <li>Bestsellers</li>
-              <li>Award Winners</li>
-              <li>New Releases</li>
-              <li>Deals</li>
+                   <li><Link to="/bestsellers">Bestsellers</Link></li>
+        <li><Link to="/newrelease">New Releases</Link></li>
+        <li><Link to="/awardwinners">Award Winners</Link></li>
+        <li><Link to="/newarrivals">New Arrivals</Link></li>
+        <li><Link to="/deals">Deals</Link></li>
             </ul>
           </div>
           <div>
             <h4>Quick Links</h4>
             <ul>
-              <li>Shop All</li>
+              <li><Link to="/allbooks">Shop All</Link></li>
               <li>About Us</li>
-              <li>Coming Soon</li>
+              
             </ul>
           </div>
           <div>
             <h4>Customer Service</h4>
             <ul>
               <li onClick={() => setShowFAQ(true)} className="clickable">FAQ</li>
-              <li>Contact Us</li>
             </ul>
           </div>
           <div className="newsletter">

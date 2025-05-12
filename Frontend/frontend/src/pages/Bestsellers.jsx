@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/footer';
 import api from '../api/api';
@@ -6,59 +7,105 @@ import '../styles/Bestseller.css';
 
 const BestOfTheBest = () => {
   const [books, setBooks] = useState([]);
-  const [genres, setGenres] = useState([]);
-  const [activeFilter, setActiveFilter] = useState('all');
+  const [filteredBooks, setFilteredBooks] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const [sortOption, setSortOption] = useState('');
+  const [sortOption, setSortOption] = useState('rating');
+  const [genres, setGenres] = useState([]);
+  const [formats, setFormats] = useState([]);
+  const [publishers, setPublishers] = useState([]);
+  const [awards, setAwards] = useState([]);
+  const [selectedGenre, setSelectedGenre] = useState('');
+  const [selectedFormat, setSelectedFormat] = useState('');
+  const [selectedPublisher, setSelectedPublisher] = useState('');
+  const [selectedAward, setSelectedAward] = useState('');
   const [userId, setUserId] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [countdowns, setCountdowns] = useState({});
 
   useEffect(() => {
-    fetchGenres();
     fetchBooks();
+    fetchFilters();
     decodeToken();
   }, []);
 
-  const fetchBooks = async () => {
-  setIsLoading(true);
-  try {
-    const res = await api.get('/book/best-sellers');
-    const enriched = await Promise.all(
-      (res.data || []).map(async (book) => {
-        try {
-          const reviewRes = await api.get(`/reviews/stats/${book.id}/average`);
-          return {
-            ...book,
-            rating: reviewRes.data.averageRating || 0,
-            reviews: reviewRes.data.reviewCount || 0
-          };
-        } catch {
-          return { ...book, rating: 0, reviews: 0 };
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const updated = {};
+      books.forEach(book => {
+        if (isOnSale(book)) {
+          const end = new Date(book.saleEndDate);
+          const now = new Date();
+          const diff = end - now;
+          if (diff > 0) {
+            const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
+            const m = Math.floor((diff / (1000 * 60)) % 60);
+            const s = Math.floor((diff / 1000) % 60);
+            updated[book.id] = `${d}d ${h}h ${m}m ${s}s`;
+          }
         }
-      })
-    );
-    setBooks(enriched);
-  } catch (err) {
-    console.error('Failed to fetch bestsellers:', err);
-  } finally {
-    setIsLoading(false);
-  }
-};
+      });
+      setCountdowns(updated);
+    }, 1000);
 
+    return () => clearInterval(interval);
+  }, [books]);
 
-  const fetchGenres = async () => {
+  const isNew = (book) => {
+    const created = new Date(book.createdAt);
+    const now = new Date();
+    return (now - created) / (1000 * 60 * 60 * 24) < 7;
+  };
+
+  const isOnSale = (book) => {
+    if (!book.isOnSale) return false;
+    const now = new Date();
+    return now >= new Date(book.saleStartDate) && now <= new Date(book.saleEndDate);
+  };
+
+  const fetchBooks = async () => {
     try {
-      const res = await api.get('/meta/genres');
-      setGenres(res.data || []);
+      const res = await api.get('/book/best-sellers');
+      const enriched = await Promise.all(
+        res.data.map(async (book) => {
+          try {
+            const ratingRes = await api.get(`/reviews/stats/${book.id}/average`);
+            return {
+              ...book,
+              averageRating: ratingRes.data.averageRating,
+              reviewCount: ratingRes.data.reviewCount
+            };
+          } catch {
+            return { ...book, averageRating: 0, reviewCount: 0 };
+          }
+        })
+      );
+      setBooks(enriched);
+      setFilteredBooks(enriched);
     } catch (err) {
-      console.error('Failed to fetch genres:', err);
+      console.error('Failed to fetch bestsellers:', err);
+    }
+  };
+
+  const fetchFilters = async () => {
+    try {
+      const [g, p, a, f] = await Promise.all([
+        api.get('/meta/genres'),
+        api.get('/meta/publishers'),
+        api.get('/meta/awards'),
+        api.get('/meta/formats'),
+      ]);
+      setGenres(g.data);
+      setPublishers(p.data);
+      setAwards(a.data);
+      setFormats(f.data);
+    } catch (err) {
+      console.error('Failed to fetch filters:', err);
     }
   };
 
   const decodeToken = () => {
     const token = localStorage.getItem('token');
     if (!token) return;
-
     try {
       const payload = JSON.parse(atob(token.split('.')[1]));
       const id = payload['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'];
@@ -68,191 +115,147 @@ const BestOfTheBest = () => {
     }
   };
 
-  const handleAddToCart = async (bookId, title) => {
-    if (!userId) {
-      alert('❌ Please login to add to cart.');
-      return;
+  const handleSearchAndFilter = () => {
+    let filtered = [...books];
+
+    if (searchTerm) {
+      const term = searchTerm.toLowerCase();
+      filtered = filtered.filter(book =>
+        book.title.toLowerCase().includes(term) ||
+        book.author.toLowerCase().includes(term)
+      );
     }
 
+    if (selectedGenre) filtered = filtered.filter(b => b.genreName === selectedGenre);
+    if (selectedFormat) filtered = filtered.filter(b => b.bookFormatNames.includes(selectedFormat));
+    if (selectedPublisher) filtered = filtered.filter(b => b.publisherName === selectedPublisher);
+    if (selectedAward) filtered = filtered.filter(b => b.bookAwardNames.includes(selectedAward));
+
+    if (sortOption === 'rating') {
+      filtered.sort((a, b) => b.averageRating - a.averageRating);
+    } else if (sortOption === 'price-asc') {
+      filtered.sort((a, b) => a.price - b.price);
+    } else if (sortOption === 'price-desc') {
+      filtered.sort((a, b) => b.price - a.price);
+    }
+
+    setFilteredBooks(filtered);
+  };
+
+  const handleAddToCart = async (e, bookId, title) => {
+    e.preventDefault();
+    if (!userId) return alert('Please login to add to cart.');
     try {
       await api.post('/cart', { bookId, quantity: 1 });
       alert(`✅ Added "${title}" to cart!`);
-    } catch (err) {
+    } catch {
       alert('❌ Failed to add to cart.');
-      console.error(err);
     }
   };
 
-  const handleBookmark = async (bookId, title) => {
-    if (!userId) {
-      alert('❌ Please login to bookmark.');
-      return;
-    }
-
+  const handleBookmark = async (e, bookId, title) => {
+    e.preventDefault();
+    if (!userId) return alert('Please login to bookmark.');
     try {
       await api.post('/bookmark', { bookId });
       alert(`📌 Bookmarked "${title}"!`);
-    } catch (err) {
-      if (err.response?.status === 400) {
-        alert('⚠️ Book is already bookmarked.');
-      } else {
-        alert('❌ Failed to bookmark.');
-      }
-      console.error(err);
+    } catch {
+      alert('⚠️ Already bookmarked.');
     }
   };
-
-  const filteredBooks = books
-    .filter(book =>
-      activeFilter === 'all' || book.genreName?.toLowerCase() === activeFilter.toLowerCase()
-    )
-    .filter(book =>
-      book.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      book.author.toLowerCase().includes(searchTerm.toLowerCase())
-    )
-    .sort((a, b) => {
-      if (sortOption === 'title') return a.title.localeCompare(b.title);
-      if (sortOption === 'price-asc') return a.price - b.price;
-      if (sortOption === 'price-desc') return b.price - a.price;
-      if (sortOption === 'rating') return (b.rating || 0) - (a.rating || 0);
-      return 0;
-    });
-
-  const StarRating = ({ rating }) => (
-    <div className="stars">
-      {[...Array(5)].map((_, i) => (
-        <span key={i} className={i < Math.round(rating || 0) ? "star filled" : "star"}>★</span>
-      ))}
-    </div>
-  );
-
-  const BookCard = ({ book }) => (
-    <div className="premium-book-card" key={book.id}>
-      <div className="book-image-container">
-        <div className="ribbon">{book.rating >= 4.5 ? "Top Rated" : ""}</div>
-        <img
-          src={book.imageUrl?.startsWith('http') ? book.imageUrl : `http://localhost:5046${book.imageUrl}`}
-          alt={book.title}
-          loading="lazy"
-        />
-      </div>
-      <div className="book-details">
-        <h3>{book.title}</h3>
-        <p className="author">by {book.author}</p>
-        <div className="book-rating">
-        <div className="stars">
-          {[1, 2, 3, 4, 5].map((star) => (
-            <span
-              key={star}
-              className={book.rating >= star ? 'filled-star' : 'empty-star'}
-            >
-              ★
-            </span>
-          ))}
-        </div>
-        <span className="rating-count">
-          {book.reviews > 0
-            ? `(${book.reviews} review${book.reviews > 1 ? 's' : ''})`
-            : `(No reviews yet)`}
-        </span>
-      </div>
-
-        <p className="description">{book.description}</p>
-        {book.bookAwardNames?.length > 0 && (
-          <div className="awards">
-            <h4>Awards:</h4>
-            <ul>
-              {book.bookAwardNames.map((award, i) => <li key={i}>{award}</li>)}
-            </ul>
-          </div>
-        )}
-        <div className="book-actions">
-          <span className="price">${book.price.toFixed(2)}</span>
-          <div className="action-buttons">
-            <button onClick={() => handleAddToCart(book.id, book.title)} className="add-to-cart-btn">Add to Cart</button>
-            <button onClick={() => handleBookmark(book.id, book.title)} className="bookmark-btn">Bookmark</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
 
   return (
     <>
       <Navbar />
-      <div className="best-of-best-container">
-        <section className="hero-section">
-          <div className="hero-content">
-            <h1>Best of the Best</h1>
-            <p>Discover our most acclaimed and celebrated literary masterpieces</p>
-          </div>
-        </section>
+      <div className="botb-page">
+        <h1>🏆 Best of the Best</h1>
 
-        <section className="filters-section">
-          <div className="search-bar">
-            <input
-              type="text"
-              placeholder="Search by title or author"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
+        <div className="botb-filters-bar">
+          <input
+            type="text"
+            placeholder="Search by title or author"
+            value={searchTerm}
+            onChange={e => setSearchTerm(e.target.value)}
+          />
 
-          <div className="sort-options">
-            <select onChange={(e) => setSortOption(e.target.value)} value={sortOption}>
-              <option value="">Sort By</option>
-              <option value="title">Title</option>
-              <option value="price-asc">Price: Low to High</option>
-              <option value="price-desc">Price: High to Low</option>
-              <option value="rating">Rating</option>
-            </select>
-          </div>
+          <select value={sortOption} onChange={e => setSortOption(e.target.value)}>
+            <option value="rating">Sort: Top Rated</option>
+            <option value="price-asc">Price: Low to High</option>
+            <option value="price-desc">Price: High to Low</option>
+          </select>
 
-          <div className="category-filters">
-            <button
-              className={activeFilter === 'all' ? 'active' : ''}
-              onClick={() => setActiveFilter('all')}
-            >
-              All
-            </button>
-            {genres.map(genre => (
-              <button
-                key={genre.id}
-                className={activeFilter === genre.name.toLowerCase() ? 'active' : ''}
-                onClick={() => setActiveFilter(genre.name.toLowerCase())}
-              >
-                {genre.name}
-              </button>
-            ))}
-          </div>
-        </section>
+          <select value={selectedGenre} onChange={e => setSelectedGenre(e.target.value)}>
+            <option value="">Genre</option>
+            {genres.map(g => <option key={g.id} value={g.name}>{g.name}</option>)}
+          </select>
 
-        <section className="books-showcase">
-          {isLoading ? (
-            <div className="loading-container">
-              <div className="loader"></div>
-              <p>Loading amazing books for you...</p>
-            </div>
-          ) : filteredBooks.length > 0 ? (
-            filteredBooks.map(book => <BookCard key={book.id} book={book} />)
+          <select value={selectedFormat} onChange={e => setSelectedFormat(e.target.value)}>
+            <option value="">Format</option>
+            {formats.map(f => <option key={f.id} value={f.name}>{f.name}</option>)}
+          </select>
+
+          <select value={selectedPublisher} onChange={e => setSelectedPublisher(e.target.value)}>
+            <option value="">Publisher</option>
+            {publishers.map(p => <option key={p.id} value={p.name}>{p.name}</option>)}
+          </select>
+
+          <select value={selectedAward} onChange={e => setSelectedAward(e.target.value)}>
+            <option value="">Award</option>
+            {awards.map(a => <option key={a.id} value={a.name}>{a.name}</option>)}
+          </select>
+
+          <button onClick={handleSearchAndFilter}>Search</button>
+        </div>
+
+        <div className="botb-list">
+          {filteredBooks.length === 0 ? (
+            <p>No bestsellers found.</p>
           ) : (
-            <div className="no-results">
-              <h3>No books found</h3>
-              <p>Try adjusting your search or filters</p>
-            </div>
-          )}
-        </section>
+            filteredBooks.map(book => (
+              <Link to={`/book/${book.id}`} key={book.id} className="botb-row">
+                <img
+                  src={book.imageUrl?.startsWith('http') ? book.imageUrl : `http://localhost:5046${book.imageUrl}`}
+                  alt={book.title}
+                />
+                <div className="botb-info">
+                  <div className="botb-badge-box">
+                    {isOnSale(book) && <span className="botb-badge botb-sale">ON SALE</span>}
+                    {isNew(book) && <span className="botb-badge botb-new">NEW</span>}
+                  </div>
+                  <h3>{book.title}</h3>
+                  <p className="botb-author">by {book.author}</p>
+                  <div className="botb-rating">
+                    {[1, 2, 3, 4, 5].map(star => (
+                      <span key={star} className={book.averageRating >= star ? 'botb-filled-star' : 'botb-empty-star'}>★</span>
+                    ))}
+                    <span className="botb-rating-count">({book.reviewCount} reviews)</span>
+                  </div>
 
-        <section className="subscription-banner">
-          <div className="banner-content">
-            <h2>Join Our Premium Readers Club</h2>
-            <p>Get early access to our most celebrated titles and exclusive author interviews.</p>
-            <form className="subscribe-form">
-              <input type="email" placeholder="Your email address" required />
-              <button type="submit">Subscribe</button>
-            </form>
-          </div>
-        </section>
+                  <p className="botb-desc">{book.description}</p>
+
+                  <div className="botb-meta">
+                    <span className="botb-price">${book.price.toFixed(2)}</span>
+                    {book.originalPrice && book.originalPrice > book.price && (
+                      <span className="botb-original-price">${book.originalPrice.toFixed(2)}</span>
+                    )}
+                    {book.bookAwardNames?.length > 0 && (
+                      <span className="botb-award-badge">🏅 {book.bookAwardNames.join(', ')}</span>
+                    )}
+                  </div>
+
+                  {isOnSale(book) && countdowns[book.id] && (
+                    <p className="botb-countdown">⏳ {countdowns[book.id]}</p>
+                  )}
+
+                  <div className="botb-actions">
+                    <button onClick={e => handleAddToCart(e, book.id, book.title)}>Add to Cart</button>
+                    <button onClick={e => handleBookmark(e, book.id, book.title)}>Bookmark</button>
+                  </div>
+                </div>
+              </Link>
+            ))
+          )}
+        </div>
       </div>
       <Footer />
     </>

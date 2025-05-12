@@ -21,7 +21,6 @@ const Deals = () => {
   const [selectedPublisher, setSelectedPublisher] = useState('');
   const [selectedAward, setSelectedAward] = useState('');
   const [selectedFormat, setSelectedFormat] = useState('');
-
   const [userId, setUserId] = useState(null);
 
   useEffect(() => {
@@ -56,11 +55,22 @@ const Deals = () => {
     try {
       const res = await api.get('/book');
       const now = new Date();
-      const onSaleBooks = res.data.filter(book => {
-        const start = new Date(book.saleStartDate);
-        const end = new Date(book.saleEndDate);
-        return book.isOnSale && now >= start && now <= end;
-      });
+      const onSaleBooks = await Promise.all(
+        res.data
+          .filter(book => book.isOnSale && now >= new Date(book.saleStartDate) && now <= new Date(book.saleEndDate))
+          .map(async book => {
+            try {
+              const reviewRes = await api.get(`/reviews/stats/${book.id}/average`);
+              return {
+                ...book,
+                averageRating: reviewRes.data.averageRating,
+                reviewCount: reviewRes.data.reviewCount
+              };
+            } catch {
+              return { ...book, averageRating: 0, reviewCount: 0 };
+            }
+          })
+      );
       setBooks(onSaleBooks);
       setFilteredBooks(onSaleBooks);
     } catch (err) {
@@ -147,10 +157,10 @@ const Deals = () => {
   return (
     <>
       <Navbar />
-      <div className="deals-page">
-        <h1>🔥 Deals on Books</h1>
+      <div className="deal-page">
+        <h1>🔥 Book Deals</h1>
 
-        <div className="filters-bar">
+        <div className="deal-filters">
           <input
             type="text"
             placeholder="Search by title or author"
@@ -196,11 +206,24 @@ const Deals = () => {
                   <h3>{book.title}</h3>
                   <p className="author">by {book.author}</p>
                   <p className="desc">{book.description}</p>
+
+                  <div className="book-rating">
+                    {[1, 2, 3, 4, 5].map(star => (
+                      <span key={star} className={book.averageRating >= star ? 'filled-star' : 'empty-star'}>
+                        ★
+                      </span>
+                    ))}
+                    <span className="rating-count">({book.reviewCount} reviews)</span>
+                  </div>
+
                   <div className="deal-meta">
                     <span className="price">${book.price.toFixed(2)}</span>
-                    <span className="original-price">${book.originalPrice.toFixed(2)}</span>
+                    {book.originalPrice && (
+                      <span className="original-price">${book.originalPrice.toFixed(2)}</span>
+                    )}
                     <span className="countdown">⏳ {countdowns[book.id]}</span>
                   </div>
+
                   <div className="action-buttons">
                     <button onClick={e => handleAddToCart(e, book.id, book.title)}>Add to Cart</button>
                     <button onClick={e => handleBookmark(e, book.id, book.title)}>Bookmark</button>

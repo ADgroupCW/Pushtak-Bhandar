@@ -49,8 +49,8 @@ const NewArrivals = () => {
       const enriched = await Promise.all(
         res.data.map(async (book) => {
           try {
-            const reviewRes = await api.get(`/reviews/stats/${book.id}/average`);
-            return { ...book, averageRating: reviewRes.data.averageRating, reviewCount: reviewRes.data.reviewCount };
+            const ratingRes = await api.get(`/reviews/stats/${book.id}/average`);
+            return { ...book, averageRating: ratingRes.data.averageRating, reviewCount: ratingRes.data.reviewCount };
           } catch {
             return { ...book, averageRating: 0, reviewCount: 0 };
           }
@@ -129,21 +129,19 @@ const NewArrivals = () => {
   return (
     <>
       <Navbar />
-      <div className="new-arrivals-container">
-        <section className="hero-section">
+      <div className="na-page">
+        <section className="na-hero">
           <h1>📚 New Arrivals</h1>
           <p>Discover the latest books in our collection!</p>
         </section>
 
-        <section className="filters-section">
-          <div className="search-bar">
-            <input
-              type="text"
-              placeholder="Search by title or author"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
+        <section className="na-filters">
+          <input
+            type="text"
+            placeholder="Search by title or author"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
 
           <select value={selectedGenre} onChange={(e) => setSelectedGenre(e.target.value)}>
             <option value="">Filter by Genre</option>
@@ -151,9 +149,9 @@ const NewArrivals = () => {
           </select>
         </section>
 
-        <section className="books-showcase">
+        <section className="na-books">
           {isLoading ? (
-            <div className="loading-container">
+            <div className="na-loading">
               <div className="loader"></div>
               <p>Loading books...</p>
             </div>
@@ -162,50 +160,44 @@ const NewArrivals = () => {
               const onSale = isInSalePeriod(book);
               const isNewBook = isNew(book);
               return (
-                <Link to={`/book/${book.id}`} key={book.id} className="premium-book-card-link">
-                  <div className="premium-book-card">
-                    <div className="book-image-container">
-                      {onSale && <div className="on-sale-banner">ON SALE</div>}
-                      {isNewBook && <div className="new-badge">NEW</div>}
+                <Link to={`/book/${book.id}`} key={book.id} className="na-card-link">
+                  <div className="na-card">
+                    <div className="na-img-box">
+                      {onSale && <div className="na-badge na-sale">ON SALE</div>}
+                      {isNewBook && <div className="na-badge na-new">NEW</div>}
                       <img
                         src={book.imageUrl?.startsWith('http') ? book.imageUrl : `http://localhost:5046${book.imageUrl}`}
                         alt={book.title}
                       />
                     </div>
-                    <div className="book-details">
+                    <div className="na-info">
                       <h3>{book.title}</h3>
-                      <p className="author">by {book.author}</p>
-                      <p className="description">{book.description}</p>
+                      <p className="na-author">by {book.author}</p>
+                      <p className="na-desc">{book.description}</p>
                       
-                      <div className="book-rating">
+                      <div className="na-rating">
                         {[1, 2, 3, 4, 5].map((i) => (
-                          <span
-                            key={i}
-                            className={book.averageRating >= i ? 'filled-star' : 'empty-star'}
-                          >
+                          <span key={i} className={book.averageRating >= i ? 'na-filled-star' : 'na-empty-star'}>
                             ★
                           </span>
                         ))}
-                        <span className="rating-count">({book.reviewCount ?? 0} reviews)</span>
+                        <span className="na-rating-count">({book.reviewCount ?? 0} reviews)</span>
                       </div>
 
-
-                      <div className="price">
+                      <div className="na-price">
                         ${book.price.toFixed(2)}
                         {onSale && book.originalPrice && (
-                          <span className="original-price">${book.originalPrice.toFixed(2)}</span>
+                          <span className="na-original-price">${book.originalPrice.toFixed(2)}</span>
                         )}
                       </div>
+
                       {onSale && countdowns[book.id] && (
-                        <p className="sale-timer">⏳ {countdowns[book.id]}</p>
+                        <p className="na-timer">⏳ {countdowns[book.id]}</p>
                       )}
-                      <div className="action-buttons">
-                        <button onClick={(e) => handleAddToCart(e, book.id, book.title)} className="add-to-cart-btn">
-                          Add to Cart
-                        </button>
-                        <button onClick={(e) => handleBookmark(e, book.id, book.title)} className="bookmark-btn">
-                          Bookmark
-                        </button>
+
+                      <div className="na-actions">
+                        <button onClick={(e) => handleAddToCart(e, book.id, book.title)}>Add to Cart</button>
+                        <button onClick={(e) => handleBookmark(e, book.id, book.title)}>Bookmark</button>
                       </div>
                     </div>
                   </div>
@@ -213,18 +205,18 @@ const NewArrivals = () => {
               );
             })
           ) : (
-            <div className="no-results">
+            <div className="na-empty">
               <h3>No new books found</h3>
               <p>Try adjusting your search or filters.</p>
             </div>
           )}
         </section>
 
-        <section className="subscription-banner">
-          <div className="banner-content">
+        <section className="na-subscribe">
+          <div className="na-subscribe-content">
             <h2>Stay Updated</h2>
             <p>Subscribe to get notified about new books and offers.</p>
-            <form className="subscribe-form">
+            <form className="na-subscribe-form">
               <input type="email" placeholder="Your email address" required />
               <button type="submit">Subscribe</button>
             </form>

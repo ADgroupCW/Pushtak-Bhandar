@@ -1,125 +1,276 @@
-.award-page {
-  padding: 2rem;
+/* AwardWinners.css - Black and White Theme */
+
+/* Base Styles */
+.aw-page {
   max-width: 1200px;
   margin: 0 auto;
-  font-family: 'Segoe UI', sans-serif;
+  padding: 30px 20px;
+  color: #333;
+  font-family: 'Noto Sans', Arial, sans-serif;
 }
 
-.award-page h1 {
-  font-size: 2rem;
-  color: #d62828;
-  margin-bottom: 1rem;
+.aw-page h1 {
+  font-size: 36px;
+  margin-bottom: 30px;
   text-align: center;
+  font-weight: 700;
+  color: #000;
+  letter-spacing: 1px;
+  border-bottom: 2px solid #ddd;
+  padding-bottom: 15px;
 }
 
-.filters-bar {
+/* Filters Bar */
+.aw-filters-bar {
   display: flex;
   flex-wrap: wrap;
-  gap: 1rem;
-  margin-bottom: 2rem;
-  justify-content: center;
+  gap: 10px;
+  margin-bottom: 30px;
+  background-color: #f5f5f5;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.filters-bar input,
-.filters-bar select {
-  padding: 0.5rem;
-  border-radius: 4px;
-  border: 1px solid #ccc;
-  font-size: 0.95rem;
+.aw-filters-bar input,
+.aw-filters-bar select {
+  padding: 10px 15px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+  background-color: #fff;
+  color: #333;
+  flex: 1;
+  min-width: 150px;
 }
 
-.award-list {
+.aw-filters-bar input {
+  flex: 2;
+}
+
+.aw-filters-bar input:focus,
+.aw-filters-bar select:focus {
+  outline: none;
+  border-color: #000;
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
+}
+
+.aw-filters-bar button {
+  padding: 10px 20px;
+  background-color: #000;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.aw-filters-bar button:hover {
+  background-color: #333;
+  transform: translateY(-1px);
+}
+
+.aw-filters-bar button:active {
+  transform: translateY(1px);
+}
+
+/* Award Winners List */
+.aw-list {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 25px;
 }
 
-.award-row {
+.aw-row {
   display: flex;
-  background: #fff;
+  background-color: #fff;
   border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  overflow: hidden;
   text-decoration: none;
   color: inherit;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  border: 1px solid #eee;
+}
+
+.aw-row:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  border-color: #ddd;
+}
+
+.aw-row img {
+  width: 140px;
+  height: 210px;
+  object-fit: cover;
+  border-right: 1px solid #eee;
+}
+
+.aw-info {
+  flex: 1;
+  padding: 20px;
+  position: relative;
+}
+
+/* Book Details */
+.aw-info h3 {
+  font-size: 22px;
+  margin: 0 0 5px 0;
+  color: #000;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.aw-author {
+  font-size: 16px;
+  margin: 0 0 15px 0;
+  color: #555;
+  font-style: italic;
+}
+
+.aw-desc {
+  font-size: 14px;
+  line-height: 1.5;
+  margin: 15px 0;
+  color: #555;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
   overflow: hidden;
 }
 
-.award-row img {
-  width: 180px;
-  height: auto;
-  object-fit: cover;
-  flex-shrink: 0;
+/* Badge Styles */
+.aw-badge-box {
+  margin-bottom: 12px;
 }
 
-.award-info {
-  flex: 1;
-  padding: 1rem;
-  display: flex;
-  flex-direction: column;
+.aw-badge {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  margin-right: 8px;
+  margin-bottom: 5px;
 }
 
-.award-info h3 {
-  font-size: 1.2rem;
-  margin: 0 0 0.3rem;
-  color: #222;
+.aw-award-badge {
+  background-color: #000;
+  color: #fff;
 }
 
-.award-info .author {
-  font-size: 0.95rem;
-  color: #666;
-  margin-bottom: 0.5rem;
+.aw-award-list {
+  display: block;
+  margin-top: 8px;
+  font-size: 12px;
+  color: #555;
 }
 
-.award-info .desc {
-  font-size: 0.95rem;
-  color: #444;
-  margin-bottom: 0.75rem;
-  line-height: 1.4;
+/* Rating Stars */
+.aw-rating {
+  margin: 10px 0;
+  font-size: 18px;
 }
 
-.award-meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-  font-size: 0.95rem;
-  margin-bottom: 1rem;
-}
-
-.price {
-  color: #d62828;
-  font-weight: bold;
-}
-
-.original-price {
-  text-decoration: line-through;
-  color: #888;
-}
-
-.award-badge {
-  background: gold;
+.aw-filled-star {
   color: #000;
-  padding: 0.2rem 0.6rem;
-  border-radius: 12px;
-  font-weight: bold;
-  font-size: 0.85rem;
 }
 
-.action-buttons {
+.aw-empty-star {
+  color: #ddd;
+}
+
+.aw-rating-count {
+  font-size: 14px;
+  color: #666;
+  margin-left: 8px;
+}
+
+/* Price Information */
+.aw-meta {
+  margin: 15px 0;
+}
+
+.aw-price {
+  font-size: 18px;
+  font-weight: 700;
+  color: #000;
+  margin-right: 12px;
+}
+
+.aw-original-price {
+  font-size: 16px;
+  color: #999;
+  text-decoration: line-through;
+}
+
+/* Action Buttons */
+.aw-actions {
   display: flex;
-  gap: 1rem;
-  margin-top: auto;
+  gap: 10px;
+  margin-top: 15px;
 }
 
-.action-buttons button {
-  padding: 0.4rem 0.8rem;
-  font-size: 0.9rem;
-  background-color: #0077cc;
-  color: white;
-  border: none;
+.aw-actions button {
+  padding: 8px 16px;
   border-radius: 4px;
   cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+  transition: all 0.2s ease;
 }
 
-.action-buttons button:hover {
-  background-color: #005fa3;
+.aw-actions button:first-child {
+  background-color: #000;
+  color: #fff;
+  border: none;
+}
+
+.aw-actions button:first-child:hover {
+  background-color: #333;
+}
+
+.aw-actions button:last-child {
+  background-color: #fff;
+  color: #000;
+  border: 1px solid #000;
+}
+
+.aw-actions button:last-child:hover {
+  background-color: #f5f5f5;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .aw-row {
+    flex-direction: column;
+  }
+  
+  .aw-row img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-right: none;
+    border-bottom: 1px solid #eee;
+  }
+  
+  .aw-filters-bar {
+    flex-direction: column;
+  }
+  
+  .aw-filters-bar input, 
+  .aw-filters-bar select {
+    width: 100%;
+  }
+}
+
+/* Empty State */
+.aw-list p {
+  text-align: center;
+  padding: 30px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  color: #666;
+  font-style: italic;
 }

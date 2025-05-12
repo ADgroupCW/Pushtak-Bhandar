@@ -32,7 +32,7 @@ export default function VerifyOtp() {
   }, [timeLeft]);
 
   const formatTime = () => {
-    const minutes = String(Math.floor(timeLeft / 60)).padStart(1, '0');
+    const minutes = String(Math.floor(timeLeft / 60));
     const seconds = String(timeLeft % 60).padStart(2, '0');
     return `${minutes}:${seconds}`;
   };
@@ -54,27 +54,20 @@ export default function VerifyOtp() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const code = otp.join('');
-
     if (code.length !== 6) {
       setError('Please enter a valid 6-digit OTP.');
       return;
     }
 
     try {
-      const res = await api.post('/Auth/verify-otp', {
-        email,
-        otp: code
-      });
-
+      const res = await api.post('/Auth/verify-otp', { email, otp: code });
       setError('');
       setSuccess(res.data.message || 'Email verified successfully!');
       setTimeout(() => {
         navigate('/login');
       }, 2000);
     } catch (err) {
-      const msg =
-        err.response?.data?.message ||
-        'OTP verification failed. Please try again.';
+      const msg = err.response?.data?.message || 'OTP verification failed. Please try again.';
       setError(msg);
     }
   };
@@ -94,57 +87,53 @@ export default function VerifyOtp() {
   };
 
   return (
-    <div className="otp-wrapper">
-      <div className="book-decoration-top">
-        <div className="book red" />
-        <div className="book blue" />
-        <div className="book green" />
-        <div className="book yellow" />
-        <div className="book purple" />
+    <div className="email-otp-container">
+      <div className="email-otp-box">
+        <BookOpen size={36} className="email-otp-icon" />
+        <h2 className="email-otp-title">Verify OTP</h2>
+        <p className="email-otp-subtitle">
+          {email ? <>Enter the 6-digit code sent to <strong>{email}</strong></> : 'No email provided'}
+        </p>
+
+        {error && <div className="email-otp-error">{error}</div>}
+        {success && <div className="email-otp-success">{success}</div>}
+
+        <form onSubmit={handleSubmit}>
+          <div className="email-otp-inputs">
+            {otp.map((digit, idx) => (
+              <input
+                key={idx}
+                type="text"
+                maxLength="1"
+                className="email-otp-input"
+                value={digit}
+                onChange={(e) => handleChange(e.target.value, idx)}
+                onKeyDown={(e) => handleKeyDown(e, idx)}
+                ref={(el) => (inputRefs.current[idx] = el)}
+                disabled={!email}
+              />
+            ))}
+          </div>
+
+          <p className="email-otp-timer">Resend OTP in {formatTime()}</p>
+
+          <button type="submit" className="email-otp-btn" disabled={!email}>
+            Verify & Continue
+          </button>
+          <button
+            type="button"
+            className="email-otp-resend"
+            disabled={resendDisabled || !email}
+            onClick={handleResend}
+          >
+            Resend OTP
+          </button>
+
+          <p className="email-otp-back">
+            <a href="/forgot-password">← Back to Password Reset</a>
+          </p>
+        </form>
       </div>
-
-      <BookOpen size={40} className="otp-icon" />
-      <h2 className="otp-title">Verify OTP</h2>
-      <p className="otp-subtitle">
-        {email
-          ? `Enter the 6-digit code sent to ${email}`
-          : 'No email provided'}
-      </p>
-
-      {error && <div className="otp-error-message">{error}</div>}
-      {success && <div className="otp-success-message">{success}</div>}
-
-      <form onSubmit={handleSubmit}>
-        <div className="otp-input-group">
-          {otp.map((digit, idx) => (
-            <input
-              key={idx}
-              type="text"
-              maxLength="1"
-              className="otp-input"
-              value={digit}
-              onChange={(e) => handleChange(e.target.value, idx)}
-              onKeyDown={(e) => handleKeyDown(e, idx)}
-              ref={(el) => (inputRefs.current[idx] = el)}
-              disabled={!email}
-            />
-          ))}
-        </div>
-
-        <p className="otp-timer">Time remaining: {formatTime()}</p>
-
-        <button type="submit" className="otp-verify-btn" disabled={!email}>
-          Verify
-        </button>
-        <button
-          type="button"
-          className="otp-resend-btn"
-          disabled={resendDisabled || !email}
-          onClick={handleResend}
-        >
-          Resend OTP
-        </button>
-      </form>
     </div>
   );
 }
