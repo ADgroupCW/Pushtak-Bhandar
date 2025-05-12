@@ -5,19 +5,19 @@ namespace ADGroupCW.Services.Interfaces
 {
     public interface IBookMetaService
     {
-        // ✅ Genre
+        //  Genre
         Task<List<GenreReadDto>> GetGenresAsync();
         Task<GenreReadDto> AddGenreAsync(NameOnlyDto dto);
 
-        // ✅ Publisher
+        //  Publisher
         Task<List<PublisherReadDto>> GetPublishersAsync();
         Task<PublisherReadDto> AddPublisherAsync(NameOnlyDto dto);
 
-        // ✅ Award
+        //  Award
         Task<List<BookAwardReadDto>> GetAwardsAsync();
         Task<BookAwardReadDto> AddAwardAsync(NameOnlyDto dto);
 
-        // ✅ Format
+        // Format
         Task<List<BookFormatReadDto>> GetFormatsAsync();
         Task<BookFormatReadDto> AddFormatAsync(NameOnlyDto dto);
     }
