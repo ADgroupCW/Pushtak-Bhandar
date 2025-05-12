@@ -170,7 +170,6 @@ export default function AddBook() {
                 className="form-control"
               />
             </div>
-
             <div className="form-group">
               <label>Author</label>
               <input 
@@ -202,7 +201,6 @@ export default function AddBook() {
                 className="form-control"
               />
             </div>
-
             <div className="form-group">
               <label>Language</label>
               <input 
@@ -214,7 +212,6 @@ export default function AddBook() {
             </div>
           </div>
         );
-      
       case 2:
         return (
           <div className="step-content">
@@ -230,7 +227,6 @@ export default function AddBook() {
                 className="form-control"
               />
             </div>
-
             <div className="form-group">
               <label>Publisher</label>
               <div className="input-group">
@@ -257,7 +253,6 @@ export default function AddBook() {
             </div>
           </div>
         );
-      
       case 3:
         return (
           <div className="step-content">
@@ -273,7 +268,6 @@ export default function AddBook() {
                 className="form-control"
               />
             </div>
-
             <div className="form-group">
               <label>Original Price</label>
               <input 
@@ -284,7 +278,6 @@ export default function AddBook() {
                 className="form-control"
               />
             </div>
-
             <div className="form-group">
               <label>Stock Count</label>
               <input 
@@ -296,7 +289,6 @@ export default function AddBook() {
                 className="form-control"
               />
             </div>
-
             <div className="form-group checkbox-group">
               <label className="checkbox-label">
                 <input 
@@ -308,7 +300,6 @@ export default function AddBook() {
                 <span>Available in Store</span>
               </label>
             </div>
-
             <div className="form-group checkbox-group">
               <label className="checkbox-label">
                 <input 
@@ -320,7 +311,6 @@ export default function AddBook() {
                 <span>On Sale</span>
               </label>
             </div>
-
             {form.isOnSale && (
               <>
                 <div className="form-group">
@@ -348,7 +338,6 @@ export default function AddBook() {
             )}
           </div>
         );
-      
       case 4:
         return (
           <div className="step-content">
@@ -377,7 +366,6 @@ export default function AddBook() {
                 </button>
               </div>
             </div>
-
             <div className="form-group">
               <label>Awards</label>
               <div className="input-group">
@@ -421,7 +409,6 @@ export default function AddBook() {
                 })}
               </div>
             </div>
-
             <div className="form-group">
               <label>Formats</label>
               <div className="input-group">
@@ -467,7 +454,6 @@ export default function AddBook() {
             </div>
           </div>
         );
-      
       case 5:
         return (
           <div className="step-content">
@@ -490,7 +476,6 @@ export default function AddBook() {
                 </div>
               )}
             </div>
-
             <div className="review-section">
               <h4>Review Book Information</h4>
               <div className="review-item">
@@ -517,18 +502,15 @@ export default function AddBook() {
             </div>
           </div>
         );
-      
       default:
         return null;
     }
   };
-
   return (
     <div className="add-book-container">
       <h2>Add New Book</h2>
       {error && <div className="error-message">{error}</div>}
       {success && <div className="success-message">{success}</div>}
-
       {/* Stepper */}
       <div className="stepper">
         {steps.map((step) => (
@@ -577,7 +559,6 @@ export default function AddBook() {
           )}
         </div>
       </form>
-
       {showModal && (
         <div className="modal-overlay">
           <div className="modal">
