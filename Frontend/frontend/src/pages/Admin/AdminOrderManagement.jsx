@@ -31,7 +31,7 @@ const AdminOrderManagement = () => {
       await api.put('/admin/orders/status', { orderId, newStatus });
       fetchAllOrders();
     } catch (err) {
-      console.error('❌ Failed to update status:', err);
+      console.error('Failed to update status:', err);
       alert('Failed to update status.');
     }
   };
@@ -52,7 +52,7 @@ const AdminOrderManagement = () => {
       setSelectedOrder(res.data);
       setModalOpen(true);
     } catch (err) {
-      console.error('❌ Could not load order details:', err);
+      console.error('Could not load order details:', err);
       alert('Could not load order details.');
     }
   };
@@ -65,7 +65,7 @@ const AdminOrderManagement = () => {
       <AdminSidebar />
 
       <div style={{ flex: 1, padding: '20px' }}>
-        <h2>📦 Admin Order Management</h2>
+        <h2>Admin Order Management</h2>
 
         <input
           type="text"
@@ -80,11 +80,10 @@ const AdminOrderManagement = () => {
             border: '1px solid #ccc'
           }}
         />
-
         {loading ? (
-          <p>⏳ Loading orders...</p>
+          <p>Loading orders...</p>
         ) : filteredOrders.length === 0 ? (
-          <p>⚠️ No matching orders found.</p>
+          <p>No matching orders found.</p>
         ) : (
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
@@ -122,7 +121,6 @@ const AdminOrderManagement = () => {
             </tbody>
           </table>
         )}
-
         {modalOpen && selectedOrder && (
           <div style={modalOverlay}>
             <div style={modalBox}>
@@ -153,7 +151,6 @@ const AdminOrderManagement = () => {
                   ))}
                 </tbody>
               </table>
-
               <h4>Summary:</h4>
               <p><strong>Total:</strong> {formatCurrency(selectedOrder.totalAmount)}</p>
 
@@ -165,18 +162,15 @@ const AdminOrderManagement = () => {
     </div>
   );
 };
-
 const th = {
   padding: '12px',
   borderBottom: '2px solid #ddd',
   textAlign: 'left'
 };
-
 const td = {
   padding: '10px',
   borderBottom: '1px solid #eee'
 };
-
 const modalOverlay = {
   position: 'fixed',
   top: 0, left: 0, right: 0, bottom: 0,
@@ -186,7 +180,6 @@ const modalOverlay = {
   alignItems: 'center',
   zIndex: 1000
 };
-
 const modalBox = {
   backgroundColor: 'white',
   padding: '20px',
@@ -195,5 +188,4 @@ const modalBox = {
   maxHeight: '80vh',
   overflowY: 'auto'
 };
-
 export default AdminOrderManagement;
