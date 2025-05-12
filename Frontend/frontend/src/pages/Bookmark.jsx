@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 // Import required React tools and components
+=======
+// Import necessary modules and components
+>>>>>>> 07c7d951865c2753ca5faf37fcb9c0ef66aa005a
 import React, { useEffect, useState } from 'react';
 import api from '../api/api';
 import Navbar from '../components/Navbar';
@@ -13,7 +17,7 @@ const Bookmark = () => {
   useEffect(() => {
     fetchBookmarks();
   }, []);
-
+// Function to fetch all bookmarks for the logged-in user
   const fetchBookmarks = async () => {
     try {
       const res = await api.get('/bookmark/my');

@@ -1,3 +1,4 @@
+// Import React tools and components
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../api/api';
@@ -6,6 +7,7 @@ import Footer from '../components/footer';
 import '../styles/Deals.css';
 
 const Deals = () => {
+  // State variables for books and filters
   const [books, setBooks] = useState([]);
   const [filteredBooks, setFilteredBooks] = useState([]);
   const [countdowns, setCountdowns] = useState({});
@@ -28,7 +30,7 @@ const Deals = () => {
     fetchFilters();
     decodeToken();
   }, []);
-
+// Sale countdown timer updater – runs every second
   useEffect(() => {
     const interval = setInterval(() => {
       const updated = {};
@@ -50,7 +52,7 @@ const Deals = () => {
     }, 1000);
     return () => clearInterval(interval);
   }, [books]);
-
+ // Fetch all books and filter only active deals
   const fetchBooks = async () => {
     try {
       const res = await api.get('/book');
@@ -95,6 +97,7 @@ const Deals = () => {
     }
   };
 
+  // Decode JWT to extract user ID
   const decodeToken = () => {
     const token = localStorage.getItem('token');
     if (!token) return;
@@ -142,7 +145,7 @@ const Deals = () => {
       alert('❌ Failed to add to cart.');
     }
   };
-
+  // Bookmark book
   const handleBookmark = async (e, bookId, title) => {
     e.preventDefault();
     if (!userId) return alert('Please login to bookmark.');

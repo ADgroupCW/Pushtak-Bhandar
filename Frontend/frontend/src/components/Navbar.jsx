@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FaUser, FaShoppingCart, FaBookmark, FaSignOutAlt, FaBox, FaChevronDown } from 'react-icons/fa';
-import '../styles/Navbar.css';
+import '../styles/Navbar.css'; //importing css for styling
 
 const Navbar = () => {
-  const navigate = useNavigate();
-  const isLoggedIn = !!localStorage.getItem('token');
-  const role = localStorage.getItem('role');
-  const [showDropdown, setShowDropdown] = useState(false);
+  const navigate = useNavigate();//hook for navigation
+  const isLoggedIn = !!localStorage.getItem('token');//check weather user is logges in according to token
+  const role = localStorage.getItem('role');//get user role
+  const [showDropdown, setShowDropdown] = useState(false);//state to manage dropdown menu
 
+  //function to handle user loggingout
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('role');

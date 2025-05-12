@@ -5,6 +5,7 @@ import api from '../api/api';
 import '../styles/Cart.css';
 
 const Cart = () => {
+  // State for cart items, loading state, and order success message
   const [cartItems, setCartItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [orderSuccess, setOrderSuccess] = useState(false);
@@ -51,7 +52,7 @@ const Cart = () => {
       alert('❌ Failed to update quantity.');
     }
   };
-
+ // Remove a specific item from the cart
   const removeItem = async (itemId) => {
     try {
       await api.delete(`/cart/${itemId}`);
@@ -69,7 +70,7 @@ const Cart = () => {
       alert('❌ Failed to clear cart.');
     }
   };
-
+  // Handle placing an order
   const handleCheckout = async () => {
     try {
       const itemIds = cartItems.map(item => item.id);
@@ -84,7 +85,7 @@ const Cart = () => {
   const total = cartItems.reduce((sum, item) => {
     return sum + (item.unitPrice * item.quantity);
   }, 0);
-
+ // Show loader while loading
   if (loading) return (
     <div className="cart-page">
       <Navbar />

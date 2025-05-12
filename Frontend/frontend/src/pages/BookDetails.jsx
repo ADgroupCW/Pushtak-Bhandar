@@ -25,7 +25,7 @@ const BookDetails = () => {
     fetchReviewStats();
     fetchAllReviews();
   }, [id]);
-
+  // Fetch book details from the server
   const fetchBook = async () => {
     try {
       const res = await api.get(`/book/${id}`);
@@ -111,7 +111,7 @@ const BookDetails = () => {
       setMessage({ type: 'error', text: err?.response?.data || 'Bookmark failed.' });
     }
   };
-
+// Fallback for local images
   const renderStars = (rating) => {
     return [...Array(5)].map((_, i) => (
       <span key={i} className={i < Math.round(rating) ? 'filled-star' : 'empty-star'}>★</span>
