@@ -1,3 +1,4 @@
+// Import gareko components ra hooks haru
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
@@ -5,6 +6,7 @@ import Footer from '../components/footer';
 import api from '../api/api';
 import '../styles/AllBooks.css';
 
+//  AllBooks component start
 const AllBooks = () => {
   const [books, setBooks] = useState([]);
   const [filteredBooks, setFilteredBooks] = useState([]);
@@ -20,6 +22,7 @@ const AllBooks = () => {
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
 
+   // Page load huda data fetch garne
   useEffect(() => {
     fetchBooks();
     fetchFilters();
@@ -130,6 +133,7 @@ const AllBooks = () => {
     navigate(`/book/${bookId}`);
   };
 
+  // Frontend ko part
   return (
     <>
       <Navbar />
