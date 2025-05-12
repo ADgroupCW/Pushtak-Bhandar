@@ -15,7 +15,7 @@ namespace ADGroupCW.Services.Implementations
             _context = context;
         }
 
-        //  GENRE
+        //  GENRE section Handles operations related to book genres, which help categorize books for easier discovery.
         public async Task<List<GenreReadDto>> GetGenresAsync()
         {
             return await _context.Genres
@@ -35,7 +35,7 @@ namespace ADGroupCW.Services.Implementations
             return new GenreReadDto { Id = genre.Id, Name = genre.Name };
         }
 
-        //  PUBLISHER
+        //  Manages publisher records, which identify the source or producer of a book.
         public async Task<List<PublisherReadDto>> GetPublishersAsync()
         {
             return await _context.Publishers
@@ -55,7 +55,7 @@ namespace ADGroupCW.Services.Implementations
             return new PublisherReadDto { Id = pub.Id, Name = pub.Name };
         }
 
-        //  AWARD
+        //  Manages literary awards to recognize books with special achievements or recognition.
         public async Task<List<BookAwardReadDto>> GetAwardsAsync()
         {
             return await _context.Awards
@@ -75,7 +75,7 @@ namespace ADGroupCW.Services.Implementations
             return new BookAwardReadDto { Id = award.Id, Name = award.Name };
         }
 
-        //  FORMAT (replaces BookFormat)
+        //  FORMAT (replace BookFormat)
         public async Task<List<BookFormatReadDto>> GetFormatsAsync()
         {
             return await _context.Formats
