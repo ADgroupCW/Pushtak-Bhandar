@@ -5,6 +5,7 @@ import Footer from '../components/footer';
 import api from '../api/api';
 import '../styles/Bestseller.css';
 
+// Page load hune bittikai books ra filters fetch huncha
 const BestOfTheBest = () => {
   const [books, setBooks] = useState([]);
   const [filteredBooks, setFilteredBooks] = useState([]);
@@ -50,6 +51,7 @@ const BestOfTheBest = () => {
     return () => clearInterval(interval);
   }, [books]);
 
+  // Fetching Apis
   const isNew = (book) => {
     const created = new Date(book.createdAt);
     const now = new Date();
@@ -62,6 +64,7 @@ const BestOfTheBest = () => {
     return now >= new Date(book.saleStartDate) && now <= new Date(book.saleEndDate);
   };
 
+  // Filter values (genre, format, publisher, award) fetch garxa
   const fetchBooks = async () => {
     try {
       const res = await api.get('/book/best-sellers');
@@ -142,6 +145,7 @@ const BestOfTheBest = () => {
     setFilteredBooks(filtered);
   };
 
+   // Add to cart button click handler
   const handleAddToCart = async (e, bookId, title) => {
     e.preventDefault();
     if (!userId) return alert('Please login to add to cart.');
@@ -164,8 +168,10 @@ const BestOfTheBest = () => {
     }
   };
 
+  // Frontend part
   return (
     <>
+    {/* Top navigation bar */}
       <Navbar />
       <div className="botb-page">
         <h1>🏆 Best of the Best</h1>
@@ -177,7 +183,7 @@ const BestOfTheBest = () => {
             value={searchTerm}
             onChange={e => setSearchTerm(e.target.value)}
           />
-
+{/* Filter Option*/}
           <select value={sortOption} onChange={e => setSortOption(e.target.value)}>
             <option value="rating">Sort: Top Rated</option>
             <option value="price-asc">Price: Low to High</option>
