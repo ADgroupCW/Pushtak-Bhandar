@@ -219,12 +219,12 @@ export default function ClaimCodeVerify() {
                       />
                     </div>
                     <div className="item-details">
-                      <h5>{item.title}</h5>
+                      <h5>Title: {item.title}</h5>
                       <div className="item-meta">
                         <span>Qty: {item.quantity}</span>
                         <span>${item.unitPrice.toFixed(2)} each</span>
                       </div>
-                      <div className="item-total">
+                      <div className="item-total">SubTotal:
                         ${(item.quantity * item.unitPrice).toFixed(2)}
                       </div>
                     </div>

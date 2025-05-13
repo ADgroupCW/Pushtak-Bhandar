@@ -190,49 +190,83 @@ const Deals = () => {
           <button onClick={handleSearchAndFilter}>Search</button>
         </div>
 
-        <div className="deal-list">
-          {filteredBooks.length === 0 ? (
-            <p>No deals found.</p>
-          ) : (
-            filteredBooks.map(book => (
-              <Link to={`/book/${book.id}`} key={book.id} className="deal-row">
-                <img
-                  src={book.imageUrl?.startsWith('http')
-                    ? book.imageUrl
-                    : `http://localhost:5046${book.imageUrl}`}
-                  alt={book.title}
-                />
-                <div className="deal-info">
-                  <h3>{book.title}</h3>
-                  <p className="author">by {book.author}</p>
-                  <p className="desc">{book.description}</p>
+        <div className="na-books">
+        
+        {filteredBooks.length === 0 ? (
+          <p>No deals found.</p>
+        ) : (
+          filteredBooks.map(book => {
+            const isNew = (new Date() - new Date(book.createdAt)) / (1000 * 60 * 60 * 24) < 7;
 
-                  <div className="book-rating">
-                    {[1, 2, 3, 4, 5].map(star => (
-                      <span key={star} className={book.averageRating >= star ? 'filled-star' : 'empty-star'}>
+            return (
+              <Link to={`/book/${book.id}`} key={book.id} className="na-card-link">
+              <div key={book.id} className="na-card">
+                <div className="na-img-box">
+                  {book.stockCount === 0 && (
+                    <div className="na-out-overlay">
+                      <div className="na-out-content">
+                        <span className="na-lock">🔒</span>
+                        <p>Currently Unavailable</p>
+                      </div>
+                    </div>
+                  )}
+                  <div className="na-badge na-sale">ON SALE</div>
+                  {isNew && <div className="na-badge na-new">NEW</div>}
+                  <img
+                    src={book.imageUrl?.startsWith('http') ? book.imageUrl : `http://localhost:5046${book.imageUrl}`}
+                    alt={book.title}
+                  />
+                </div>
+
+                <div className="na-info">
+                  <h3>{book.title}</h3>
+                  <p className="na-author">by {book.author}</p>
+                  <p className="na-desc">{book.description}</p>
+
+                  <div className="na-rating">
+                    {[1, 2, 3, 4, 5].map(i => (
+                      <span key={i} className={book.averageRating >= i ? 'na-filled-star' : 'na-empty-star'}>
                         ★
                       </span>
                     ))}
-                    <span className="rating-count">({book.reviewCount} reviews)</span>
+                    <span className="na-rating-count">({book.reviewCount} reviews)</span>
                   </div>
 
-                  <div className="deal-meta">
-                    <span className="price">${book.price.toFixed(2)}</span>
+                  <div className="na-price">
+                    ${book.price.toFixed(2)}
                     {book.originalPrice && (
-                      <span className="original-price">${book.originalPrice.toFixed(2)}</span>
+                      <span className="na-original-price">${book.originalPrice.toFixed(2)}</span>
                     )}
-                    <span className="countdown">⏳ {countdowns[book.id]}</span>
                   </div>
 
-                  <div className="action-buttons">
-                    <button onClick={e => handleAddToCart(e, book.id, book.title)}>Add to Cart</button>
-                    <button onClick={e => handleBookmark(e, book.id, book.title)}>Bookmark</button>
+                  {countdowns[book.id] && (
+                    <p className="na-timer">⏳ {countdowns[book.id]}</p>
+                  )}
+
+                  {book.bookAwardNames?.length > 0 && (
+                    <div className="na-awards-container">
+                      {book.bookAwardNames.map((award, index) => (
+                        <span key={index} className="na-award-card">🏅 {award}</span>
+                      ))}
+                    </div>
+                  )}
+
+                  <div className="na-actions">
+                    <button onClick={(e) => handleAddToCart(e, book.id, book.title)} disabled={book.stockCount === 0}>
+                      Add to Cart
+                    </button>
+                    <button onClick={(e) => handleBookmark(e, book.id, book.title)} disabled={book.stockCount === 0}>
+                      Bookmark
+                    </button>
                   </div>
                 </div>
+              </div>
               </Link>
-            ))
-          )}
-        </div>
+            );
+          })
+        )}
+      </div>
+
       </div>
       <Footer />
     </>

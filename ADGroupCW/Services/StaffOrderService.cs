@@ -26,6 +26,12 @@ namespace ADGroupCW.Services
 
             if (order == null) return null;
 
+            // ✅ Get the user's email
+            var userEmail = await _context.Users
+                .Where(u => u.Id == order.UserId)
+                .Select(u => u.Email)
+                .FirstOrDefaultAsync();
+
             return new ClaimedOrderViewDto
             {
                 OrderId = order.Id,
@@ -33,6 +39,7 @@ namespace ADGroupCW.Services
                 OrderedAt = order.OrderedAt,
                 Status = order.Status,
                 TotalAmount = order.TotalAmount,
+                UserEmail = userEmail, // ✅ Add this assignment
                 Items = order.Items.Select(i => new OrderItemViewDto
                 {
                     BookId = i.BookId,
@@ -42,6 +49,7 @@ namespace ADGroupCW.Services
                 }).ToList()
             };
         }
+
 
         public async Task<bool> UpdateOrderStatusByClaimCodeAsync(StaffUpdateStatusDto dto)
         {

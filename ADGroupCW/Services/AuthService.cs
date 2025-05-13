@@ -251,6 +251,30 @@ namespace ADGroupCW.Services
             return await _userManager.CheckPasswordAsync(user, password);
         }
 
+        public async Task<string> ResendForgotPasswordOtpAsync(string email)
+        {
+            // 1. Find user by email
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user == null)
+                throw new Exception("User not found");
+
+            // 2. If already verified for password reset, no need to resend
+            if (_cache.TryGetValue($"pwreset-allowed:{email}", out bool alreadyVerified) && alreadyVerified)
+                return "You have already verified OTP. Proceed to reset your password.";
+
+            // 3. Remove any existing reset OTP
+            _cache.Remove($"reset-otp:{email}");
+
+            // 4. Generate and store new OTP
+            var otp = new Random().Next(100000, 999999).ToString();
+            _cache.Set($"reset-otp:{email}", otp, TimeSpan.FromMinutes(5));
+
+            // 5. Send OTP via email
+            await _emailService.SendEmailAsync(email, "Resend Password Reset OTP", $"Your new OTP is: {otp}");
+
+            return "Password reset OTP resent successfully.";
+        }
+
 
 
 

@@ -36,7 +36,7 @@
   }
   
   .admin-sidebar a:hover, .logout-btn:hover {
-    text-decoration: underline;
+    background-color: #7f6e6e;
   }
   
   .admin-main {
@@ -64,10 +64,20 @@
   }
   
   .card {
-    background-color: white;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    font-size: 18px;
-  }
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  font-size: 18px;
+  transition: all 0.2s ease;
+  color: #222;
+}
+
+/* 👇 Fixes the hover turning black issue */
+.card:hover {
+  background-color: #f0f0f0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+}
+
   

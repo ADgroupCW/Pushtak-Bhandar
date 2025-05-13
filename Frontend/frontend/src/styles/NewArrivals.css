@@ -192,6 +192,49 @@
   color: #777;
 }
 
+
+.na-badge.na-out {
+  top: 10px;
+  left: 10px;
+  background-color: #ffd900;
+  color: #000000;
+  padding: 4px 8px;
+  font-size: 12px;
+  border-radius: 4px;
+  position: absolute;
+  z-index: 2;
+}
+
+
+.na-actions button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+
+
+.na-awards-container {
+  margin-top: 0.6rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.na-award-card {
+  background-color: #fff7e6;
+  color: #c47f00;
+  border: 1px solid #ffda9e;
+  padding: 5px 10px;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  font-weight: 500;
+  white-space: nowrap;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+
+
+
 /* Price */
 .na-price {
   font-size: 1.2rem;
@@ -390,4 +433,28 @@
   .na-img-box {
     height: 200px;
   }
+}
+
+.na-price-section {
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+  font-size: 1rem;
+}
+
+.na-sale-price {
+  font-weight: bold;
+  color: #e63946;
+  font-size: 1.1rem;
+}
+
+.na-original-price {
+  text-decoration: line-through;
+  color: #888;
+  font-size: 0.95rem;
+}
+
+.na-regular-price {
+  font-weight: bold;
+  color: #333;
 }

@@ -97,32 +97,41 @@ export default function VerifyResetOtp() {
   };
 
   const handleResendOtp = async () => {
-    if (resendDisabled) return;
+  if (resendDisabled) {
+    console.log("⛔ Resend OTP clicked while disabled.");
+    return;
+  }
 
-    setIsResending(true);
-    setError('');
-    try {
-      await api.post('/Auth/resend-otp', { email });
-      setMessage('New OTP sent successfully!');
-      setCountdown(60);
-      setResendDisabled(true);
+  console.log("🔁 Resending OTP for email:", email);
+  setIsResending(true);
+  setError('');
+  try {
+    const res = await api.post(`/Auth/resend-forgot-password-otp?email=${encodeURIComponent(email)}`);
 
-      const timer = setInterval(() => {
-        setCountdown((prev) => {
-          if (prev <= 1) {
-            clearInterval(timer);
-            setResendDisabled(false);
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
-    } catch (err) {
-      setError(err.response?.data?.message || 'Failed to resend OTP.');
-    } finally {
-      setIsResending(false);
-    }
-  };
+    console.log("✅ Resend OTP response:", res.data);
+    setMessage('New OTP sent successfully!');
+    setCountdown(60);
+    setResendDisabled(true);
+
+    const timer = setInterval(() => {
+      setCountdown((prev) => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          setResendDisabled(false);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+  } catch (err) {
+    const errorMsg = err.response?.data?.message || 'Failed to resend OTP.';
+    console.error("❌ Resend OTP failed:", errorMsg);
+    setError(errorMsg);
+  } finally {
+    setIsResending(false);
+  }
+};
+
 
   return (
     <div className="reset-otp-container">

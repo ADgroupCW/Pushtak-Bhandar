@@ -37,7 +37,14 @@ namespace ADGroupCW.Services
             int pastOrdersCount = await _context.Orders
                 .CountAsync(o => o.UserId == userId && o.Status == "Completed");
 
-            decimal subtotal = cartItems.Sum(ci => ci.Book.Price * ci.Quantity);
+            // ✅ Calculate subtotal with proper price logic (sale or original)
+            decimal subtotal = cartItems.Sum(ci =>
+            {
+                var price = (ci.Book.IsOnSale ? ci.Book.Price : ci.Book.OriginalPrice) ?? 0m;
+                return price * ci.Quantity;
+            });
+
+
             int bookCount = cartItems.Sum(ci => ci.Quantity);
 
             decimal discount = 0;
@@ -46,6 +53,7 @@ namespace ADGroupCW.Services
 
             decimal total = subtotal - discount;
 
+            // ✅ Create order with correct price per item
             var order = new Order
             {
                 UserId = userId,
@@ -57,7 +65,7 @@ namespace ADGroupCW.Services
                 {
                     BookId = ci.BookId,
                     Quantity = ci.Quantity,
-                    UnitPrice = ci.Book.Price
+                    UnitPrice = (ci.Book.IsOnSale ? ci.Book.Price : ci.Book.OriginalPrice) ?? 0m
                 }).ToList()
             };
 
@@ -179,8 +187,10 @@ namespace ADGroupCW.Services
         private string BuildEmailBody(Order order, List<CartItem> items, decimal subtotal, decimal discount, decimal total)
         {
             var itemList = string.Join("", items.Select(i =>
-                $"<li>{WebUtility.HtmlEncode(i.Book.Title)} × {i.Quantity} — {i.Book.Price:C} each</li>"
-            ));
+            {
+                var price = i.Book.IsOnSale ? i.Book.Price : i.Book.OriginalPrice;
+                return $"<li>{WebUtility.HtmlEncode(i.Book.Title)} × {i.Quantity} — {price:C} each</li>";
+            }));
 
             return $@"
             <div style='font-family:Segoe UI, sans-serif; color:#333; font-size:14px; line-height:1.6;'>

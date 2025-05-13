@@ -87,7 +87,7 @@
 
 .register-subtitle {
   margin: 0.5rem 0 0;
-  color: var(--mid-gray);
+  color: #000000;;
   font-size: 0.9rem;
 }
 
@@ -175,7 +175,7 @@
 .form-note {
   margin: 0.5rem 0 0;
   font-size: 0.8rem;
-  color: var(--mid-gray);
+  color: #000000;;
 }
 
 /* Buttons */

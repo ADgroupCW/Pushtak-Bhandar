@@ -7,6 +7,7 @@ using ADGroupCW.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
@@ -67,6 +68,8 @@ builder.Services.AddScoped<IReviewService, ReviewService>();
 builder.Services.AddScoped<IAdminReviewService, AdminReviewService>();
 builder.Services.AddScoped<IAnnouncementService, AnnouncementService>();
 builder.Services.AddScoped<INewsletterService, NewsletterService>();
+builder.Services.AddScoped<IAdminDashboardService, AdminDashboardService>();
+
 
 
 
@@ -107,8 +110,9 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.UseCors("AllowFrontend");
 app.UseStaticFiles();
-
 app.MapControllers();
+
+
 
 
 // ✅ SEED ROLES: Admin, Staff, Member

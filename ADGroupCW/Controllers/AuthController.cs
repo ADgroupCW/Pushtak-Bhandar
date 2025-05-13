@@ -109,5 +109,20 @@ namespace ADGroupCW.Controllers
             return Ok(new { isValid });
         }
 
+        [HttpPost("resend-forgot-password-otp")]
+        public async Task<IActionResult> ResendForgotPasswordOtp([FromQuery] string email)
+        {
+            try
+            {
+                var response = await _authService.ResendForgotPasswordOtpAsync(email);
+                return Ok(new { success = true, message = response });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { success = false, message = ex.Message });
+            }
+        }
+
+
     }
 }

@@ -24,7 +24,7 @@ namespace ADGroupCW.Services.Interface
         // Logout
         Task<string> LogoutAsync();
 
-
+        Task<string> ResendForgotPasswordOtpAsync(string email);
         Task<bool> VerifyCurrentPasswordAsync(ApplicationUser user, string password);
     }
 }

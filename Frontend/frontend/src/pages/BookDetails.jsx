@@ -5,6 +5,17 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/footer';
 import '../styles/BookDetails.css';
 
+const Popup = ({ type, text, onClose }) => {
+  return (
+    <div className="popup-overlay">
+      <div className={`popup-box ${type}`}>
+        <p>{text}</p>
+        <button className="popup-close" onClick={onClose}>OK</button>
+      </div>
+    </div>
+  );
+};
+
 const BookDetails = () => {
   const { id } = useParams();
   const [book, setBook] = useState(null);
@@ -77,36 +88,38 @@ const BookDetails = () => {
 
   const handleAddToCart = async () => {
   if (!isLoggedIn) {
-    setMessage({ type: 'error', text: 'Please log in first.' });
+    alert('Please log in first.');
     return;
   }
 
   if (book.stockCount === 0) {
-    setMessage({ type: 'error', text: 'This book is currently out of stock.' });
+    alert('This book is currently out of stock.');
     return;
   }
 
   try {
     await api.post('/cart', { bookId: book.id, quantity });
-    setMessage({ type: 'success', text: 'Added to cart!' });
+    alert('Added to cart!');
   } catch {
-    setMessage({ type: 'error', text: 'Failed to add to cart.' });
+    alert('Failed to add to cart.');
   }
 };
 
 
+
   const handleBookmark = async () => {
-    if (!isLoggedIn) {
-      setMessage({ type: 'error', text: 'Please log in first.' });
-      return;
-    }
-    try {
-      await api.post('/bookmark', { bookId: book.id });
-      setMessage({ type: 'success', text: 'Bookmarked!' });
-    } catch (err) {
-      setMessage({ type: 'error', text: err?.response?.data || 'Bookmark failed.' });
-    }
-  };
+  if (!isLoggedIn) {
+    alert('Please log in first.');
+    return;
+  }
+  try {
+    await api.post('/bookmark', { bookId: book.id });
+    alert('Bookmarked!');
+  } catch (err) {
+    alert(err?.response?.data || 'Bookmark failed.');
+  }
+};
+;
 
   const renderStars = (rating) => {
     return [...Array(5)].map((_, i) => (
@@ -125,7 +138,6 @@ const BookDetails = () => {
   return (
     <div className="book-page">
       <Navbar />
-      {message && <div className={`alert ${message.type}`}>{message.text}</div>}
 
       <div className="book-details-container">
         <div className="book-image-container">
@@ -142,34 +154,55 @@ const BookDetails = () => {
           </div>
 
           <div className="price-block">
-            <span className="price">${book.price.toFixed(2)}</span>
-            {book.originalPrice > book.price && (
-              <span className="original-price">${book.originalPrice.toFixed(2)}</span>
+            {book.isOnSale && book.price < book.originalPrice ? (
+              <>
+                <span className="price">${book.price.toFixed(2)}</span>
+                <span className="original-price">${book.originalPrice.toFixed(2)}</span>
+                {countdown && <div className="sale-timer">⏳ {countdown}</div>}
+              </>
+            ) : (
+              <span className="price">${book.originalPrice.toFixed(2)}</span>
             )}
-            {book.isOnSale && countdown && <div className="sale-timer">⏳ {countdown}</div>}
           </div>
+
 
           <p className="description">{book.description}</p>
 
-          <div className="details-box">
-            <p><strong>Publisher:</strong> {book.publisherName}</p>
-            <p><strong>Genre:</strong> {book.genreName}</p>
-            <p><strong>Language:</strong> {book.language}</p>
-            <p><strong>Publication Date:</strong> {new Date(book.publicationDate).toLocaleDateString()}</p>
-            <p>
-              <strong>Stock:</strong>{' '}
-              {book.stockCount > 5 ? (
-                <span style={{ color: 'green', fontWeight: 'bold' }}>In Stock</span>
-              ) : book.stockCount > 0 ? (
-                <span style={{ color: 'orange', fontWeight: 'bold' }}>
-                  Only {book.stockCount} left!
-                </span>
-              ) : (
-                <span style={{ color: 'red', fontWeight: 'bold' }}>Out of Stock</span>
-              )}
-            </p>
+          <div className="details-box two-columns">
+            <div className="left-col">
+              <p><strong>Publisher:</strong> {book.publisherName}</p>
+              <p><strong>Genre:</strong> {book.genreName}</p>
+              <p><strong>Language:</strong> {book.language}</p>
+              <p><strong>Publication Date:</strong> {new Date(book.publicationDate).toLocaleDateString()}</p>
+              <p>
+                <strong>Stock:</strong>{' '}
+                {book.stockCount > 5 ? (
+                  <span style={{ color: 'green', fontWeight: 'bold' }}>In Stock</span>
+                ) : book.stockCount > 0 ? (
+                  <span style={{ color: 'orange', fontWeight: 'bold' }}>
+                    Only {book.stockCount} left!
+                  </span>
+                ) : (
+                  <span style={{ color: 'red', fontWeight: 'bold' }}>Out of Stock</span>
+                )}
+              </p>
+            </div>
 
+            <div className="right-col">
+              <p><strong>Awards:</strong></p>
+              {book.bookAwardNames && book.bookAwardNames.length > 0 ? (
+                <ul className="award-list">
+                  {book.bookAwardNames.map((award, idx) => (
+                    <li key={idx}>🏆 {award}</li>
+                  ))}
+                </ul>
+              ) : (
+                <p>None</p>
+              )}
+            </div>
           </div>
+
+
 
           <div className="actions">
             <button className="add" onClick={handleAddToCart}>Add to Cart</button>
@@ -180,7 +213,7 @@ const BookDetails = () => {
 
       {/* Reviews Section */}
       <div className="reviews-container">
-        <h2>📋 Reviews</h2>
+        <h2>Reviews</h2>
         {reviews.length === 0 ? (
           <p>No reviews yet.</p>
         ) : (
@@ -196,6 +229,14 @@ const BookDetails = () => {
           ))
         )}
       </div>
+      {message && (
+  <Popup
+    type={message.type}
+    text={message.text}
+    onClose={() => setMessage(null)}
+  />
+)}
+
 
       <Footer />
     </div>

@@ -235,19 +235,49 @@
   color: #666;
 }
 
+/* ✅ Pagination (global) */
+.ab-pagination {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin: 20px 0;
+}
+
+.ab-pagination button {
+  padding: 8px 14px;
+  border: 1px solid #ccc;
+  background-color: #f0f0f0;
+  color: #333;
+  cursor: pointer;
+  font-weight: 500;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+}
+
+.ab-pagination button:hover {
+  background-color: #ddd;
+}
+
+.ab-pagination .ab-active-page,
+.ab-page-button.ab-active-page {
+  background-color: #000;
+  color: #fff;
+  border-color: #000;
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .ab-row {
     flex-direction: column;
   }
-  
+
   .ab-row img {
     width: 100%;
     height: auto;
     max-height: 300px;
     object-fit: contain;
   }
-  
+
   .ab-filters-bar {
     flex-direction: column;
   }

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/footer';
 import api from '../api/api';
@@ -18,6 +18,9 @@ const AllBooks = () => {
   const [selectedAward, setSelectedAward] = useState('');
   const [userId, setUserId] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [countdowns, setCountdowns] = useState({});
+  const [currentPage, setCurrentPage] = useState(1);
+  const booksPerPage = 12;
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -25,6 +28,37 @@ const AllBooks = () => {
     fetchFilters();
     decodeToken();
   }, []);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const updated = {};
+      books.forEach(book => {
+        if (
+          book.isOnSale &&
+          new Date() >= new Date(book.saleStartDate) &&
+          new Date() <= new Date(book.saleEndDate)
+        ) {
+          const end = new Date(book.saleEndDate);
+          const now = new Date();
+          const diff = end - now;
+          if (diff > 0) {
+            const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
+            const m = Math.floor((diff / (1000 * 60)) % 60);
+            const s = Math.floor((diff / 1000) % 60);
+            updated[book.id] = `${d}d ${h}h ${m}m ${s}s`;
+          }
+        }
+      });
+      setCountdowns(updated);
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [books]);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [currentPage]);
 
   const fetchBooks = async () => {
     try {
@@ -124,17 +158,19 @@ const AllBooks = () => {
     }
 
     setFilteredBooks(filtered);
+    setCurrentPage(1);
   };
 
-  const goToBookDetails = (bookId) => {
-    navigate(`/book/${bookId}`);
-  };
+  const indexOfLastBook = currentPage * booksPerPage;
+  const indexOfFirstBook = indexOfLastBook - booksPerPage;
+  const currentBooks = filteredBooks.slice(indexOfFirstBook, indexOfLastBook);
+  const totalPages = Math.ceil(filteredBooks.length / booksPerPage);
 
   return (
     <>
       <Navbar />
       <div className="ab-page">
-        <h1>📚 Explore All Books</h1>
+        <h1>Explore All Books</h1>
 
         <div className="ab-filters-bar">
           <input
@@ -169,43 +205,102 @@ const AllBooks = () => {
           <button onClick={handleSearchAndFilter}>Search</button>
         </div>
 
-        <div className="ab-list">
+        <div className="na-books">
           {isLoading ? (
-            <p>Loading books...</p>
-          ) : filteredBooks.length > 0 ? (
-            filteredBooks.map(book => (
-              <div className="ab-row" key={book.id} onClick={() => goToBookDetails(book.id)} style={{ cursor: 'pointer' }}>
-                <img
-                  src={book.imageUrl?.startsWith('http') ? book.imageUrl : `http://localhost:5046${book.imageUrl}`}
-                  alt={book.title}
-                />
-                <div className="ab-info">
-                  <h3>{book.title}</h3>
-                  <p className="ab-author">by {book.author}</p>
-                  <div className="ab-rating">
-                    {[1, 2, 3, 4, 5].map(i => (
-                      <span key={i} className={book.averageRating >= i ? 'ab-filled-star' : 'ab-empty-star'}>★</span>
-                    ))}
-                    <span className="ab-rating-count">({book.reviewCount} reviews)</span>
+            <div className="na-loading">
+              <div className="loader"></div>
+              <p>Loading books...</p>
+            </div>
+          ) : currentBooks.length > 0 ? (
+            currentBooks.map(book => {
+              const onSale = book.isOnSale &&
+                new Date() >= new Date(book.saleStartDate) &&
+                new Date() <= new Date(book.saleEndDate);
+              const isNewBook = (new Date() - new Date(book.createdAt)) / (1000 * 60 * 60 * 24) < 7;
+
+              return (
+                <Link to={`/book/${book.id}`} key={book.id} className="na-card-link">
+                  <div key={book.id} className="na-card">
+                    <div className="na-img-box">
+                      {book.stockCount === 0 && <div className="na-badge na-out">OUT OF STOCK</div>}
+                      {onSale && <div className="na-badge na-sale">ON SALE</div>}
+                      {isNewBook && <div className="na-badge na-new">NEW</div>}
+                      <img
+                        src={book.imageUrl?.startsWith('http') ? book.imageUrl : `http://localhost:5046${book.imageUrl}`}
+                        alt={book.title}
+                      />
+                    </div>
+
+                    <div className="na-info">
+                      <h3>{book.title}</h3>
+                      <p className="na-author">by {book.author}</p>
+                      <p className="na-desc">{book.description}</p>
+
+                      <div className="na-rating">
+                        {[1, 2, 3, 4, 5].map(i => (
+                          <span key={i} className={book.averageRating >= i ? 'na-filled-star' : 'na-empty-star'}>
+                            ★
+                          </span>
+                        ))}
+                        <span className="na-rating-count">({book.reviewCount} reviews)</span>
+                      </div>
+
+                      <div className="na-price-section">
+                        {onSale && book.price < book.originalPrice ? (
+                          <>
+                            <span className="na-sale-price">${book.price.toFixed(2)}</span>
+                            <span className="na-original-price">${book.originalPrice.toFixed(2)}</span>
+                          </>
+                        ) : (
+                          <span className="na-regular-price">${book.originalPrice.toFixed(2)}</span>
+                        )}
+                      </div>
+
+
+                      {onSale && countdowns[book.id] && (
+                        <p className="na-timer">⏳ {countdowns[book.id]}</p>
+                      )}
+
+                      {book.bookAwardNames?.length > 0 && (
+                        <div className="na-awards-container">
+                          {book.bookAwardNames.map((award, index) => (
+                            <span key={index} className="na-award-card">🏅 {award}</span>
+                          ))}
+                        </div>
+                      )}
+
+                      <div className="na-actions">
+                        <button onClick={(e) => handleAddToCart(e, book.id, book.title)} disabled={book.stockCount === 0}>
+                          Add to Cart
+                        </button>
+                        <button onClick={(e) => handleBookmark(e, book.id, book.title)} disabled={book.stockCount === 0}>
+                          Bookmark
+                        </button>
+                      </div>
+                    </div>
                   </div>
-                  <p className="ab-desc">{book.description}</p>
-                  <div className="ab-meta">
-                    <span className="ab-price">${book.price.toFixed(2)}</span>
-                    {book.bookAwardNames?.length > 0 && (
-                      <span className="ab-award">🏅 {book.bookAwardNames.join(', ')}</span>
-                    )}
-                  </div>
-                  <div className="ab-actions">
-                    <button onClick={(e) => handleAddToCart(e, book.id, book.title)}>Add to Cart</button>
-                    <button onClick={(e) => handleBookmark(e, book.id, book.title)}>Bookmark</button>
-                  </div>
-                </div>
-              </div>
-            ))
+                </Link>
+              );
+            })
           ) : (
             <p>No books found.</p>
           )}
         </div>
+
+        {/* Pagination Controls */}
+        {totalPages > 1 && (
+          <div className="ab-pagination">
+            {[...Array(totalPages)].map((_, i) => (
+              <button
+                key={i}
+                onClick={() => setCurrentPage(i + 1)}
+                className={`ab-page-button ${currentPage === i + 1 ? 'ab-active-page' : ''}`}
+              >
+                {i + 1}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
       <Footer />
     </>

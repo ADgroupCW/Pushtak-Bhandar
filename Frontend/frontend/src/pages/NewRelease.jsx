@@ -165,7 +165,6 @@ const NewReleases = () => {
   return (
     <>
       <Navbar />
-     // Change all className="..." to className="nr-..."
 <div className="nr-page">
   <h1>📘 New Releases</h1>
 
@@ -205,57 +204,82 @@ const NewReleases = () => {
     <button onClick={handleSearchAndFilter}>Search</button>
   </div>
 
-  <div className="nr-list">
-    {filteredBooks.length === 0 ? (
-      <p>No new releases found.</p>
-    ) : (
-      filteredBooks.map(book => (
-        <Link to={`/book/${book.id}`} key={book.id} className="nr-row">
-          <img
-            src={book.imageUrl?.startsWith('http') ? book.imageUrl : `http://localhost:5046${book.imageUrl}`}
-            alt={book.title}
-          />
-          <div className="nr-info">
-            <div className="nr-badge-box">
-              {isOnSale(book) && <span className="nr-badge nr-sale">ON SALE</span>}
-              {isNew(book) && <span className="nr-badge nr-new">NEW</span>}
-            </div>
+<div className="na-books">
+  {filteredBooks.length === 0 ? (
+    <p>No new releases found.</p>
+  ) : (
+    filteredBooks.map(book => {
+      const onSale = isOnSale(book);
+      const isNewBook = isNew(book);
+
+      return (
+        <Link to={`/book/${book.id}`} key={book.id} className="na-card-link">
+        <div key={book.id} className="na-card">
+          <div className="na-img-box">
+                    {book.stockCount === 0 && <div className="na-badge na-out">OUT OF STOCK</div>}
+                    {onSale && <div className="na-badge na-sale">ON SALE</div>}
+                    {isNewBook && <div className="na-badge na-new">NEW</div>}
+                    <img
+                      src={book.imageUrl?.startsWith('http') ? book.imageUrl : `http://localhost:5046${book.imageUrl}`}
+                      alt={book.title}
+                    />
+                  </div>
+
+          <div className="na-info">
             <h3>{book.title}</h3>
-            <p className="nr-author">by {book.author}</p>
+            <p className="na-author">by {book.author}</p>
+            <p className="na-desc">{book.description}</p>
 
-            <div className="nr-rating">
-              {[1, 2, 3, 4, 5].map(star => (
-                <span key={star} className={book.averageRating >= star ? 'nr-filled' : 'nr-empty'}>★</span>
+            <div className="na-rating">
+              {[1, 2, 3, 4, 5].map(i => (
+                <span key={i} className={book.averageRating >= i ? 'na-filled-star' : 'na-empty-star'}>★</span>
               ))}
-              <span className="nr-count">({book.reviewCount} reviews)</span>
+              <span className="na-rating-count">({book.reviewCount} reviews)</span>
             </div>
 
-            <p className="nr-desc">{book.description}</p>
-
-            <div className="nr-meta">
-              <span className="nr-price">${book.price.toFixed(2)}</span>
-              {book.originalPrice && book.originalPrice > book.price && (
-                <span className="nr-original">${book.originalPrice.toFixed(2)}</span>
-              )}
-              {book.bookAwardNames?.length > 0 && (
-                <span className="nr-award">🏅 {book.bookAwardNames.join(', ')}</span>
+            <div className="na-price-section">
+              {onSale && book.price < book.originalPrice ? (
+                <>
+                  <span className="na-sale-price">${book.price.toFixed(2)}</span>
+                  <span className="na-original-price">${book.originalPrice.toFixed(2)}</span>
+                </>
+              ) : (
+                <span className="na-regular-price">${book.originalPrice.toFixed(2)}</span>
               )}
             </div>
 
-            {isOnSale(book) && countdowns[book.id] && (
-              <p className="nr-countdown">⏳ {countdowns[book.id]}</p>
+
+            {onSale && countdowns[book.id] && (
+              <p className="na-timer">⏳ {countdowns[book.id]}</p>
             )}
 
-            <div className="nr-actions">
-              <button onClick={e => handleAddToCart(e, book.id, book.title)}>Add to Cart</button>
-              <button onClick={e => handleBookmark(e, book.id, book.title)}>Bookmark</button>
+            {book.bookAwardNames?.length > 0 && (
+              <div className="na-awards-container">
+                {book.bookAwardNames.map((award, index) => (
+                  <span key={index} className="na-award-card">🏅 {award}</span>
+                ))}
+              </div>
+            )}
+
+            <div className="na-actions">
+              <button onClick={(e) => handleAddToCart(e, book.id, book.title)} disabled={book.stockCount === 0}>
+                Add to Cart
+              </button>
+              <button onClick={(e) => handleBookmark(e, book.id, book.title)} disabled={book.stockCount === 0}>
+                Bookmark
+              </button>
             </div>
           </div>
+        </div>
         </Link>
-      ))
-    )}
-  </div>
+      );
+    })
+  )}
+
 </div>
+
+</div>
+
 
       <Footer />
     </>

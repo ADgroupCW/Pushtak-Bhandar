@@ -25,7 +25,8 @@ const Cart = () => {
             const bookRes = await api.get(`/book/${item.bookId}`);
             return {
               ...item,
-              book: bookRes.data
+              book: bookRes.data,
+              unitPrice: bookRes.data.isOnSale ? bookRes.data.price : bookRes.data.originalPrice
             };
           } catch (err) {
             console.error(`Failed to fetch book ${item.bookId}`, err);
@@ -33,11 +34,11 @@ const Cart = () => {
           }
         })
       );
-
+      console.log(enrichedItems);
       setCartItems(enrichedItems);
     } catch (err) {
       console.error('Failed to fetch cart:', err);
-      alert('❌ Please log in to view your cart.');
+      alert(' Please log in to view your cart.');
     } finally {
       setLoading(false);
     }
@@ -48,7 +49,7 @@ const Cart = () => {
       await api.put(`/cart/${itemId}`, { quantity });
       fetchCart();
     } catch (err) {
-      alert('❌ Failed to update quantity.');
+      alert(' Failed to update quantity.');
     }
   };
 
@@ -57,27 +58,45 @@ const Cart = () => {
       await api.delete(`/cart/${itemId}`);
       fetchCart();
     } catch (err) {
-      alert('❌ Failed to remove item.');
+      alert(' Failed to remove item.');
     }
   };
 
   const clearCart = async () => {
-    try {
-      await api.delete('/cart/clear');
-      fetchCart();
-    } catch (err) {
-      alert('❌ Failed to clear cart.');
+  try {
+    await api.delete('/cart/clear');
+    setCartItems([]); // clear immediately from UI
+    setTimeout(() => {
+      fetchCart();     // refresh to confirm
+    }, 300);
+  } catch (err) {
+    const status = err.response?.status;
+    if (status !== 400 && status !== 404) {
+      alert('Failed to clear cart.');
+    } else {
+      console.warn('Cart was already cleared or not found.');
     }
-  };
+  }
+};
+
 
   const handleCheckout = async () => {
     try {
       const itemIds = cartItems.map(item => item.id);
+      console.log('Order Payload', {
+        totalAmount: total.toFixed(2),
+        items: cartItems.map(item => ({
+          bookId: item.bookId,
+          title: item.book?.title,
+          quantity: item.quantity,
+          unitPrice: item.unitPrice
+        }))
+      });
       await api.post('/order', { cartItemIds: itemIds });
       setOrderSuccess(true);
-      await clearCart();
+      setCartItems([]);
     } catch (err) {
-      alert('❌ Failed to place order.');
+      alert(' Failed to place order.');
     }
   };
 
@@ -150,19 +169,38 @@ const Cart = () => {
                       </div>
                     </div>
                     
-                    <div className="item-price">${item.unitPrice?.toFixed(2) || '0.00'}</div>
-                    
-                    <div className="item-quantity">
-                      <select
-                        value={item.quantity}
-                        onChange={(e) => updateQuantity(item.id, parseInt(e.target.value))}
-                        aria-label="Quantity"
-                      >
-                        {[1, 2, 3, 4, 5].map(q => (
-                          <option key={q} value={q}>{q}</option>
-                        ))}
-                      </select>
+                    <div className="item-price">
+                      {item.book?.isOnSale ? (
+                        <>
+                          <span className="sale-price">${item.unitPrice.toFixed(2)}</span>
+                          <span className="original-price">${item.book.originalPrice.toFixed(2)}</span>
+                        </>
+                      ) : (
+                        <span className="sale-price">${item.book.originalPrice.toFixed(2)}</span>
+                      )}
                     </div>
+
+
+                    
+                    <div className="item-quantity-buttons">
+                      <button
+                        className="qty-btn"
+                        onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                        disabled={item.quantity <= 1}
+                        aria-label="Decrease quantity"
+                      >
+                        –
+                      </button>
+                      <span className="qty-value">{item.quantity}</span>
+                      <button
+                        className="qty-btn"
+                        onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                        aria-label="Increase quantity"
+                      >
+                        +
+                      </button>
+                    </div>
+
                     
                     <div className="item-total">
                       ${(item.unitPrice * item.quantity).toFixed(2)}
@@ -190,10 +228,7 @@ const Cart = () => {
               <span>Subtotal</span>
               <span>${total.toFixed(2)}</span>
             </div>
-            <div className="summary-row">
-              <span>Shipping</span>
-              <span>Free</span>
-            </div>
+            
             <div className="summary-row total">
               <span>Total</span>
               <span>${total.toFixed(2)}</span>

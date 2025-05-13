@@ -207,55 +207,91 @@ const BestOfTheBest = () => {
           <button onClick={handleSearchAndFilter}>Search</button>
         </div>
 
-        <div className="botb-list">
-          {filteredBooks.length === 0 ? (
-            <p>No bestsellers found.</p>
-          ) : (
-            filteredBooks.map(book => (
-              <Link to={`/book/${book.id}`} key={book.id} className="botb-row">
-                <img
-                  src={book.imageUrl?.startsWith('http') ? book.imageUrl : `http://localhost:5046${book.imageUrl}`}
-                  alt={book.title}
-                />
-                <div className="botb-info">
-                  <div className="botb-badge-box">
-                    {isOnSale(book) && <span className="botb-badge botb-sale">ON SALE</span>}
-                    {isNew(book) && <span className="botb-badge botb-new">NEW</span>}
-                  </div>
-                  <h3>{book.title}</h3>
-                  <p className="botb-author">by {book.author}</p>
-                  <div className="botb-rating">
-                    {[1, 2, 3, 4, 5].map(star => (
-                      <span key={star} className={book.averageRating >= star ? 'botb-filled-star' : 'botb-empty-star'}>★</span>
-                    ))}
-                    <span className="botb-rating-count">({book.reviewCount} reviews)</span>
-                  </div>
+        <section className="na-books">
+  {filteredBooks.length === 0 ? (
+    <div className="na-empty">
+      <h3>No bestsellers found</h3>
+      <p>Try adjusting your search or filters.</p>
+    </div>
+  ) : (
+    filteredBooks.map(book => {
+      const onSale = isOnSale(book);
+      const isNewBook = isNew(book);
 
-                  <p className="botb-desc">{book.description}</p>
+      return (
+        <Link to={`/book/${book.id}`} key={book.id} className="na-card-link">
+          <div className="na-card">
+            <div className="na-img-box">
+              {book.stockCount === 0 && <div className="na-badge na-out">OUT OF STOCK</div>}
+              {onSale && <div className="na-badge na-sale">ON SALE</div>}
+              {isNewBook && <div className="na-badge na-new">NEW</div>}
+              <img
+                src={book.imageUrl?.startsWith('http') ? book.imageUrl : `http://localhost:5046${book.imageUrl}`}
+                alt={book.title}
+              />
+            </div>
 
-                  <div className="botb-meta">
-                    <span className="botb-price">${book.price.toFixed(2)}</span>
-                    {book.originalPrice && book.originalPrice > book.price && (
-                      <span className="botb-original-price">${book.originalPrice.toFixed(2)}</span>
-                    )}
-                    {book.bookAwardNames?.length > 0 && (
-                      <span className="botb-award-badge">🏅 {book.bookAwardNames.join(', ')}</span>
-                    )}
-                  </div>
 
-                  {isOnSale(book) && countdowns[book.id] && (
-                    <p className="botb-countdown">⏳ {countdowns[book.id]}</p>
-                  )}
+            <div className="na-info">
+              <h3>{book.title}</h3>
+              <p className="na-author">by {book.author}</p>
+              <p className="na-desc">{book.description}</p>
 
-                  <div className="botb-actions">
-                    <button onClick={e => handleAddToCart(e, book.id, book.title)}>Add to Cart</button>
-                    <button onClick={e => handleBookmark(e, book.id, book.title)}>Bookmark</button>
-                  </div>
+              <div className="na-rating">
+                {[1, 2, 3, 4, 5].map(i => (
+                  <span key={i} className={book.averageRating >= i ? 'na-filled-star' : 'na-empty-star'}>★</span>
+                ))}
+                <span className="na-rating-count">({book.reviewCount} reviews)</span>
+              </div>
+
+              <div className="na-price-section">
+                {onSale && book.price < book.originalPrice ? (
+                  <>
+                    <span className="na-sale-price">${book.price.toFixed(2)}</span>
+                    <span className="na-original-price">${book.originalPrice.toFixed(2)}</span>
+                  </>
+                ) : (
+                  <span className="na-regular-price">${book.originalPrice.toFixed(2)}</span>
+                )}
+              </div>
+
+
+              {onSale && countdowns[book.id] && (
+                <p className="na-timer">⏳ {countdowns[book.id]}</p>
+              )}
+
+              {book.bookAwardNames?.length > 0 && (
+                <div className="na-awards-container">
+                  {book.bookAwardNames.map((award, index) => (
+                    <span key={index} className="na-award-card">🏅 {award}</span>
+                  ))}
                 </div>
-              </Link>
-            ))
-          )}
-        </div>
+              )}
+
+
+              <div className="na-actions">
+                <button
+                  onClick={(e) => handleAddToCart(e, book.id, book.title)}
+                  disabled={book.stockCount === 0}
+                >
+                  Add to Cart
+                </button>
+                <button
+                  onClick={(e) => handleBookmark(e, book.id, book.title)}
+                  disabled={book.stockCount === 0}
+                >
+                  Bookmark
+                </button>
+              </div>
+
+            </div>
+          </div>
+        </Link>
+      );
+    })
+  )}
+</section>
+
       </div>
       <Footer />
     </>

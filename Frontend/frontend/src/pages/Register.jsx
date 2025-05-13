@@ -72,7 +72,7 @@ export default function Register() {
       const msg =
         err.response?.data?.message ||
         err.response?.data?.errors?.[0] ||
-        'Registration failed. Please try again.';
+        'Already Registered with the same username or email!!!';
 
       setError(msg);
     }
@@ -246,11 +246,7 @@ export default function Register() {
             </button>
           </div>
 
-          <p className="register-policy">
-            By registering, you agree to Pushtak Bhandar's{' '}
-            <a href="#">Terms of Service</a> and{' '}
-            <a href="#">Privacy Policy</a>.
-          </p>
+          
         </div>
       </div>
 

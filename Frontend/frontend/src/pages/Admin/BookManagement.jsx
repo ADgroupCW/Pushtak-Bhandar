@@ -202,7 +202,7 @@ const BookManagement = () => {
                         <strong className="sale">${book.price}</strong>
                       </>
                     ) : (
-                      <>${book.price}</>
+                      <>${book.originalPrice}</>
                     )}
                   </td>
                   <td>{book.language}</td>

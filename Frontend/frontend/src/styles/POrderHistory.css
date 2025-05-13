@@ -58,7 +58,7 @@
 
 /* Cancel Button */
 .cancel-btn {
-  background-color: #dc3545;
+  background-color: #000000;
   color: white;
   border: none;
   padding: 8px 16px;
@@ -70,7 +70,7 @@
 }
 
 .cancel-btn:hover {
-  background-color: #c82333;
+  background-color: #ff0000;
 }
 
 /* ⭐ Review Section */
@@ -110,7 +110,7 @@
 }
 
 .review-submit-btn {
-  background-color: #007bff;
+  background-color: #000000;
   color: white;
   border: none;
   padding: 6px 12px;
@@ -121,5 +121,5 @@
 }
 
 .review-submit-btn:hover {
-  background-color: #0056b3;
+  background-color: #000000;
 }

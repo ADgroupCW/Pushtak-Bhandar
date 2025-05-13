@@ -33,7 +33,7 @@
     transform: translateX(-50%);
     width: 80px;
     height: 3px;
-    background: #f0c55b;
+    background: #000000;
   }
   
   /* Hero Section */
@@ -555,79 +555,154 @@
     background: #f0c55b;
   }
   
-  /* Promo Banner */
+/* Enhanced Attractive Promo Banner Styles */
+.promo-banner {
+  width: 100%;
+  background: linear-gradient(135deg, #727376 0%, #000000 100%);
+  color: white;
+  padding: 30px;
+  border-radius: 16px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  position: relative;
+  max-width: 900px;
+  margin: 20px auto;
+  overflow: hidden;
+  transform: perspective(1000px) translateZ(0);
+  transition: all 0.4s ease-in-out;
+}
+
+.promo-banner:hover {
+  transform: scale(1.02) perspective(1000px) translateZ(10px);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+}
+
+.promo-content {
+  text-align: center;
+  position: relative;
+  z-index: 2;
+}
+
+.promo-content h2 {
+  font-size: 2.2rem;
+  margin-bottom: 15px;
+  font-weight: 800;
+  background: linear-gradient(to right, #ffffff 0%, #f6d365 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.promo-content p {
+  font-size: 1.1rem;
+  margin-bottom: 20px;
+  line-height: 1.6;
+  opacity: 0.9;
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.promo-content .highlight {
+  font-weight: 600;
+  background-color: rgba(255, 255, 255, 0.2);
+  display: inline-block;
+  padding: 8px 15px;
+  border-radius: 8px;
+  margin-top: 15px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.125);
+}
+
+.announcement-dots {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.dot {
+  width: 12px;
+  height: 12px;
+  background-color: rgba(255, 255, 255, 0.4);
+  border-radius: 50%;
+  margin: 0 7px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  transform: scale(0.8);
+}
+
+.dot.active {
+  background-color: white;
+  transform: scale(1);
+  width: 14px;
+  height: 14px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.dot:hover {
+  background-color: rgba(255, 255, 255, 0.7);
+}
+
+/* Decorative Background Elements */
+.promo-banner::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle at center, 
+    rgba(255,255,255,0.1) 0%, 
+    transparent 70%
+  );
+  transform: rotate(-45deg);
+  z-index: 1;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
   .promo-banner {
-    background: linear-gradient(135deg, #f0c55b, #e3b646);
-    padding: 80px 40px;
-    color: #1a1a1a;
+    padding: 25px 15px;
+    margin: 10px;
+    border-radius: 12px;
   }
-  
-  .promo-content {
-    max-width: 800px;
-    margin: 0 auto;
-    text-align: center;
-  }
-  
+
   .promo-content h2 {
-    font-size: 2.5rem;
-    margin-bottom: 20px;
-    font-weight: 800;
+    font-size: 1.8rem;
   }
-  
+
   .promo-content p {
-    font-size: 1.2rem;
-    margin-bottom: 30px;
-    line-height: 1.6;
+    font-size: 1rem;
+    padding: 0 15px;
   }
-  
-  .highlight {
-    background: #1a1a1a;
-    color: #f0c55b;
-    padding: 2px 8px;
-    border-radius: 4px;
-    font-weight: bold;
+
+  .dot {
+    width: 10px;
+    height: 10px;
+    margin: 0 5px;
   }
-  
-  .promo-buttons {
-    display: flex;
-    justify-content: center;
-    gap: 20px;
-    flex-wrap: wrap;
+
+  .dot.active {
+    width: 12px;
+    height: 12px;
   }
-  
-  .view-offers-btn {
-    padding: 14px 28px;
-    background: #1a1a1a;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: all 0.3s ease;
+}
+
+/* Additional Subtle Animations */
+@keyframes pulse {
+  0% {
+    transform: scale(1);
   }
-  
-  .view-offers-btn:hover {
-    background: #333;
-    transform: translateY(-3px);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  50% {
+    transform: scale(1.05);
   }
-  
-  .learn-more-btn {
-    padding: 14px 28px;
-    background: transparent;
-    color: #1a1a1a;
-    border: 2px solid #1a1a1a;
-    border-radius: 4px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: all 0.3s ease;
+  100% {
+    transform: scale(1);
   }
-  
-  .learn-more-btn:hover {
-    background: rgba(0, 0, 0, 0.1);
-    transform: translateY(-3px);
-  }
-  
+}
+
+.promo-banner:hover .promo-content h2 {
+  animation: pulse 1.5s infinite;
+}
   /* Newsletter Section */
   .newsletter-section {
     padding: 80px 40px;

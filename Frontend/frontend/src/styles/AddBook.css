@@ -1,12 +1,12 @@
 /* AddBook.css */
 :root {
-  --primary-color: #4a6fa5;
-  --primary-dark: #3a5982;
-  --secondary-color: #6c757d;
+  --primary-color: #000000;
+  --primary-dark: #000000;
+  --secondary-color: #000000;
   --success-color: #28a745;
   --danger-color: #dc3545;
   --light-color: #f8f9fa;
-  --dark-color: #343a40;
+  --dark-color: #000000;
   --border-color: #dee2e6;
   --border-radius: 4px;
   --box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);

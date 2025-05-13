@@ -2,11 +2,25 @@ import React, { useState } from 'react';
 import '../styles/Footer.css';
 import '../styles/Modal.css';
 import { Link, useNavigate } from 'react-router-dom';
+import api from '../api/api'; // make sure this path is correct
 
 const Footer = () => {
   const [showTerms, setShowTerms] = useState(false);
   const [showFAQ, setShowFAQ] = useState(false);
   const [showPrivacy, setShowPrivacy] = useState(false);
+  const [email, setEmail] = useState('');
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await api.post("/newsletter/subscribe", { email });
+      alert(res.data); // shows success message
+    } catch (error) {
+      console.error("Subscription error:", error);
+      alert("Something went wrong. Please try again.");
+    }
+    setEmail('');
+  };
 
   return (
     <>
@@ -15,11 +29,11 @@ const Footer = () => {
           <div>
             <h4>Explore</h4>
             <ul>
-                   <li><Link to="/bestsellers">Bestsellers</Link></li>
-        <li><Link to="/newrelease">New Releases</Link></li>
-        <li><Link to="/awardwinners">Award Winners</Link></li>
-        <li><Link to="/newarrivals">New Arrivals</Link></li>
-        <li><Link to="/deals">Deals</Link></li>
+              <li><Link to="/bestsellers">Bestsellers</Link></li>
+              <li><Link to="/newrelease">New Releases</Link></li>
+              <li><Link to="/awardwinners">Award Winners</Link></li>
+              <li><Link to="/newarrivals">New Arrivals</Link></li>
+              <li><Link to="/deals">Deals</Link></li>
             </ul>
           </div>
           <div>
@@ -27,7 +41,6 @@ const Footer = () => {
             <ul>
               <li><Link to="/allbooks">Shop All</Link></li>
               <li>About Us</li>
-              
             </ul>
           </div>
           <div>
@@ -39,10 +52,16 @@ const Footer = () => {
           <div className="newsletter">
             <h4>Subscribe to Our Newsletter</h4>
             <p>Stay updated with new releases and exclusive offers!</p>
-            <div className="subscribe">
-              <input type="email" placeholder="Enter your email" />
-              <button>Subscribe</button>
-            </div>
+            <form className="subscribe" onSubmit={handleSubmit}>
+              <input
+                type="email"
+                placeholder="Enter your email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+              <button type="submit">Subscribe</button>
+            </form>
           </div>
         </div>
 

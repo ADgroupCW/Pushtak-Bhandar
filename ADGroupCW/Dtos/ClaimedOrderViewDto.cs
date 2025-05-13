@@ -7,6 +7,7 @@
         public string Status { get; set; }
         public DateTime OrderedAt { get; set; }
         public decimal TotalAmount { get; set; }
+        public string UserEmail { get; set; }
         public List<OrderItemViewDto> Items { get; set; }
     }
 

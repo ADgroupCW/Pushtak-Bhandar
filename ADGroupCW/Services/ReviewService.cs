@@ -18,23 +18,33 @@ namespace ADGroupCW.Services
 
         public async Task<bool> SubmitReviewAsync(string userId, ReviewDto dto)
         {
-            var alreadyReviewed = await _context.Reviews.AnyAsync(r =>
-                r.BookId == dto.BookId && r.UserId == userId);
+            var existingReview = await _context.Reviews
+                .FirstOrDefaultAsync(r => r.BookId == dto.BookId && r.UserId == userId);
 
-            if (alreadyReviewed)
-                return false; // prevent duplicate review
-
-            var review = new Review
+            if (existingReview != null)
             {
-                BookId = dto.BookId,
-                UserId = userId,
-                Rating = dto.Rating,
-                Comment = dto.Comment
-            };
+                // Update only Rating and Comment — keep CreatedAt untouched
+                existingReview.Rating = dto.Rating;
+                existingReview.Comment = dto.Comment;
+            }
+            else
+            {
+                // Add new review
+                var review = new Review
+                {
+                    BookId = dto.BookId,
+                    UserId = userId,
+                    Rating = dto.Rating,
+                    Comment = dto.Comment,
+                    CreatedAt = DateTime.UtcNow
+                };
 
-            _context.Reviews.Add(review);
+                _context.Reviews.Add(review);
+            }
+
             return await _context.SaveChangesAsync() > 0;
         }
+
 
         public async Task<List<ReviewResponseDto>> GetReviewsForBookAsync(int bookId)
         {

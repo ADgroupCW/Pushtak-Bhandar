@@ -114,7 +114,7 @@ const Login = () => {
 
       <div className="login-container">
         {/* ← Go Back Button */}
-        <button className="go-back-btn" onClick={() => navigate(-1)}>
+        <button className="go-back-btn" onClick={() => navigate('/')}>
           ← Go Back
         </button>
 
@@ -180,10 +180,7 @@ const Login = () => {
             </div>
 
             <div className="form-actions">
-              <div className="remember-me">
-                <input type="checkbox" id="remember" />
-                <label htmlFor="remember">Remember me</label>
-              </div>
+              
               <button
                 type="button"
                 className="forgot-password"
@@ -228,11 +225,7 @@ const Login = () => {
           <p className="quote">
             "Reading is essential for those who seek to rise above the ordinary."
           </p>
-          <p className="terms">
-            By logging in, you agree to Pushtak Bhandar's{' '}
-            <a href="/terms">Terms of Service</a> and{' '}
-            <a href="/privacy">Privacy Policy</a>.
-          </p>
+          
         </div>
       </div>
     </div>

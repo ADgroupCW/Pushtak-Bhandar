@@ -40,28 +40,50 @@ const AnnouncementManager = () => {
   };
 
   const handleFormSubmit = async (e) => {
-    e.preventDefault();
-    const form = e.target;
-    const data = {
-      title: form.title.value,
-      message: form.message.value,
-      startDate: form.startDate.value,
-      endDate: form.endDate.value,
-      showPublicly: form.isActive.checked,
-    };
+  e.preventDefault();
+  const form = e.target;
 
-    try {
-      if (formMode === 'add') {
-        await api.post('/announcement', data);
-      } else {
-        await api.put(`/announcement/${selectedAnnouncement.id}`, data);
-      }
-      fetchAnnouncements();
-      setShowForm(false);
-    } catch (err) {
-      alert('Error submitting form');
-    }
+  const title = form.title.value.trim();
+  const message = form.message.value.trim();
+  const startDate = form.startDate.value;
+  const endDate = form.endDate.value;
+  const showPublicly = form.isActive.checked;
+
+  // ✅ Client-side validations
+  if (!title || !message || !startDate || !endDate) {
+    alert('Please fill in all required fields.');
+    return;
+  }
+
+  const start = new Date(startDate);
+  const end = new Date(endDate);
+  if (end < start) {
+    alert('End date cannot be earlier than start date.');
+    return;
+  }
+
+  const data = {
+    title,
+    message,
+    startDate,
+    endDate,
+    showPublicly,
   };
+
+  try {
+    if (formMode === 'add') {
+      await api.post('/announcement', data);
+    } else {
+      await api.put(`/announcement/${selectedAnnouncement.id}`, data);
+    }
+    fetchAnnouncements();
+    setShowForm(false);
+  } catch (err) {
+    console.error('Form submission error:', err);
+    alert('Error submitting form');
+  }
+};
+
 
   return (
     <div className="admin-dashboard">

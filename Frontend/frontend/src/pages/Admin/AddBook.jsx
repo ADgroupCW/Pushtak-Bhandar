@@ -141,7 +141,7 @@ export default function AddBook() {
       case 2:
         return form.publicationDate && form.publisherId;
       case 3:
-        return form.price && form.stockCount !== '';
+        return form.originalPrice && form.stockCount !== '';
       case 4:
         return form.genreId;
       case 5:
@@ -262,17 +262,7 @@ export default function AddBook() {
         return (
           <div className="step-content">
             <h3>Pricing & Availability</h3>
-            <div className="form-group">
-              <label>Price</label>
-              <input 
-                type="number" 
-                name="price" 
-                value={form.price} 
-                onChange={handleChange} 
-                required 
-                className="form-control"
-              />
-            </div>
+            
 
             <div className="form-group">
               <label>Original Price</label>
@@ -323,6 +313,17 @@ export default function AddBook() {
 
             {form.isOnSale && (
               <>
+              <div className="form-group">
+                <label>Sales Price</label>
+                <input 
+                  type="number" 
+                  name="price" 
+                  value={form.price} 
+                  onChange={handleChange} 
+                  required 
+                  className="form-control"
+                />
+              </div>
                 <div className="form-group">
                   <label>Sale Start Date</label>
                   <input 
@@ -525,6 +526,12 @@ export default function AddBook() {
 
   return (
     <div className="add-book-container">
+        <button 
+    className="btn-secondary back-button" 
+    onClick={() => navigate('/admin/books')}
+  >
+    ← Back to Manage Books
+  </button>
       <h2>Add New Book</h2>
       {error && <div className="error-message">{error}</div>}
       {success && <div className="success-message">{success}</div>}

@@ -209,55 +209,79 @@ const AwardWinners = () => {
           <button onClick={handleSearchAndFilter}>Search</button>
         </div>
 
-        <div className="aw-list">
-          {filteredBooks.length === 0 ? (
-            <p>No award winners found.</p>
-          ) : (
-            filteredBooks.map(book => (
-              <Link to={`/book/${book.id}`} key={book.id} className="aw-row">
+        <div className="na-books">
+  {filteredBooks.length === 0 ? (
+    <p>No award winners found.</p>
+  ) : (
+    filteredBooks.map(book => {
+      const onSale = isOnSale(book);
+      const isNewBook = (new Date() - new Date(book.createdAt)) / (1000 * 60 * 60 * 24) < 7;
+
+      return (
+        <Link to={`/book/${book.id}`} key={book.id} className="na-card-link">
+        <div key={book.id} className="na-card">
+        <div className="na-img-box">
+          {book.stockCount === 0 && <div className="na-badge na-out">OUT OF STOCK</div>}
+            {onSale && <div className="na-badge na-sale">ON SALE</div>}
+              {isNewBook && <div className="na-badge na-new">NEW</div>}
                 <img
                   src={book.imageUrl?.startsWith('http') ? book.imageUrl : `http://localhost:5046${book.imageUrl}`}
                   alt={book.title}
                 />
-                <div className="aw-info">
-                  <div className="aw-badge-box">
-                    {isOnSale(book) && <span className="aw-badge aw-sale">ON SALE</span>}
-                    {book.bookAwardNames?.length > 0 && (
-                      <span className="aw-badge aw-award-badge">🏅 {book.bookAwardNames[0]}</span>
-                    )}
-                  </div>
-                  <h3>{book.title}</h3>
-                  <p className="aw-author">by {book.author}</p>
-                  <div className="aw-rating">
-                    {[1, 2, 3, 4, 5].map(star => (
-                      <span key={star} className={book.averageRating >= star ? 'aw-filled-star' : 'aw-empty-star'}>★</span>
-                    ))}
-                    <span className="aw-rating-count">({book.reviewCount} reviews)</span>
-                  </div>
-                  <p className="aw-desc">{book.description}</p>
-                  <div className="aw-meta">
-                    <span className="aw-price">${book.price.toFixed(2)}</span>
-                    {book.originalPrice && book.originalPrice > book.price && (
-                      <span className="aw-original-price">${book.originalPrice.toFixed(2)}</span>
-                    )}
-                    {book.bookAwardNames?.length > 1 && (
-                      <span className="aw-award-list">
-                        🏅 {book.bookAwardNames.slice(1).join(', ')}
-                      </span>
-                    )}
-                  </div>
-                  {isOnSale(book) && countdowns[book.id] && (
-                    <p className="aw-countdown">⏳ {countdowns[book.id]}</p>
-                  )}
-                  <div className="aw-actions">
-                    <button onClick={e => handleAddToCart(e, book.id, book.title)}>Add to Cart</button>
-                    <button onClick={e => handleBookmark(e, book.id, book.title)}>Bookmark</button>
-                  </div>
-                </div>
-              </Link>
-            ))
-          )}
+        </div>          
+
+          <div className="na-info">
+            <h3>{book.title}</h3>
+            <p className="na-author">by {book.author}</p>
+            <p className="na-desc">{book.description}</p>
+
+            <div className="na-rating">
+              {[1, 2, 3, 4, 5].map(i => (
+                <span key={i} className={book.averageRating >= i ? 'na-filled-star' : 'na-empty-star'}>★</span>
+              ))}
+              <span className="na-rating-count">({book.reviewCount} reviews)</span>
+            </div>
+
+            <div className="na-price-section">
+              {onSale && book.price < book.originalPrice ? (
+                <>
+                  <span className="na-sale-price">${book.price.toFixed(2)}</span>
+                  <span className="na-original-price">${book.originalPrice.toFixed(2)}</span>
+                </>
+              ) : (
+                <span className="na-regular-price">${book.originalPrice.toFixed(2)}</span>
+              )}
+            </div>
+
+
+            {onSale && countdowns[book.id] && (
+              <p className="na-timer">⏳ {countdowns[book.id]}</p>
+            )}
+
+            {book.bookAwardNames?.length > 0 && (
+              <div className="na-awards-container">
+                {book.bookAwardNames.map((award, index) => (
+                  <span key={index} className="na-award-card">🏅 {award}</span>
+                ))}
+              </div>
+            )}
+
+            <div className="na-actions">
+              <button onClick={(e) => handleAddToCart(e, book.id, book.title)} disabled={book.stockCount === 0}>
+                Add to Cart
+              </button>
+              <button onClick={(e) => handleBookmark(e, book.id, book.title)} disabled={book.stockCount === 0}>
+                Bookmark
+              </button>
+            </div>
+          </div>
         </div>
+        </Link>
+      );
+    })
+  )}
+</div>
+
       </div>
       <Footer />
     </>

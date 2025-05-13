@@ -9,8 +9,8 @@ public class BookCreateDto
     public string Description { get; set; } = string.Empty;
     public string Language { get; set; } = "English";
     public DateTime PublicationDate { get; set; }
-    public decimal Price { get; set; }
-    public decimal? OriginalPrice { get; set; }
+    public decimal? Price { get; set; }
+    public decimal OriginalPrice { get; set; }
     public bool IsAvailableInStore { get; set; } = true;
     public bool IsOnSale { get; set; }
     public DateTime? SaleStartDate { get; set; }

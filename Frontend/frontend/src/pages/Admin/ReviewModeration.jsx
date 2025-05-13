@@ -11,18 +11,15 @@ const ReviewModeration = () => {
   const [showPopup, setShowPopup] = useState(false);
 
   useEffect(() => {
-    console.log('[DEBUG] useEffect triggered - fetching reviews...');
     fetchReviews();
   }, []);
 
   const fetchReviews = async () => {
     try {
-      console.log('[DEBUG] Sending GET request to /admin/reviews...');
       const res = await api.get('/admin/reviews');
-      console.log('[DEBUG] Fetched reviews:', res.data);
       setReviews(res.data);
     } catch (err) {
-      console.error('[ERROR] Failed to fetch reviews:', err);
+      console.error('Failed to fetch reviews:', err);
     }
   };
 
@@ -36,7 +33,7 @@ const ReviewModeration = () => {
     }
   };
 
-  const handleRowClick = async (bookId) => {
+  const openPopup = async (bookId) => {
     try {
       const res = await api.get(`/book/${bookId}`);
       setSelectedBook(res.data);
@@ -44,6 +41,11 @@ const ReviewModeration = () => {
     } catch (err) {
       alert('Failed to load book details.');
     }
+  };
+
+  const closePopup = () => {
+    setShowPopup(false);
+    setSelectedBook(null);
   };
 
   const filtered = reviews.filter(
@@ -58,7 +60,7 @@ const ReviewModeration = () => {
       <div className="admin-main">
         <AdminNavbar />
         <div className="review-moderation">
-          <h2>📝 Review Moderation</h2>
+          <h2> Review Moderation</h2>
 
           <input
             type="text"
@@ -81,21 +83,33 @@ const ReviewModeration = () => {
             </thead>
             <tbody>
               {filtered.map((review) => (
-                <tr key={review.id} onClick={() => handleRowClick(review.bookId)} className="clickable-row">
+                <tr key={review.id}>
                   <td>{review.bookTitle || 'N/A'}</td>
                   <td>{review.userEmail || 'Unknown'}</td>
-                  <td>{'⭐'.repeat(review.rating)}</td>
+                  <td>
+                    {[...Array(5)].map((_, i) => (
+                      <span
+                        key={i}
+                        className={i < review.rating ? 'filled-star' : 'empty-star'}
+                      >
+                        ★
+                      </span>
+                    ))}
+                  </td>
                   <td>{review.comment}</td>
                   <td>{review.createdAt?.split('T')[0]}</td>
                   <td>
                     <button
-                      className="btn danger"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDelete(review.id);
-                      }}
+                      className="btn view"
+                      onClick={() => openPopup(review.bookId)}
                     >
-                      🗑️
+                       View
+                    </button>
+                    <button
+                      className="btn danger"
+                      onClick={() => handleDelete(review.id)}
+                    >
+                      Delete
                     </button>
                   </td>
                 </tr>
@@ -104,23 +118,47 @@ const ReviewModeration = () => {
           </table>
 
           {showPopup && selectedBook && (
-            <div className="book-popup">
-              <div className="book-popup-content">
-                <button className="close-btn" onClick={() => setShowPopup(false)}>✖</button>
+            <div
+              className="book-popup"
+              onClick={() => {
+                setShowPopup(false);
+                setSelectedBook(null);
+              }}
+            >
+              <div
+                className="book-popup-content"
+                onClick={(e) => e.stopPropagation()} // prevent closing when clicking inside
+              >
+                <button
+                  className="close-btn"
+                  onClick={() => {
+                    setShowPopup(false);
+                    setSelectedBook(null);
+                  }}
+                >
+                  ✖
+                </button>
+
                 <img
-                  src={selectedBook.imageUrl?.startsWith('http') ? selectedBook.imageUrl : `http://localhost:5046${selectedBook.imageUrl}`}
+                  src={
+                    selectedBook.imageUrl?.startsWith('http')
+                      ? selectedBook.imageUrl
+                      : `http://localhost:5046${selectedBook.imageUrl}`
+                  }
                   alt={selectedBook.title}
                 />
-                <div>
+
+                <div className="popup-details">
                   <h3>{selectedBook.title}</h3>
                   <p><strong>Author:</strong> {selectedBook.author}</p>
                   <p><strong>Genre:</strong> {selectedBook.genreName}</p>
-                  <p><strong>Price:</strong> ${selectedBook.price.toFixed(2)}</p>
+                  <p><strong>Price:</strong> ${selectedBook.price?.toFixed(2)}</p>
                   <p className="book-description">{selectedBook.description}</p>
                 </div>
               </div>
             </div>
           )}
+
         </div>
       </div>
     </div>

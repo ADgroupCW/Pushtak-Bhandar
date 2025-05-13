@@ -79,7 +79,7 @@ namespace ADGroupCW.Services.Implementations
                 Description = dto.Description,
                 Language = dto.Language,
                 PublicationDate = publicationDate,
-                Price = dto.Price,
+                Price = dto.Price??0,
                 OriginalPrice = dto.OriginalPrice,
                 IsAvailableInStore = dto.IsAvailableInStore,
                 IsOnSale = dto.IsOnSale,
@@ -172,17 +172,6 @@ namespace ADGroupCW.Services.Implementations
             {
                 Console.WriteLine($"[DEBUG] UpdateBookAsync started for Book ID: {id}");
 
-                // Log incoming DTO values
-                Console.WriteLine($"Title: {dto.Title}");
-                Console.WriteLine($"Author: {dto.Author}");
-                Console.WriteLine($"ISBN: {dto.ISBN}");
-                Console.WriteLine($"PublicationDate: {dto.PublicationDate}");
-                Console.WriteLine($"Price: {dto.Price}");
-                Console.WriteLine($"GenreId: {dto.GenreId}, PublisherId: {dto.PublisherId}");
-                Console.WriteLine($"Award IDs: {(dto.BookAwardIds != null ? string.Join(",", dto.BookAwardIds) : "null")}");
-                Console.WriteLine($"Format IDs: {(dto.BookFormatIds != null ? string.Join(",", dto.BookFormatIds) : "null")}");
-                Console.WriteLine($"ImageFile: {(dto.ImageFile != null ? dto.ImageFile.FileName : "null")}");
-
                 var existing = await _context.Books
                     .Include(b => b.BookAwards)
                     .Include(b => b.BookFormats)
@@ -194,19 +183,29 @@ namespace ADGroupCW.Services.Implementations
                     return false;
                 }
 
+                // ✅ Fix: Ensure all DateTimes are UTC
+                var publicationDate = DateTime.SpecifyKind(dto.PublicationDate, DateTimeKind.Utc);
+                DateTime? saleStart = dto.SaleStartDate.HasValue
+                    ? DateTime.SpecifyKind(dto.SaleStartDate.Value, DateTimeKind.Utc)
+                    : (DateTime?)null;
+
+                DateTime? saleEnd = dto.SaleEndDate.HasValue
+                    ? DateTime.SpecifyKind(dto.SaleEndDate.Value, DateTimeKind.Utc)
+                    : (DateTime?)null;
+
                 // Update scalar fields
                 existing.Title = dto.Title;
                 existing.Author = dto.Author;
                 existing.ISBN = dto.ISBN;
                 existing.Description = dto.Description;
                 existing.Language = dto.Language;
-                existing.PublicationDate = dto.PublicationDate;
-                existing.Price = dto.Price;
+                existing.PublicationDate = publicationDate;
+                existing.Price = dto.Price ?? 0;
                 existing.OriginalPrice = dto.OriginalPrice;
                 existing.IsAvailableInStore = dto.IsAvailableInStore;
                 existing.IsOnSale = dto.IsOnSale;
-                existing.SaleStartDate = dto.SaleStartDate;
-                existing.SaleEndDate = dto.SaleEndDate;
+                existing.SaleStartDate = saleStart;
+                existing.SaleEndDate = saleEnd;
                 existing.StockCount = dto.StockCount;
 
                 if (dto.ImageFile != null)
@@ -227,12 +226,10 @@ namespace ADGroupCW.Services.Implementations
                 {
                     var genre = await _context.Genres.FindAsync(dto.GenreId.Value);
                     if (genre != null) existing.Genre = genre;
-                    else Console.WriteLine($"[WARN] Genre ID {dto.GenreId} not found");
                 }
                 else if (!string.IsNullOrWhiteSpace(dto.GenreName))
                 {
                     existing.Genre = await GetOrCreateGenreAsync(dto.GenreName);
-                    Console.WriteLine($"[INFO] Created/found genre by name: {dto.GenreName}");
                 }
 
                 // Publisher
@@ -240,12 +237,10 @@ namespace ADGroupCW.Services.Implementations
                 {
                     var publisher = await _context.Publishers.FindAsync(dto.PublisherId.Value);
                     if (publisher != null) existing.Publisher = publisher;
-                    else Console.WriteLine($"[WARN] Publisher ID {dto.PublisherId} not found");
                 }
                 else if (!string.IsNullOrWhiteSpace(dto.PublisherName))
                 {
                     existing.Publisher = await GetOrCreatePublisherAsync(dto.PublisherName);
-                    Console.WriteLine($"[INFO] Created/found publisher by name: {dto.PublisherName}");
                 }
 
                 // Awards
@@ -259,10 +254,6 @@ namespace ADGroupCW.Services.Implementations
                         {
                             existing.BookAwards.Add(new BookAward { Award = award });
                         }
-                        else
-                        {
-                            Console.WriteLine($"[WARN] Award ID {idAward} not found");
-                        }
                     }
                 }
                 if (dto.BookAwardNames != null)
@@ -271,7 +262,6 @@ namespace ADGroupCW.Services.Implementations
                     {
                         var award = await GetOrCreateAwardAsync(name);
                         existing.BookAwards.Add(new BookAward { Award = award });
-                        Console.WriteLine($"[INFO] Added award from name: {name}");
                     }
                 }
 
@@ -286,10 +276,6 @@ namespace ADGroupCW.Services.Implementations
                         {
                             existing.BookFormats.Add(new BookFormat { Format = format });
                         }
-                        else
-                        {
-                            Console.WriteLine($"[WARN] Format ID {idFormat} not found");
-                        }
                     }
                 }
                 if (dto.BookFormatNames != null)
@@ -298,7 +284,6 @@ namespace ADGroupCW.Services.Implementations
                     {
                         var format = await GetOrCreateFormatAsync(name);
                         existing.BookFormats.Add(new BookFormat { Format = format });
-                        Console.WriteLine($"[INFO] Added format from name: {name}");
                     }
                 }
 
@@ -314,6 +299,7 @@ namespace ADGroupCW.Services.Implementations
                 return false;
             }
         }
+
 
 
         public async Task<bool> DeleteBookAsync(int id)
@@ -488,14 +474,32 @@ namespace ADGroupCW.Services.Implementations
 
         public async Task<object> GetHomepageBooksAsync()
         {
+            var now = DateTime.UtcNow;
+
+            // 🔄 1. Disable expired deals
+            var expiredBooks = await _context.Books
+                .Where(b => b.IsOnSale && b.SaleEndDate != null && b.SaleEndDate < now)
+                .ToListAsync();
+
+            foreach (var book in expiredBooks)
+            {
+                book.IsOnSale = false;
+            }
+
+            if (expiredBooks.Any())
+            {
+                await _context.SaveChangesAsync();
+            }
+
+            // ✅ 2. Fetch all books including reviews
             var books = await _context.Books
                 .Include(b => b.Reviews)
                 .ToListAsync();
 
-            // ✅ Random featured books (limit 5)
+            // 🎯 3. Random featured books (limit 6)
             var randomBooks = books
                 .OrderBy(b => Guid.NewGuid())
-                .Take(5)
+                .Take(6)
                 .Select(b => new
                 {
                     b.Id,
@@ -507,7 +511,7 @@ namespace ADGroupCW.Services.Implementations
                 })
                 .ToList();
 
-            // ✅ Book of the Month (highest average rating)
+            // 🌟 4. Book of the Month (highest average rating)
             var bookOfTheMonth = books
                 .Where(b => b.Reviews.Any())
                 .OrderByDescending(b => b.Reviews.Average(r => r.Rating))
@@ -522,13 +526,34 @@ namespace ADGroupCW.Services.Implementations
                 })
                 .FirstOrDefault();
 
-            // ✅ Final combined result
+            // ⚠️ 5. Fallback: If no book has reviews, select a random book that is on sale
+            var fallbackBook = bookOfTheMonth;
+            if (fallbackBook == null)
+            {
+                fallbackBook = books
+                    .Where(b => b.IsOnSale && b.StockCount > 0)
+                    .OrderBy(b => Guid.NewGuid())
+                    .Select(b => new
+                    {
+                        b.Id,
+                        b.Title,
+                        Author = b.Author,
+                        ImageUrl = b.ImageUrl,
+                        Price = b.Price,
+                        AverageRating = 0.0 // No reviews, so set to 0
+                    })
+                    .FirstOrDefault();
+            }
+
+            // 📦 6. Return the response
             return new
             {
                 RandomBooks = randomBooks,
-                BookOfTheMonth = bookOfTheMonth
+                BookOfTheMonth = fallbackBook
             };
         }
+
+
 
 
 

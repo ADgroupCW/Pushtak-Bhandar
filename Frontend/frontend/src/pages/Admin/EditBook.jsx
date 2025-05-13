@@ -97,44 +97,63 @@ const EditBook = () => {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const fd = new FormData();
+  e.preventDefault();
 
-      // List of scalar fields
-      const scalarFields = [
-        'title', 'author', 'isbn', 'description', 'language',
-        'publicationDate', 'price', 'originalPrice',
-        'isAvailableInStore', 'isOnSale', 'saleStartDate',
-        'saleEndDate', 'stockCount', 'genreId', 'publisherId'
-      ];
+  const start = new Date(book.saleStartDate);
+  const end = new Date(book.saleEndDate);
+  const price = parseFloat(book.price);
+  const originalPrice = parseFloat(book.originalPrice);
 
-      // Append scalar fields
-      scalarFields.forEach(field => {
-        const value = book[field];
-        fd.append(field, value ?? '');
-      });
+  // Validate sale dates
+  if (book.isOnSale && start > end) {
+    alert('❌ Sale End Date cannot be before Sale Start Date.');
+    return;
+  }
 
-      // Append arrays using correct format
-      book.bookAwardIds.forEach(id => fd.append('bookAwardIds[]', id));
-      book.bookFormatIds.forEach(id => fd.append('bookFormatIds[]', id));
+  // Validate price
+  if (price > originalPrice) {
+    alert('❌ Current Price should not be greater than Original Price.');
+    return;
+  }
 
-      // Append image file if present
-      if (imageFile) {
-        fd.append('imageFile', imageFile);
-      }
+  try {
+    const fd = new FormData();
 
-      // Submit PUT request
-      await api.put(`/Book/${id}`, fd, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
+    const scalarFields = [
+      'title', 'author', 'isbn', 'description', 'language',
+      'publicationDate', 'price', 'originalPrice',
+      'isAvailableInStore', 'isOnSale', 'saleStartDate',
+      'saleEndDate', 'stockCount', 'genreId', 'publisherId'
+    ];
 
-      navigate('/admin/books');
-    } catch (err) {
-      console.error(err);
-      alert('Update failed.');
+    scalarFields.forEach(field => {
+      const value = book[field];
+      fd.append(field, value ?? '');
+    });
+
+    book.bookAwardIds.forEach(id => fd.append('bookAwardIds[]', id));
+    book.bookFormatIds.forEach(id => fd.append('bookFormatIds[]', id));
+
+    if (imageFile) {
+      fd.append('imageFile', imageFile);
     }
-  };
+
+    console.log('📝 Submitting FormData content:');
+    for (let pair of fd.entries()) {
+      console.log(`${pair[0]}:`, pair[1]);
+    }
+
+    await api.put(`/book/${id}`, fd, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+
+    navigate('/admin/books');
+  } catch (err) {
+    console.error(err);
+    alert('Update failed.');
+  }
+};
+
 
   if (loading) {
     return (
@@ -526,14 +545,7 @@ const EditBook = () => {
             </div>
           </div>
 
-          <div className="form-actions">
-            <button type="button" className="btn-secondary" onClick={() => navigate('/admin/books')}>
-              Cancel
-            </button>
-            <button type="button" className="btn-primary" onClick={handleSubmit}>
-              Save
-            </button>
-          </div>
+          
         </div>
 
         {/* Modal for adding new items */}
